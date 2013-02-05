@@ -14,6 +14,7 @@ _skillBonuses = DiceParse.Table(path.join(location,'tables','SkillBonus.txt'))
 class Character(object):
     def __init__(self):
         self.LinkedVals = []
+        self.Links = []
         self._lookup = {}
         self.MiscVals = {
             'Name':'',
@@ -47,20 +48,34 @@ class Character(object):
         Also, links the parent values together.
         Raises the 'Skill Added','Stat Added', or 'Resistance Added' event.
         """
-        #Finds parents of the current value, swaps the string name for the parent Value.
-        for i in range(len(newVal.Parents)):
-            if newVal.Parents[i] in self._lookup:
-                parent = self._lookup[newVal.Parents[i]]
-                newVal.Parents[i] = parent
-                parent.Children.append(newVal)
-
-        #Adds the new value to self.LinkedVals, by all names
+        newVal.char = self
+        self.LinkVal(newVal)
         self.LinkedVals.append(newVal)
-        for n in newVal.Names:
-            self._lookup[n] = newVal
-        valType = {Skill:'Skill',Stat:'Stat',Resistance:'Resistance'}[type(newVal)]
-        self.Events('{0} Removed'.format(valType),newVal)
+
+        self.Events('{0} Added'.format(newVal.Type),newVal)
         newVal.Events = self.Events
+    def RelinkAllVals(self):
+        """
+        Clears, then remakes all parent-child links based on the
+        requested link from each Value.
+        """
+        self._lookup.clear()
+        self.Links.clear()
+        for val in self.LinkedVals:
+            self.LinkVal(val)
+    def LinkVal(self,val):
+        """
+        Looks up the requested parents and requested children.
+        If found, adds them to the list of Links as (parent,child) tuples.
+        """
+        for reqPar in val.requestedParents:
+            if reqPar in self._lookup:
+                self.Links.append( (self._lookup[reqPar],val) )
+        for reqCh in val.requestedChildren:
+            if reqCh in self._lookup:
+                self.Links.append( (val,self._lookup[reqCh]) )
+        for n in val.Names:
+            self._lookup[n] = val
     def RemoveVal(self,val):
         """
         Removes the value given.
@@ -70,8 +85,7 @@ class Character(object):
         self.LinkedVals.remove(val)
         for ch in val.Children:
             self.RemoveVal(ch)
-        valType = {Skill:'Skill',Stat:'Stat',Resistance:'Resistance'}[type(val)]
-        self.Events('{0} Removed'.format(valType),val)
+        self.Events('{0} Removed'.format(val.Type),val)
     def SaveString(self):
         lines = ['{0}: {1}'.format(k,v) for k,v in self.MiscVals.items()]
         lines += [val.SaveString() for val in self.LinkedVals]
@@ -130,12 +144,13 @@ class Value(object):
     Can have an EventHandler to give notification when the value is changed.
     Subclasses change eventKey to change the key passed to the EventHandler
     """
-    eventKey = 'Value Changed'
-    def __init__(self,Value,Names=None,Parents=None,Options=None):
+    Type = 'Value'
+    def __init__(self,Value,Names=None,Parents=None,Children=None,Options=None):
         self.Events = lambda *args:None
+        self.char = None
         self.Names = [] if Names is None else Names
-        self.Parents = [] if Parents is None else Parents
-        self.Children = []
+        self.requestedParents = [] if Parents is None else Parents
+        self.requestedChildren = [] if Children is None else Children
         self.Options = [] if Options is None else Options
         self.Value = Value
     @property
@@ -145,6 +160,18 @@ class Value(object):
     def ShortestName(self):
         return min(self.Names,key=len)
     @property
+    def Parents(self):
+        if self.char is not None:
+            for par,ch in self.char.Links:
+                if self is ch:
+                    yield par
+    @property
+    def Children(self):
+        if self.char is not None:
+            for par,ch in self.char.Links:
+                if self is par:
+                    yield ch
+    @property
     def Value(self):
         return 0 if self._value is None else self._value
     @Value.setter
@@ -152,7 +179,7 @@ class Value(object):
         self._value = val
         self.Changed()
     def Changed(self):
-        self.Events(self.eventKey,self)
+        self.Events(self.Type+' Changed',self)
         for ch in self.Children:
             ch.Changed()
     @property
@@ -165,8 +192,9 @@ class Value(object):
     def SaveString(self):
         nicks = (' (' + ', '.join(self.Names[1:]) + ')'
                  if len(self.Names)>1 else '')
-        pars = (' {' + ', '.join(par.ShortestName for par in self.Parents) + '}'
-                if self.Parents else '')
+        parnames = [par.ShortestName for par in self.Parents]
+        pars = (' {' + ', '.join(parnames) + '}'
+                if parnames else '')
         opts = (' [' + ', '.join(self.Options) + ']'
                 if self.Options else '')
         val = (': ' + str(self._value)
@@ -174,16 +202,16 @@ class Value(object):
         return self.Name + nicks + pars + opts + val
 
 class Stat(Value):
-    eventKey = 'Stat Changed'
+    Type = 'Stat'
     @property
     def SelfBonus(self):
         return 0 if 'NoBonus' in self.Options else _statBonuses(self.Value)
 
 class Resistance(Value):
-    eventKey = 'Resistance Changed'
+    Type = 'Resistance'
 
 class Skill(Value):
-    eventKey = 'Skill Changed'
+    Type = 'Skill'
     @property
     def SelfBonus(self):
         return 0 if 'NoBonus' in self.Options else _skillBonuses(self.Value)

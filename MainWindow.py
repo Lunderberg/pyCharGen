@@ -32,7 +32,8 @@ class MainWindow(object):
         self.b.get_object('playerName').connect('changed',self.FromPlayerNameChange)
         self.b.get_object('experience').connect('changed',self.FromXPChange)
         self.b.get_object('skillView').connect('button-press-event',self.FromSkillRightClick)
-        self.b.get_object('rcAddSkill').connect('button-press-event',self.FromAddSkill)
+        self.b.get_object('rcAddChildSkill').connect('button-press-event',self.FromAddChildSkill)
+        self.b.get_object('rcAddSiblingSkill').connect('button-press-event',self.FromAddSiblingSkill)
         self.b.get_object('rcDeleteSkill').connect('button-press-event',self.FromRemoveSkill)
         self.SetUpStatView()
         self.SetUpSkillView()
@@ -70,10 +71,11 @@ class MainWindow(object):
         #Register the updating functions
         self.registered = [
             ('Stat Changed',self.statStore.OnStatChange),
-            ('Stat Changed',self.statStore.UpdateStat),
+            ('Stat Changed',self.OnStatChange),
+            ('Skill Added',self.skillStore.OnSkillAdd),
             ('Skill Changed',self.skillStore.OnSkillChange),
             ('Resistance Changed',self.OnResistanceChange),
-            ('Skill Removed',self.skillStore.OnSkillRemove)
+            ('Skill Removed',self.skillStore.OnSkillRemove),
             ]
         for key,func in self.registered:
             self.char.Events.Register(key,func)
@@ -147,6 +149,8 @@ class MainWindow(object):
             self.resistanceWidgets[res.Name] = value_holder
             resTable.attach(value_holder,1,2,i,i+1)
         resTable.show_all()
+    def OnStatChange(self,stat):
+        self.UpdateStat(stat)
     def OnResistanceChange(self,res):
         try:
             self.resistanceWidgets[res.Name].set_text(str(res.Bonus))
@@ -177,9 +181,15 @@ class MainWindow(object):
             self.clicked_path = path
             self.b.get_object('rcSkillMenu').popup(
                 None,None,None,event.button,event.time)
-    def FromAddSkill(self,*args):
-        pass
-    def FromRemoveSkill(self,widget,event):
+    def FromAddChildSkill(self,*args):
+        sk = self.skillStore[self.clicked_path][0]
+        newSkill = Character.Skill(0,Names=['New Skill'],Parents=[sk.Name])
+        self.char.AddVal(newSkill)
+    def FromAddSiblingSkill(self,*args):
+        sk = self.skillStore[self.clicked_path][0]
+        newSkill = Character.Skill(0,Names=['New Skill'],Parents = sk.requestedParents)
+        self.char.AddVal(newSkill)
+    def FromRemoveSkill(self,*args):
         sk = self.skillStore[self.clicked_path][0]
         dialog = gtk.Dialog('Are you sure?', self.window,
                             gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,

@@ -52,9 +52,13 @@ class TestStatSkill(unittest.TestCase):
         testSkill.Value = 35
         self.assertEqual(testSkill.SelfBonus,105)
     def test_parentage(self):
-        par1 = Character.Stat(100)
-        par2 = Character.Skill(25)
-        child = Character.Skill(1,Parents=[par1,par2])
+        c = Character.Character()
+        par1 = Character.Stat(100,Names=['name1'])
+        c.AddVal(par1)
+        par2 = Character.Skill(25,Names=['name2'])
+        c.AddVal(par2)
+        child = Character.Skill(1,Parents=['name1','name2'])
+        c.AddVal(child)
         self.assertEqual(child.Bonus,child.SelfBonus+par1.SelfBonus+par2.SelfBonus)
 
 class TestChar(unittest.TestCase):
@@ -120,11 +124,15 @@ class TestStringOut(unittest.TestCase):
     def setUp(self):
         self.char = Character.Character.Open(charfile)
     def test_value_strings(self):
+        char = Character.Character()
         par1 = Character.Value(0,['L O N G  N A M E','short'])
+        char.AddVal(par1)
         par2 = Character.Value(0,['SD','Self Discipline'])
+        char.AddVal(par2)
         v = Character.Value(5,['test'])
         self.assertEqual(v.SaveString(),'test: 5')
-        v.Parents = [par1,par2]
+        v.requestedParents = ['L O N G  N A M E','SD']
+        char.AddVal(v)
         self.assertEqual(v.SaveString(),'test {short, SD}: 5')
         v.Options = ['NoBonus']
         v.Value = None

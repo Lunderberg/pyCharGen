@@ -91,7 +91,16 @@ class SkillStore(gtk.TreeStore,object):
                  self.col('SelfBonus'),sk.SelfBonus,
                  self.col('Bonus'),sk.Bonus)
     def OnSkillAdd(self,skill):
-        print 'Add skill here'
+        pars = list(skill.Parents)
+        for skIter in self.IterAll:
+            if self.get(skIter,self.col('Skill'))[0] in pars:
+                parIter = skIter
+                break
+        else:
+            parIter = None
+        chIter = self.append(parIter)
+        self.set(chIter,self.col('Skill'),skill)
+        self.UpdateSkill(chIter)
     def OnSkillChange(self,skill):
         for skIter in self.IterAll:
             if skill is self.get(skIter,self.col('Skill'))[0]:

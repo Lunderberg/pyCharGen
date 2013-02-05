@@ -883,6 +883,9 @@
                                 <child>
                                   <placeholder/>
                                 </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
                               </object>
                             </child>
                           </object>
@@ -918,6 +921,78 @@
                                 <property name="can_focus">False</property>
                                 <property name="n_rows">12</property>
                                 <property name="n_columns">2</property>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
                                 <child>
                                   <placeholder/>
                                 </child>
@@ -2131,11 +2206,20 @@
     <property name="visible">True</property>
     <property name="can_focus">False</property>
     <child>
-      <object class="GtkMenuItem" id="rcAddSkill">
+      <object class="GtkMenuItem" id="rcAddChildSkill">
         <property name="use_action_appearance">False</property>
         <property name="visible">True</property>
         <property name="can_focus">False</property>
-        <property name="label" translatable="yes">Add Skill</property>
+        <property name="label" translatable="yes">Add Child Skill</property>
+        <property name="use_underline">True</property>
+      </object>
+    </child>
+    <child>
+      <object class="GtkMenuItem" id="rcAddSiblingSkill">
+        <property name="use_action_appearance">False</property>
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <property name="label" translatable="yes">Add Sibling Skill</property>
         <property name="use_underline">True</property>
       </object>
     </child>

@@ -1,0 +1,10 @@
+Allow for changing of Names/Nicknames of Stats/Skills.
+Allow for changing of parent skills of Stats/Skills.
+      Click/drag to reassign skill parent.
+      Retype stat parents to modify
+Have some method for modifying resistances.
+Have GUI for Stats on overview page be generated on the fly, allowing for different skill sets.
+Improve flexibility on item parsing from character file.
+	Should not require () {} [] in a particular order.
+	Should allow for repeated blocks of () {} [].
+	Should validate for compatible options.
