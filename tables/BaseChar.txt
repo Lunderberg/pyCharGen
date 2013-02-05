@@ -1,0 +1,339 @@
+Name: 
+Player Name:
+Profession:
+Race:
+Culture:
+Level:
+Experience:
+
+Format:  "Name (Nickname1, Nickname2, ...) {Parent1, Parent2, ...} [Opt1, Opt2, ...]: Value
+Options: "Stat"    - Indicates that the value is a stat.
+	 "Skill"   - Indicates that the value is a skill.
+	 "NoBonus" - For a skill, indicates that no ranks can be spent.
+	             Used for skill categories that have no allowed specializations.
+		     Used for the Realm stat.
+
+Stats
+------------------------
+Agility	(Ag) [Stat]: 50
+Constitution (Co) [Stat]: 50
+Empathy (Em) [Stat]: 50
+Intuition (In) [Stat]: 50
+Memory (Me) [Stat]: 50
+Presence (Pr) [Stat]: 50
+Quickness (Qu) [Stat]: 50
+Reasoning (Re) [Stat]: 50
+Self Discipline (SD) [Stat]: 50
+Strength (St) [Stat]: 50
+Realm [Stat, NoBonus]: 0
+
+Resistances
+------------------------
+Poison {Co, Co, SD} [Resistance, NoBonus]
+Disease {Co, Co, SD} [Resistance, NoBonus]
+Fear {SD, SD, Re} [Resistance, NoBonus]
+Channeling {In, In, SD} [Resistance, NoBonus]
+Essence {Em, Em, SD} [Resistance, NoBonus]
+Mentalism {Pr, Pr, SD} [Resistance, NoBonus]
+
+Skills
+------------------------
+Linguistics {Me, Me, Re} [Skill, NoBonus]
+  Language, Written {Linguistics} [Skill]: 0
+  Language, Spoken {Linguistics} [Skill]: 0
+  Language, Signed {Linguistics} [Skill]: 0
+  Flag Signaling {Linguistics} [Skill]: 0
+
+Lore {Me, Me, Re} [Skill, NoBonus]
+  Region, Own {Lore} [Skill]: 0
+  Region, Other {Lore} [Skill]: 0
+  Artifact Lore {Lore} [Skill]: 0
+  Demon Lore {Lore} [Skill]: 0
+  Dragon Lore {Lore} [Skill]: 0
+  Faerie Lore {Lore} [Skill]: 0
+  Fauna Lore {Lore} [Skill]: 0
+  Flora Lore {Lore} [Skill]: 0
+  Heraldry {Lore} [Skill]: 0
+  History {Lore} [Skill]: 0
+  Human Lore {Lore} [Skill]: 0
+  Metal Lore {Lore} [Skill]: 0
+  Religious Lore {Lore} [Skill]: 0
+  Spell Lore {Lore} [Skill]: 0
+  Stone Lore {Lore} [Skill]: 0
+  Symbol Lore {Lore} [Skill]: 0
+  Wood Lore {Lore} [Skill]: 0
+  Undead Lore {Lore} [Skill]: 0
+  Other, Specify {Lore} [Skill]: 0
+
+Science {Me, Re, Re} [Skill, NoBonus]
+  Research {Science} [Skill]: 0
+  Mathematics {Science} [Skill]: 0
+  Archeology {Science} [Skill]: 0
+  Architecture {Science} [Skill]: 0
+  Astronomy {Science} [Skill]: 0
+  Chemistry {Science} [Skill]: 0
+  Biology {Science} [Skill]: 0
+  Physics {Science} [Skill]: 0
+
+Body Development {Co, Co, SD} [Skill]: 0
+
+Gymnastic {Ag, Qu, St} [Skill, NoBonus]
+  Acrobatics {Gymnastic} [Skill]: 0
+  Jumping {Gymnastic} [Skill]: 0
+  Power Training {Gymnastic} [Skill]: 0
+  Contortions {Gymnastic} [Skill]: 0
+  Dance {Gymnastic} [Skill]: 0
+  Diving {Gymnastic} [Skill]: 0
+  Downhill Skiing {Gymnastic} [Skill]: 0
+  Gymnastic-based Sports {Gymnastic} [Skill]: 0
+  Pole-Vaulting {Gymnastic} [Skill]: 0
+  Surfing {Gymnastic} [Skill]: 0
+
+Movement {Ag, Co, St} [Skill, NoBonus]
+  Climbing {Movement} [Skill]: 0
+  Flying/Gliding {Movement} [Skill]: 0
+  Running {Movement} [Skill]: 0
+  Swimming {Movement} [Skill]: 0
+  Cross-country Skiing {Movement} [Skill]: 0
+  Rowing {Movement} [Skill]: 0
+  Skating {Movement} [Skill]: 0
+  Stilt Walking {Movement} [Skill]: 0
+  Tightrope Walking {Movement} [Skill]: 0
+
+Combat Training [Skill, NoBonus]
+  Unarmed {Combat Training, Ag, St, St} [Skill, NoBonus]
+    Martial Arts Strikes {Unarmed} [Skill]: 0
+    Martial Arts Sweeps {Unarmed} [Skill]: 0
+    Grappling {Unarmed} [Skill]: 0
+    Bites {Unarmed} [Skill]: 0
+    Claws {Unarmed} [Skill]: 0
+  Melee {Combat Training, Ag, St, St} [Skill, NoBonus]
+    Broad Sword {Melee} [Skill]: 0
+    Spear {Melee} [Skill]: 0
+    War Hammer {Melee} [Skill]: 0
+    Two-handed Sword {Melee} [Skill]: 0
+  Thrown {Combat Training, Ag, Ag, St} [Skill, NoBonus]
+    Dagger {Thrown} [Skill]: 0
+    Spear {Thrown} [Skill]: 0
+    Bola {Thrown} [Skill]: 0
+  Missile {Combat Training, Ag, Ag, St} [Skill, NoBonus]
+    Long Bow {Missile} [Skill]: 0
+    Sling {Missile} [Skill]: 0
+    Light Crossbow {Missile} [Skill]: 0
+  Directed Spell {Combat Training, Ag, SD, Realm} [Skill, NoBonus]
+    Elemental Bolts {Directed Spell} [Skill]: 0
+    Illusion Strikes {Directed Spell} [Skill]: 0
+  Siege Weapons {Combat Training, Re, SD, In} [Skill, NoBonus]
+    Catapult {Siege Weapons} [Skill]: 0
+    Ballistae {Siege Weapons} [Skill]: 0
+    Trebuchet {Siege Weapons} [Skill]: 0
+  Firearms {Combat Training, Ag, St, SD} [Skill, NoBonus]
+    Musket {Firearms} [Skill]: 0
+    Rifle {Firearms} [Skill]: 0
+    Blunderbuss {Firearms} [Skill]: 0
+    Pistol {Firearms} [Skill]: 0
+  Energy Weapons {Combat Training, Ag, Ag, SD} [Skill, NoBonus]
+    Laser Rifle {Energy Weapons} [Skill]: 0
+    Plasma Pistol {Energy Weapons} [Skill]: 0
+    Essence Lance {Energy Weapons} [Skill]: 0
+
+Combat Expertise [Skill, NoBonus]
+  Disarm {Combat Expertise} [Skill]: 0
+  Maneuver in Armor {Combat Expertise} [Skill]: 0
+  Mounted Combat {Combat Expertise} [Skill]: 0
+  Multiple Attacks {Combat Expertise} [Skill]: 0
+  Protect {Combat Expertise} [Skill]: 0
+  Restricted Quarters Fighting {Combat Expertise} [Skill]: 0
+  Reverse Stroke {Combat Expertise} [Skill]: 0
+  Subdual {Combat Expertise} [Skill]: 0
+
+Shield {Ag, St, St} [Skill]: 0
+
+Body Discipline {Co, SD, SD} [Skill, NoBonus]
+  Adrenal Focus {Body Discipline} [Skill]: 0
+  Mind over Matter {Body Discipline} [Skill]: 0
+  Physical Psionics {Body Discipline} [Skill]: 0
+
+Mental Discipline {SD, SD, Pr} [Skill, NoBonus]
+  Meditation {Mental Discipline} [Skill]: 0
+  Mental Psionics {Mental Discipline} [Skill]: 0
+  Control Lycanthropy {Mental Discipline} [Skill]: 0
+
+Delving {Em, In, Pr} [Skill, NoBonus]
+  Attunement {Delving} [Skill]: 0
+  Runes {Delving} [Skill]: 0
+
+Magical Expertise [Skill, NoBonus]
+  Grace {Magical Expertise} [Skill]: 0
+  Spell Trickery {Magical Expertise} [Skill]: 0
+  Transendence {Magical Expertise} [Skill]: 0
+
+Power Manipulation {Em, In, Pr} [Skill, NoBonus]
+  Channeling {Power Manipulation} [Skill]: 0
+  Power Projection {Power Manipulation} [Skill]: 0
+
+Animal Handling {Re, Em, Pr} [Skill, NoBonus]
+  Horse {Animal Handling} [Skill]: 0
+  Cow {Animal Handling} [Skill]: 0
+  Other, Specify {Animal Handling} [Skill]: 0
+
+Riding {Ag, Em, Pr} [Skill, NoBonus]
+  Horse {Riding} [Skill]: 0
+  Dragon {Riding} [Skill]: 0
+  Other, Specify {Riding} [Skill]: 0
+
+Driving/Pilot {Ag, SD, Qu} [Skill, NoBonus]
+  Sailing Ship {Driving/Pilot} [Skill]: 0
+  Car {Driving/Pilot} [Skill]: 0
+  Glider {Driving/Pilot} [Skill]: 0
+  Blimp {Driving/Pilot} [Skill]: 0
+
+Survival {Re, Me, In} [Skill, NoBonus]
+  Artic {Survival} [Skill]: 0
+  Desert {Survival} [Skill]: 0
+  Ocean {Survival} [Skill]: 0
+  Swamp {Survival} [Skill]: 0
+  Temperate Forest {Survival} [Skill]: 0
+  Tropical Forest {Survival} [Skill]: 0
+  Urban {Survival} [Skill]: 0
+
+Navigation {Me, Re, In} [Skill, NoBonus]
+  Astral {Navigation} [Skill]: 0
+  Marine {Navigation} [Skill]: 0
+  Planar {Navigation} [Skill]: 0
+  Terrestrial {Navigation} [Skill]: 0
+  Underground {Navigation} [Skill]: 0
+
+Perception {Re, SD, In} [Skill]: 0
+
+Tracking {Re, In, Em} [Skill]: 0
+
+Influence {Em, In, Pr} [Skill, NoBonus]
+  Charm {Influence} [Skill]: 0
+  Duping {Influence} [Skill]: 0
+  Intimidation {Influence} [Skill]: 0
+  Trading {Influence} [Skill]: 0
+  Bribery {Influence} [Skill]: 0
+
+Leadership {Em, Pr, Pr} [Skill]: 0
+
+Social Awareness {Em, Re, In} [Skill]: 0
+
+Magic Ritual {Realm, Realm, Me} [Skill, NoBonus]
+  Alteration {Magic Ritual} [Skill]: 0
+  Creation {Magic Ritual} [Skill]: 0
+  Defensive {Magic Ritual} [Skill]: 0
+  Destruction {Magic Ritual} [Skill]: 0
+  Elemental {Magic Ritual} [Skill]: 0
+  Healing {Magic Ritual} [Skill]: 0
+  Informational {Magic Ritual} [Skill]: 0
+  Summoning/Transportation {Magic Ritual} [Skill]: 0
+
+Power Development {Realm, Realm, Co} [Skill]: 0
+
+Base/Open Spells {Realm, Realm, Me} [Skill, NoBonus]
+  Base/Open List A {Base/Open Spells} [Skill]: 0
+  Base/Open List B {Base/Open Spells} [Skill]: 0
+  Base/Open List C {Base/Open Spells} [Skill]: 0
+
+Closed Spells {Realm, Realm, Me} [Skill, NoBonus]
+  Closed List A {Closed Spells} [Skill]: 0
+  Closed List B {Closed Spells} [Skill]: 0
+  Closed List C {Closed Spells} [Skill]: 0
+
+Arcane Spells {Em, Pr, In} [Skill, NoBonus]
+  Arcane List A {Arcane Spells} [Skill]: 0
+  Arcane List B {Arcane Spells} [Skill]: 0
+  Arcane List C {Arcane Spells} [Skill]: 0
+
+Restricted Spells {Realm, Realm, Me} [Skill, NoBonus]
+  Restricted List A {Restricted Spells} [Skill]: 0
+  Restricted List B {Restricted Spells} [Skill]: 0
+  Restricted List C {Restricted Spells} [Skill]: 0
+
+Ambush {Ag, SD, Qu} [Skill, NoBonus]
+  Melee {Ambush} [Skill]: 0
+  Ranged {Ambush} [Skill]: 0
+  Thrown {Ambush} [Skill]: 0
+  Unarmed {Ambush} [Skill]: 0
+
+Stalk/Hide {Ag, SD, In} [Skill]: 0
+
+Trickery {Ag, In, Pr} [Skill, NoBonus]
+  Pick Pockets {Trickery} [Skill]: 0
+  Stage Magic {Trickery} [Skill]: 0
+  Sleight of Hand {Trickery} [Skill]: 0
+  Card/Dice Cheating {Trickery} [Skill]: 0
+
+Composition {Me, Re, Re} [Skill, NoBonus]
+  Musical Scoring {Composition} [Skill]: 0
+  Reporting {Composition} [Skill]: 0
+  Speech Writing {Composition} [Skill]: 0
+  Song Writer {Composition} [Skill]: 0
+  Playwright {Composition} [Skill]: 0
+
+Crafting {Ag, SD, Me} [Skill, NoBonus]
+  Brewing {Crafting} [Skill]: 0
+  Camouflage {Crafting} [Skill]: 0
+  Carpentry {Crafting} [Skill]: 0
+  Ceramics {Crafting} [Skill]: 0
+  Cooking {Crafting} [Skill]: 0
+  Copper-smith {Crafting} [Skill]: 0
+  Disguise/Costumes {Crafting} [Skill]: 0
+  Drafting {Crafting} [Skill]: 0
+  Drawing {Crafting} [Skill]: 0
+  Falsification {Crafting} [Skill]: 0
+  Fletching {Crafting} [Skill]: 0
+  Leather-working {Crafting} [Skill]: 0
+  Mapping {Crafting} [Skill]: 0
+  Masonry {Crafting} [Skill]: 0
+  Painting {Crafting} [Skill]: 0
+  Smithing {Crafting} [Skill]: 0
+  Scribing {Crafting} [Skill]: 0
+  Sculpting {Crafting} [Skill]: 0
+  Sewing {Crafting} [Skill]: 0
+  Tanning {Crafting} [Skill]: 0
+  Trap building {Crafting} [Skill]: 0
+  Weaving {Crafting} [Skill]: 0
+  Wood-carving {Crafting} [Skill]: 0
+
+Mechanical {Ag, Re, In} [Skill, NoBonus]
+  Locks {Mechanical} [Skill]: 0
+  Traps {Mechanical} [Skill]: 0
+  Gimmickry {Mechanical} [Skill]: 0
+  Other equipment, specify {Mechanical} [Skill]: 0
+
+Medical {Me, Re, In} [Skill, NoBonus]
+  Diagnostics {Medical} [Skill]: 0
+  First Aid {Medical} [Skill]: 0
+  Herbalism {Medical} [Skill]: 0
+  Poison {Medical} [Skill]: 0
+  Midwifery {Medical} [Skill]: 0
+  Surgery {Medical} [Skill]: 0
+  Pharmacology {Medical} [Skill]: 0
+  Dentistry {Medical} [Skill]: 0
+
+Performance Art {Me, Em, Pr} [Skill, NoBonus]
+  Acting {Performance Art} [Skill]: 0
+  Divination {Performance Art} [Skill]: 0
+  Mimery {Performance Art} [Skill]: 0
+  Instrument, Specify {Performance Art} [Skill]: 0
+  Poetic Improvisation {Performance Art} [Skill]: 0
+  Singing {Performance Art} [Skill]: 0
+  Tale Telling {Performance Art} [Skill]: 0
+
+Vocation {Em, Me, Re} [Skill, NoBonus]
+  Advertising {Vocation} [Skill]: 0
+  Barber {Vocation} [Skill]: 0
+  Begging {Vocation} [Skill]: 0
+  Caving {Vocation} [Skill]: 0
+  Farmer {Vocation} [Skill]: 0
+  Guide {Vocation} [Skill]: 0
+  Military Organization {Vocation} [Skill]: 0
+  Miner {Vocation} [Skill]: 0
+  Sailing {Vocation} [Skill]: 0
+  Scribing {Vocation} [Skill]: 0
+  Seneschal {Vocation} [Skill]: 0
+  Teacher {Vocation} [Skill]: 0
+  Trapper {Vocation} [Skill]: 0
+  Valet {Vocation} [Skill]: 0

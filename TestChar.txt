@@ -1,0 +1,43 @@
+Name: Grognar
+PlayerName: Grog
+Profession: Fighter
+Race: Troll
+Culture: Hobbit
+Level: 3
+Experience: 12345
+
+Format:  "Name (Nickname1, Nickname2, ...) {Parent1, Parent2, ...} [Opt1, Opt2, ...]: Value
+Options: "Stat"    - Indicates that the value is a stat.
+	 "Skill"   - Indicates that the value is a skill.
+	 "NoRanks" - For a skill, indicates that no ranks can be spent.
+	             Used for skill categories that have no allowed specializations.
+
+Stats
+------------------------
+Agility	(Ag) [Stat]: 1
+Constitution (Co) [Stat]: 100
+Empathy (Em) [Stat]: 95
+Intuition (In) [Stat]: 90
+Memory (Me) [Stat]: 50
+Presence (Pr) [Stat]: 50
+Quickness (Qu) [Stat]: 40
+Reasoning (Re) [Stat]: 100
+Self Discipline (SD) [Stat]: 97
+Strength (St) [Stat]: 73
+
+Resistances
+------------------------
+Poison {Co, Co, SD} [Resistance, NoBonus]
+Disease {Co, Co, SD} [Resistance, NoBonus]
+Fear {SD, SD, Re}  [Resistance, NoBonus]
+Channeling {In, In, SD} [Resistance, NoBonus]
+Essence {Em, Em, SD} [Resistance, NoBonus]
+Mentalism {Pr, Pr, SD} [Resistance, NoBonus]
+
+Skills
+------------------------
+Linguistics {Me, Me, Re} [Skill, NoBonus]
+Common {Linguistics} [Skill]: 2
+Elvish {Linguistics} [Skill]: 1
+Lore {Me, Me, Re} [Skill, NoBonus]
+Science {Me, Re, Re} [Skill]: 2
