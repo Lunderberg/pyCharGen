@@ -28,6 +28,12 @@ class Character(object):
         self.Events = EventHandler()
     def __getitem__(self,key):
         return self._lookup[key]
+    def SetMisc(self,key,val):
+        if key in self.MiscVals:
+            self.MiscVals[key] = val
+            self.Events('Misc Changed')
+        else:
+            raise KeyError(val)
     def __getattr__(self,key):
         try:
             return self.MiscVals[key]
@@ -106,10 +112,10 @@ class Character(object):
             if res:
                 name,val = res.group('name','val')
                 if name in ['Name','PlayerName','Profession','Race','Culture']:
-                    c.MiscVals[name] = val
+                    c.SetMisc(name,val)
                 elif name in ['Level','Experience']:
                     try:
-                        c.MiscVals[name] = int(val)
+                        c.SetMisc(name,int(val))
                     except ValueError:
                         pass
 
@@ -156,6 +162,10 @@ class Value(object):
     @property
     def Name(self):
         return self.Names[0]
+    @Name.setter
+    def Name(self,val):
+        self.Names[0] = val
+        self.Changed()
     @property
     def ShortestName(self):
         return min(self.Names,key=len)

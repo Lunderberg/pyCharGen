@@ -71,6 +71,7 @@ class MainWindow(object):
         #Register the updating functions
         self.registered = [
             ('Stat Changed',self.statStore.OnStatChange),
+            ('Misc Changed',self.UpdateMisc),
             ('Stat Changed',self.OnStatChange),
             ('Skill Added',self.skillStore.OnSkillAdd),
             ('Skill Changed',self.skillStore.OnSkillChange),
@@ -114,12 +115,22 @@ class MainWindow(object):
         self.skillStore = SkillStore(self.char)
         self.skillView.set_model(self.skillStore)
         self.BuildResistanceTable(self.char)
+        self.UpdateMisc()
+    def UpdateMisc(self,*args):
+        self.b.get_object('playerName').set_text(self.char.PlayerName)
+        self.b.get_object('characterName').set_text(self.char.Name)
+        self.b.get_object('profName').set_text(self.char.Profession)
+        self.b.get_object('raceName').set_text(self.char.Race)
+        self.b.get_object('cultureName').set_text(self.char.Culture)
+        self.b.get_object('charLevel').set_text(str(self.char.Level))
+        self.b.get_object('experience').set_text(str(self.char.Experience))
     def SetUpStatView(self):
         """
         Builds the TreeView for the stats.
         """
         self.statView = self.b.get_object('statView')
-        AddTextColumn(self.statView,'Name',StatStore.col('Name'))
+        AddTextColumn(self.statView,'Name',StatStore.col('Name'),
+                      editable=self.FromEditStatCell)
         AddTextColumn(self.statView,'Temp',StatStore.col('Temporary'),
                       editable=self.FromEditStatCell)
         AddTextColumn(self.statView,'SelfBonus',StatStore.col('SelfBonus'))
@@ -129,7 +140,8 @@ class MainWindow(object):
         Builds the TreeView for the skills.
         """
         self.skillView = self.b.get_object('skillView')
-        AddTextColumn(self.skillView,'Name',SkillStore.col('Name'))
+        AddTextColumn(self.skillView,'Name',SkillStore.col('Name'),
+                      editable=self.FromEditSkillCell)
         AddTextColumn(self.skillView,'Ranks',SkillStore.col('Ranks'),
                       editable=self.FromEditSkillCell)
         AddTextColumn(self.skillView,'Rank Bonus',SkillStore.col('SelfBonus'))
@@ -165,11 +177,15 @@ class MainWindow(object):
             wid.set_text(str(stat.Bonus))
     def FromEditStatCell(self,cell,path,text,col):
         st = self.statStore[path][0]
-        if col==StatStore.col('Temporary'):
+        if col==StatStore.col('Name'):
+            st.Name = text
+        elif col==StatStore.col('Temporary'):
             st.Value = int(text)
     def FromEditSkillCell(self,cell,path,text,col):
         sk = self.skillStore[path][0]
-        if col==SkillStore.col('Ranks'):
+        if col==SkillStore.col('Name'):
+            sk.Name = text
+        elif col==SkillStore.col('Ranks'):
             sk.Value = int(text)
     def FromSkillRightClick(self,widget,event):
         if event.button==3: #Right-click
@@ -187,7 +203,7 @@ class MainWindow(object):
         self.char.AddVal(newSkill)
     def FromAddSiblingSkill(self,*args):
         sk = self.skillStore[self.clicked_path][0]
-        newSkill = Character.Skill(0,Names=['New Skill'],Parents = sk.requestedParents)
+        newSkill = Character.Skill(0,Names=['New Skill'],Parents = [par.Name for par in sk.Parents])
         self.char.AddVal(newSkill)
     def FromRemoveSkill(self,*args):
         sk = self.skillStore[self.clicked_path][0]
