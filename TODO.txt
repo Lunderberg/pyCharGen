@@ -6,7 +6,7 @@ Allow for changing of parent skills of Stats/Skills.
 
 Have some method for modifying resistances.
 
-Have GUI for Stats on overview page be generated on the fly, allowing for different skill sets.
+Figure out how to make the Resistance and Stat tables have right-aligned text boxes.
 
 Improve saved character text file appearance
 
