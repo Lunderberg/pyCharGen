@@ -108,12 +108,11 @@ class MainWindow(object):
         Rebuilds self.statStore and self.skillStore.
         Rebuilds table of resistances.
         """
-        for st in self.char.Stats:
-            self.UpdateStat(st)
         self.statStore = StatStore(self.char)
         self.statView.set_model(self.statStore)
         self.skillStore = SkillStore(self.char)
         self.skillView.set_model(self.skillStore)
+        self.BuildStatTable(self.char)
         self.BuildResistanceTable(self.char)
         self.UpdateMisc()
     def UpdateMisc(self,*args):
@@ -146,7 +145,47 @@ class MainWindow(object):
                       editable=self.FromEditSkillCell)
         AddTextColumn(self.skillView,'Rank Bonus',SkillStore.col('SelfBonus'))
         AddTextColumn(self.skillView,'Bonus',SkillStore.col('Bonus'))
+    def BuildStatTable(self,char):
+        """
+        Clears out and constructs the Stat table on the Overview tab.
+        """
+        #Clear it.
+        self.statWidgets = {}
+        stTable = self.b.get_object('statTable')
+        for ch in stTable.get_children():
+            stTable.remove(ch)
+            
+        #Set up the overall structure.
+        length = sum(1 for _ in char.Stats)
+        linesPerDivide = 5
+        tableSize = 2 + length + length/linesPerDivide - (1 if length%linesPerDivide==0 else 0)
+        stTable.resize(tableSize,5)
+        stTable.attach(gtk.Label('Temp'),2,3,0,1)
+        stTable.attach(gtk.Label('Bonus'),4,5,0,1)
+        stTable.attach(gtk.HSeparator(),0,5,1,2)
+        stTable.attach(gtk.VSeparator(),1,2,0,tableSize)
+        stTable.attach(gtk.VSeparator(),3,4,0,tableSize)
+        offset = 2
+        
+        #import code; code.interact(local=locals())
+
+        #Add stat information
+        for i,st in enumerate(char.Stats):
+            loc = i + offset
+            stTable.attach(gtk.Label(st.Name),0,1,loc,loc+1)
+            tempWid = gtk.Label(str(st.Value))
+            stTable.attach(tempWid,2,3,loc,loc+1)
+            bonusWid = gtk.Label(str(st.Bonus))
+            stTable.attach(bonusWid,4,5,loc,loc+1)
+            self.statWidgets[st.Name] = (tempWid,bonusWid)
+            if (i+1) % linesPerDivide == 0 and loc+1!=tableSize:
+                stTable.attach(gtk.HSeparator(),0,5,loc+1,loc+2)
+                offset += 1
+        stTable.show_all()
     def BuildResistanceTable(self,char):
+        """
+        Clears out and constructs the resistance table on the Overview tab.
+        """
         self.resistanceWidgets = {}
         #Empty the table
         resTable = self.b.get_object('resistanceTable')
@@ -169,12 +208,12 @@ class MainWindow(object):
         except KeyError:
             pass
     def UpdateStat(self,stat):
-        wid = self.b.get_object(stat.Name+"Temp")
-        if wid is not None:
-            wid.set_text(str(stat.Value))
-        wid = self.b.get_object(stat.Name+"Bonus")
-        if wid is not None:
-            wid.set_text(str(stat.Bonus))
+        try:
+            tempWid,bonusWid = self.statWidgets[stat.Name]
+        except KeyError:
+            return
+        tempWid.set_text(str(stat.Value))
+        bonusWid.set_text(str(stat.Bonus))
     def FromEditStatCell(self,cell,path,text,col):
         st = self.statStore[path][0]
         if col==StatStore.col('Name'):

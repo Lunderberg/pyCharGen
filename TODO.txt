@@ -1,6 +1,22 @@
 Allow for changing of Names/Nicknames of Stats/Skills.
+
 Allow for changing of parent skills of Stats/Skills.
-      Click/drag to reassign skill parent.
-      Retype stat parents to modify
+  Click/drag to reassign skill parent.
+  Retype stat parents to modify
+
 Have some method for modifying resistances.
+
 Have GUI for Stats on overview page be generated on the fly, allowing for different skill sets.
+
+Improve saved character text file appearance
+
+Implement Inventory
+  New Value type, with option 'Item'
+  Modification of reading of 'relatives' option in Value.FromLine
+    Should be of form 'ValueName Op Bonus', where Op is in '+-*/' for different types of bonuses.
+  SelfBonus will need to know who is asking, so that a different bonus can be given for different skills.
+    e.g. 'Strength+2, Rapier+5'
+
+Modified syntax for locating relatives.
+  'Parent Skill/Child Skill', with 'Parent Skill/' being optional.
+  Avoids ambiguity of 'Riding/Horse' with 'Animal Handling/Horse'
