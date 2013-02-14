@@ -142,5 +142,16 @@ class TestStringOut(unittest.TestCase):
     def test_char_string(self):
         self.char.SaveString()
 
+class TestValueParse(unittest.TestCase):
+    def test_value_building(self):
+        sk = Character.Value.FromLine(r'    Test Name (nick1,nick2){par1}[] [Skill]: 5 "Descript \"hi\""')
+        self.assertEqual(type(sk),Character.Skill)
+        self.assertEqual(sk.Name,'Test Name')
+        self.assertEqual(sk.Names[1],'nick1')
+        self.assertEqual(sk.Names[2],'nick2')
+        self.assertEqual(sk.requestedParents[0],'par1')
+        self.assertEqual(sk.Value,5)
+        self.assertEqual(sk.Description,'Descript "hi"')
+
 if __name__=='__main__':
     unittest.main()

@@ -97,12 +97,21 @@ class Character(object):
         lines += [val.SaveString() for val in self.LinkedVals]
         return '\n'.join(lines)
     @staticmethod
-    def Open(filename):    
+    def Open(filename):
         """Given a filename, constructs and returns the character as read from the file"""
         with open(filename) as f:
             lines = [line.strip() for line in f]
         c = Character()
         for line in lines:
+            #Removes all comments, skips if line is empty.
+            res = re.search(r'(^|[^\\])#',line) #Finds a pound sign not preceded by a slash.
+            if res:
+                line = line[:res.end()-1]
+            line.replace(r'\#','#')
+            line = line.strip()
+            if not line:
+                continue
+
             nameChars = r"[\w ,-/]"
             res = re.match(r"\s*(?P<name>" +nameChars+ "+?)" #The key
                            r"\s*:\s*" #The divider
@@ -118,30 +127,9 @@ class Character(object):
                         c.SetMisc(name,int(val))
                     except ValueError:
                         pass
+                continue
 
-            res = re.match(r"\s*(?P<name>" +nameChars+ r"+?)\s*" #The name
-                           r"(\((?P<nicknames>" +nameChars+ r"+)\))?\s*" #Alternate names
-                           r"(\{(?P<pars>" +nameChars+ r"+)\})?\s*" #The list of parents
-                           r"(\[(?P<opts>" +nameChars+ r"+)\])?\s*" #The list of options
-                           r"(:\s*(?P<val>\d+))?\s*" #The value itself
-                           r"\Z", #At the end of the line
-                           line)
-            if res:
-                name,nicks,parents,options,value = res.group('name','nicknames','pars','opts','val')
-                nicks = [] if nicks is None else [s.strip() for s in nicks.split(',')]
-                names = [name]+nicks
-                parents = [] if parents is None else [s.strip() for s in parents.split(',')]
-                options =  [] if options is None else [s.strip() for s in options.split(',')]
-                value = None if value is None else int(value)
-                
-                if value is None and 'NoBonus' not in options:
-                    pass
-                elif 'Stat' in options:
-                    c.AddVal(Stat(value,Names=names,Parents=parents,Options=options))
-                elif 'Skill' in options:
-                    c.AddVal(Skill(value,Names=names,Parents=parents,Options=options))
-                elif 'Resistance' in options:
-                    c.AddVal(Resistance(value,Names=names,Parents=parents,Options=options))
+            c.AddVal(Value.FromLine(line))
         return c
 
 class Value(object):
@@ -151,7 +139,9 @@ class Value(object):
     Subclasses change eventKey to change the key passed to the EventHandler
     """
     Type = 'Value'
-    def __init__(self,Value,Names=None,Parents=None,Children=None,Options=None):
+    _escape_chars = [('\n',r'\n'),
+                     ('"','\\"'),]
+    def __init__(self,Value=None,Names=None,Parents=None,Children=None,Options=None,Description=""):
         self.Events = lambda *args:None
         self.char = None
         self.Names = [] if Names is None else Names
@@ -159,6 +149,7 @@ class Value(object):
         self.requestedChildren = [] if Children is None else Children
         self.Options = [] if Options is None else Options
         self.Value = Value
+        self.Description = Description
     @property
     def Name(self):
         return self.Names[0]
@@ -209,7 +200,66 @@ class Value(object):
                 if self.Options else '')
         val = (': ' + str(self._value)
                if self._value is not None else '')
-        return self.Name + nicks + pars + opts + val
+        out = self.Name + nicks + pars + opts + val
+        for unescaped,escaped in self._escape_chars:
+            out = out.replace(unescaped,escaped)
+        return out
+    @classmethod
+    def FromLine(cls,line):
+        elements = [t for t in
+                    [s.strip() for s in re.split(r'([(){}[\]<>:"])',line)]
+                    if t]
+        names = []
+        relatives = []
+        opts = []
+        costs = []
+        value = None
+        description = ""
+
+        current_type = 'main_name'
+        type_dict = {'[':'opt',']':'main_name','{':'relative','}':'main_name',
+                     '(':'nicknames',')':'main_name','<':'costs','>':'main_name',
+                     ':':'value','"':'quote'}
+                     
+        for ele in elements:
+            if current_type=='quote':
+                if ele=='"' and description[-1]!='\\':
+                    current_type='main_name'
+                else:
+                    description += ele
+            elif ele in type_dict:
+                current_type = type_dict[ele]
+            elif current_type=='main_name':
+                names.append(ele)
+            elif current_type=='opt':
+                opts.extend(s.strip() for s in ele.split(','))
+            elif current_type=='relative':
+                relatives.extend(s.strip() for s in ele.split(','))
+            elif current_type=='nicknames':
+                names.extend(s.strip() for s in ele.split(','))
+            elif current_type=='costs':
+                try:
+                    names.extend(int(s.strip()) for s in ele.split(','))
+                except ValueError:
+                    pass
+            elif current_type=='value':
+                try:
+                    value = int(ele.strip())
+                except ValueError:
+                    pass
+
+        for unescaped,escaped in cls._escape_chars:
+            description = description.replace(escaped,unescaped)
+
+        if 'Skill' in opts:
+            return Skill(Value=value,Names=names,Parents=relatives,Options=opts,Description=description)
+        elif 'Stat' in opts:
+            return Stat(Value=value,Names=names,Parents=relatives,Options=opts,Description=description)
+        elif 'Resistance' in opts:
+            return Resistance(Value=value,Names=names,Parents=relatives,Options=opts,Description=description)
+        else:
+            return Value(Value=value,Names=names,Parents=relatives,Options=opts,Description=description)
+
 
 class Stat(Value):
     Type = 'Stat'
