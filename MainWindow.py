@@ -175,7 +175,7 @@ class MainWindow(object):
             stTable.attach(gtk.Label(st.Name),0,1,loc,loc+1)
             tempWid = gtk.Label(str(st.Value))
             stTable.attach(tempWid,2,3,loc,loc+1)
-            bonusWid = gtk.Label(str(st.Bonus))
+            bonusWid = gtk.Label(str(st.Bonus()))
             stTable.attach(bonusWid,4,5,loc,loc+1)
             self.statWidgets[st.Name] = (tempWid,bonusWid)
             if (i+1) % linesPerDivide == 0 and loc+1!=tableSize:
@@ -195,7 +195,7 @@ class MainWindow(object):
         resTable.resize(len(resList),2)
         for i,res in enumerate(resList):
             label = gtk.Label(res.Name + ':')
-            value_holder = gtk.Label(str(res.Bonus))
+            value_holder = gtk.Label(str(res.Bonus()))
             resTable.attach(label,0,1,i,i+1)
             self.resistanceWidgets[res.Name] = value_holder
             resTable.attach(value_holder,1,2,i,i+1)
@@ -204,7 +204,7 @@ class MainWindow(object):
         self.UpdateStat(stat)
     def OnResistanceChange(self,res):
         try:
-            self.resistanceWidgets[res.Name].set_text(str(res.Bonus))
+            self.resistanceWidgets[res.Name].set_text(str(res.Bonus()))
         except KeyError:
             pass
     def UpdateStat(self,stat):
@@ -213,7 +213,7 @@ class MainWindow(object):
         except KeyError:
             return
         tempWid.set_text(str(stat.Value))
-        bonusWid.set_text(str(stat.Bonus))
+        bonusWid.set_text(str(stat.Bonus()))
     def FromEditStatCell(self,cell,path,text,col):
         st = self.statStore[path][0]
         if col==StatStore.col('Name'):

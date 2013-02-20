@@ -29,28 +29,28 @@ class TestDiceParse(unittest.TestCase):
 class TestStatSkill(unittest.TestCase):
     def test_stat_bonus(self):
         testStat = Character.Stat(50)
-        self.assertEqual(testStat.SelfBonus,0)
+        self.assertEqual(testStat.SelfBonus(),0)
         testStat.Value = 1
-        self.assertEqual(testStat.SelfBonus,-15)
+        self.assertEqual(testStat.SelfBonus(),-15)
         testStat.Value = 100
-        self.assertEqual(testStat.SelfBonus,15)
+        self.assertEqual(testStat.SelfBonus(),15)
         testStat.Value = 100
-        self.assertEqual(testStat.SelfBonus,15)
+        self.assertEqual(testStat.SelfBonus(),15)
         testStat.Value = 65
-        self.assertEqual(testStat.SelfBonus,2)
+        self.assertEqual(testStat.SelfBonus(),2)
         testStat.Value = 29
-        self.assertEqual(testStat.SelfBonus,-4)
+        self.assertEqual(testStat.SelfBonus(),-4)
     def test_skill_bonus(self):
         testSkill = Character.Skill(0)
-        self.assertEqual(testSkill.SelfBonus,-25)
+        self.assertEqual(testSkill.SelfBonus(),-25)
         testSkill.Value = 5
-        self.assertEqual(testSkill.SelfBonus,25)
+        self.assertEqual(testSkill.SelfBonus(),25)
         testSkill.Value = 15
-        self.assertEqual(testSkill.SelfBonus,65)
+        self.assertEqual(testSkill.SelfBonus(),65)
         testSkill.Value = 25
-        self.assertEqual(testSkill.SelfBonus,90)
+        self.assertEqual(testSkill.SelfBonus(),90)
         testSkill.Value = 35
-        self.assertEqual(testSkill.SelfBonus,105)
+        self.assertEqual(testSkill.SelfBonus(),105)
     def test_parentage(self):
         c = Character.Character()
         par1 = Character.Stat(100,Names=['name1'])
@@ -59,7 +59,7 @@ class TestStatSkill(unittest.TestCase):
         c.AddVal(par2)
         child = Character.Skill(1,Parents=['name1','name2'])
         c.AddVal(child)
-        self.assertEqual(child.Bonus,child.SelfBonus+par1.SelfBonus+par2.SelfBonus)
+        self.assertEqual(child.Bonus(),child.SelfBonus()+par1.SelfBonus()+par2.SelfBonus())
 
 class TestChar(unittest.TestCase):
     def test_char_building(self):
@@ -68,7 +68,7 @@ class TestChar(unittest.TestCase):
         self.assertEqual(char['Ag'].Value,1)
         self.assertEqual(char['Constitution'].Value,100)
         self.assertEqual(char['Linguistics'].Value,0)
-        self.assertEqual(char['Lore'].Bonus,15)
+        self.assertEqual(char['Lore'].Bonus(),15)
         self.assertEqual(len(list(char.Stats)),10)
         self.assertEqual(len(list(char.Skills)),5)
         self.assertEqual(char.Name,'Grognar')
@@ -79,12 +79,12 @@ class TestChar(unittest.TestCase):
         self.assertEqual(char.Experience,12345)
     def test_resistances(self):
         char = Character.Character.Open(charfile)
-        self.assertEqual(char['Poison'].Bonus,42)
-        self.assertEqual(char['Disease'].Bonus,42)
-        self.assertEqual(char['Fear'].Bonus,39)
-        self.assertEqual(char['Channeling'].Bonus,28)
-        self.assertEqual(char['Essence'].Bonus,32)
-        self.assertEqual(char['Mentalism'].Bonus,12)
+        self.assertEqual(char['Poison'].Bonus(),42)
+        self.assertEqual(char['Disease'].Bonus(),42)
+        self.assertEqual(char['Fear'].Bonus(),39)
+        self.assertEqual(char['Channeling'].Bonus(),28)
+        self.assertEqual(char['Essence'].Bonus(),32)
+        self.assertEqual(char['Mentalism'].Bonus(),12)
 
 class TestStatSkillStores(unittest.TestCase):
     def setUp(self):
@@ -95,8 +95,8 @@ class TestStatSkillStores(unittest.TestCase):
             self.assertIs(row[StatStore.col('Stat')],stat)
             self.assertEqual(row[StatStore.col('Name')],stat.Name)
             self.assertEqual(row[StatStore.col('Temporary')],stat.Value)
-            self.assertEqual(row[StatStore.col('SelfBonus')],stat.SelfBonus)
-            self.assertEqual(row[StatStore.col('Bonus')],stat.Bonus)
+            self.assertEqual(row[StatStore.col('SelfBonus')],stat.SelfBonus())
+            self.assertEqual(row[StatStore.col('Bonus')],stat.Bonus())
         for stIter,stat in zip(store.IterAll,self.char.Stats):
             st,stName,stSB,stBon,stTemp = store.get(stIter,
                                                     StatStore.col('Stat'),StatStore.col('Name'),
@@ -104,8 +104,8 @@ class TestStatSkillStores(unittest.TestCase):
                                                     StatStore.col('Temporary'))
             self.assertIs(st,stat)
             self.assertEqual(stName,stat.Name)
-            self.assertEqual(stSB,stat.SelfBonus)
-            self.assertEqual(stBon,stat.Bonus)
+            self.assertEqual(stSB,stat.SelfBonus())
+            self.assertEqual(stBon,stat.Bonus())
             self.assertEqual(stTemp,stat.Value)
     def test_skillstore(self):
         store = SkillStore(self.char)
@@ -116,8 +116,8 @@ class TestStatSkillStores(unittest.TestCase):
                                                      SkillStore.col('Ranks'))
             self.assertIs(sk,skill)
             self.assertEqual(skName,skill.Name)
-            self.assertEqual(skSB,skill.SelfBonus)
-            self.assertEqual(skBon,skill.Bonus)
+            self.assertEqual(skSB,skill.SelfBonus())
+            self.assertEqual(skBon,skill.Bonus())
             self.assertEqual(skRanks,skill.Value)
 
 class TestStringOut(unittest.TestCase):
@@ -130,10 +130,10 @@ class TestStringOut(unittest.TestCase):
         par2 = Character.Value(0,['SD','Self Discipline'])
         char.AddVal(par2)
         v = Character.Value(5,['test'])
-        self.assertEqual(v.SaveString(),'test: 5')
+        self.assertEqual(v.SaveString(),'test : 5')
         v.requestedParents = ['L O N G  N A M E','SD']
         char.AddVal(v)
-        self.assertEqual(v.SaveString(),'test {short, SD}: 5')
+        self.assertEqual(v.SaveString(),'test {short, SD} : 5')
         v.Options = ['NoBonus']
         v.Value = None
         self.assertEqual(v.SaveString(),'test {short, SD} [NoBonus]')
@@ -152,6 +152,23 @@ class TestValueParse(unittest.TestCase):
         self.assertEqual(sk.requestedParents[0],'par1')
         self.assertEqual(sk.Value,5)
         self.assertEqual(sk.Description,'Descript "hi"')
+    def test_item_parse(self):
+        descList = [r'ItemDescription(axe){Axe+1,SD-2}[Item]',
+                    r'ItemDescription(axe){ Axe +1, SD-2}[Item]',
+                    r'ItemDescription (axe){ Axe+1,SD- 2}[Item]',
+                    r'ItemDescription(axe) {Axe + 1,  SD-2}[Item]']
+        for description in descList:
+            it = Character.Value.FromLine(description)
+            self.assertEqual(type(it),Character.Item)
+            self.assertEqual(it.Name,'ItemDescription')
+            self.assertEqual(it.Names[1],'axe')
+            self.assertEqual(it.requestedChildren[0],'Axe')
+            self.assertEqual(it.requestedChildren[1],'SD')
+            self.assertEqual(it.ChildValues[0][0],'Axe')
+            self.assertEqual(it.ChildValues[0][1],1)
+            self.assertEqual(it.ChildValues[1][0],'SD')
+            self.assertEqual(it.ChildValues[1][1],-2)
+            self.assertEqual(it.SaveString(),r'ItemDescription (axe) {Axe+1, SD-2} [Item]')
 
 if __name__=='__main__':
     unittest.main()

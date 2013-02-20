@@ -33,8 +33,8 @@ class StatStore(gtk.ListStore,object):
         self.set(stIter,
                  self.col('Name'),st.Name,
                  self.col('Temporary'),st.Value,
-                 self.col('SelfBonus'),st.SelfBonus,
-                 self.col('Bonus'),st.Bonus)
+                 self.col('SelfBonus'),st.SelfBonus(),
+                 self.col('Bonus'),st.Bonus())
     def OnStatChange(self,stat):
         for stIter in self.IterAll:
             if stat is self.get(stIter,self.col('Stat'))[0]:
@@ -88,8 +88,8 @@ class SkillStore(gtk.TreeStore,object):
         self.set(skIter,
                  self.col('Name'),sk.Name,
                  self.col('Ranks'),sk.Value,
-                 self.col('SelfBonus'),sk.SelfBonus,
-                 self.col('Bonus'),sk.Bonus)
+                 self.col('SelfBonus'),sk.SelfBonus(),
+                 self.col('Bonus'),sk.Bonus())
     def OnSkillAdd(self,skill):
         pars = list(skill.Parents)
         for skIter in self.IterAll:

@@ -48,6 +48,9 @@ class Character(object):
     @property
     def Resistances(self):
         return (val for val in self.LinkedVals if isinstance(val,Resistance))
+    @property
+    def Items(self):
+        return (val for val in self.LinkedVals if isinstance(val,Item))
     def AddVal(self,newVal):
         """
         Adds the value to the list of values.
@@ -80,8 +83,20 @@ class Character(object):
         for reqCh in val.requestedChildren:
             if reqCh in self._lookup:
                 self.Links.append( (val,self._lookup[reqCh]) )
+                self._lookup[reqCh].Changed()
         for n in val.Names:
             self._lookup[n] = val
+    def UnlinkVal(self,val):
+        """
+        Removes all instances of a value from self.Links.
+        Possible future modification: Removing only links caused by one's own requests.
+        """
+        toRemove = []
+        for i,(par,ch) in enumerate(self.Links):
+            if (par is val) or (ch is val):
+                toRemove.append(i)
+        for i in reversed(toRemove):
+            del toRemove[i]
     def RemoveVal(self,val):
         """
         Removes the value given.
@@ -183,24 +198,25 @@ class Value(object):
         self.Events(self.Type+' Changed',self)
         for ch in self.Children:
             ch.Changed()
-    @property
-    def SelfBonus(self):
+    def SelfBonus(self,asker=None):
         return 0
-    @property
-    def Bonus(self):
-        return self.SelfBonus + sum(par.Bonus for par in self.Parents
-                                    if not isinstance(par,str))
-    def SaveString(self):
-        nicks = (' (' + ', '.join(self.Names[1:]) + ')'
-                 if len(self.Names)>1 else '')
+    def Bonus(self,asker=None):
+        return self.SelfBonus(asker) + sum(par.Bonus(self) for par in self.Parents)
+    def RelativeSaveString(self):
         parnames = [par.ShortestName for par in self.Parents]
-        pars = (' {' + ', '.join(parnames) + '}'
-                if parnames else '')
-        opts = (' [' + ', '.join(self.Options) + ']'
+        pars = ', '.join(parnames) if parnames else ''
+        return pars
+    def SaveString(self):
+        nicks = ('(' + ', '.join(self.Names[1:]) + ')'
+                 if len(self.Names)>1 else '')
+        relatives = self.RelativeSaveString()
+        relatives = '{' + relatives + '}' if relatives else ''
+        opts = ('[' + ', '.join(self.Options) + ']'
                 if self.Options else '')
         val = (': ' + str(self._value)
                if self._value is not None else '')
-        out = self.Name + nicks + pars + opts + val
+        descript = ('"' + self.Description + '"') if self.Description else ''
+        out = ' '.join(s for s in [self.Name,nicks,relatives,opts,val,descript] if s)
         for unescaped,escaped in self._escape_chars:
             out = out.replace(unescaped,escaped)
         return out
@@ -239,7 +255,7 @@ class Value(object):
                 names.extend(s.strip() for s in ele.split(','))
             elif current_type=='costs':
                 try:
-                    names.extend(int(s.strip()) for s in ele.split(','))
+                    costs.extend(int(s.strip()) for s in ele.split(','))
                 except ValueError:
                     pass
             elif current_type=='value':
@@ -257,14 +273,15 @@ class Value(object):
             return Stat(Value=value,Names=names,Parents=relatives,Options=opts,Description=description)
         elif 'Resistance' in opts:
             return Resistance(Value=value,Names=names,Parents=relatives,Options=opts,Description=description)
+        elif 'Item' in opts:
+            return Item(Value=value,Names=names,Children=relatives,Options=opts,Description=description)
         else:
             return Value(Value=value,Names=names,Parents=relatives,Options=opts,Description=description)
 
 
 class Stat(Value):
     Type = 'Stat'
-    @property
-    def SelfBonus(self):
+    def SelfBonus(self,asker=None):
         return 0 if 'NoBonus' in self.Options else _statBonuses(self.Value)
 
 class Resistance(Value):
@@ -272,6 +289,44 @@ class Resistance(Value):
 
 class Skill(Value):
     Type = 'Skill'
-    @property
-    def SelfBonus(self):
+    def SelfBonus(self,asker=None):
         return 0 if 'NoBonus' in self.Options else _skillBonuses(self.Value)
+
+class Item(Value):
+    Type = 'Item'
+    BonusOps = '+-'
+    def __init__(self,*args,**kwargs):
+        super(Item,self).__init__(*args,**kwargs)
+        self.MakeList(self.requestedChildren)
+    def MakeList(self,chList):
+        """
+        Constructs the list of requestedChildren and ChildValues.
+        Expects input as an iterable of strings, each in the form 'NameBonus'.
+                   e.g. "Axe+3", "Religious Lore-5"
+        """
+        self.requestedChildren = []
+        self.ChildValues = []
+        for ch in chList:
+            if sum(ch.count(c) for c in self.BonusOps)!=1:
+                continue
+            index = max(ch.find(c) for c in self.BonusOps)
+            name,value = ch[:index].strip(),ch[index:].strip()
+            try:
+                value = int(value)
+            except ValueError:
+                continue
+            self.requestedChildren.append(name)
+            self.ChildValues.append((name,value))
+    def RelativeSaveString(self):
+        if self.ChildValues:
+            return ', '.join('{0}{1:+d}'.format(name,val) for name,val in self.ChildValues)
+        else:
+            return ''
+    def SelfBonus(self,asker=None):
+        if asker is None:
+            return 0
+        for name,bonus in self.ChildValues:
+            if name in asker.Names:
+                return bonus
+        else:
+            return 0
