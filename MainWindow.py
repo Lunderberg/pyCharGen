@@ -4,7 +4,7 @@ import gtk
 import os.path as path
 
 import Character
-from TreeModelHelpers import StatStore,SkillStore,AddTextColumn,AddCheckboxColumn
+from TreeModelHelpers import StatStore,SkillStore,ItemStore,AddTextColumn,AddCheckboxColumn
 
 class MainWindow(object):
     """
@@ -25,18 +25,32 @@ class MainWindow(object):
         self.window = self.b.get_object('mainWindow')
         self.window.connect('delete_event',gtk.main_quit)
         
+        #Menu commands
         self.b.get_object('fileOpen').connect('activate',self.Open)
         self.b.get_object('fileSave').connect('activate',self.Save)
         self.b.get_object('fileSaveAs').connect('activate',self.SaveAs)
+        #Updating overview text boxes
         self.b.get_object('characterName').connect('changed',self.FromNameChange)
         self.b.get_object('playerName').connect('changed',self.FromPlayerNameChange)
         self.b.get_object('experience').connect('changed',self.FromXPChange)
+        #Skill right-clicking commands
         self.b.get_object('skillView').connect('button-press-event',self.FromSkillRightClick)
         self.b.get_object('rcAddChildSkill').connect('button-press-event',self.FromAddChildSkill)
         self.b.get_object('rcAddSiblingSkill').connect('button-press-event',self.FromAddSiblingSkill)
         self.b.get_object('rcDeleteSkill').connect('button-press-event',self.FromRemoveSkill)
+        #Item modifying commands
+        self.activeItem = None
+        self.b.get_object('itemView').connect('cursor-changed',self.FromItemSelected)
+        self.b.get_object('itemNameBox').connect('changed',self.FromItemNameChange)
+        self.b.get_object('itemBonusBox').connect('changed',self.FromItemBonusChange)
+        self.b.get_object('itemDescriptionBox').get_buffer().connect('changed',self.FromItemDescriptionChange)
+        self.b.get_object('itemView').connect('button-press-event',self.FromItemRightClick)
+        self.b.get_object('rcAddItem').connect('button-press-event',self.FromAddItem)
+        self.b.get_object('rcDeleteItem').connect('button-press-event',self.FromRemoveItem)
+
         self.SetUpStatView()
         self.SetUpSkillView()
+        self.SetUpItemView()
     def Show(self):
         self.window.show_all()
     def Hide(self):
@@ -70,13 +84,16 @@ class MainWindow(object):
         self.UpdateAll()
         #Register the updating functions
         self.registered = [
-            ('Stat Changed',self.statStore.OnStatChange),
             ('Misc Changed',self.UpdateMisc),
             ('Stat Changed',self.OnStatChange),
+            ('Stat Changed',self.statStore.OnStatChange),
             ('Skill Added',self.skillStore.OnSkillAdd),
             ('Skill Changed',self.skillStore.OnSkillChange),
-            ('Resistance Changed',self.OnResistanceChange),
             ('Skill Removed',self.skillStore.OnSkillRemove),
+            ('Resistance Changed',self.OnResistanceChange),
+            ('Item Added',self.itemStore.OnItemAdded),
+            ('Item Changed',self.itemStore.OnItemChange),
+            ('Item Removed',self.itemStore.OnItemRemove),
             ]
         for key,func in self.registered:
             self.char.Events.Register(key,func)
@@ -112,6 +129,8 @@ class MainWindow(object):
         self.statView.set_model(self.statStore)
         self.skillStore = SkillStore(self.char)
         self.skillView.set_model(self.skillStore)
+        self.itemStore = ItemStore(self.char)
+        self.itemView.set_model(self.itemStore)
         self.BuildStatTable(self.char)
         self.BuildResistanceTable(self.char)
         self.UpdateMisc()
@@ -145,6 +164,14 @@ class MainWindow(object):
                       editable=self.FromEditSkillCell)
         AddTextColumn(self.skillView,'Rank Bonus',SkillStore.col('SelfBonus'))
         AddTextColumn(self.skillView,'Bonus',SkillStore.col('Bonus'))
+    def SetUpItemView(self):
+        """
+        Builds the TreeView for the items.
+        """
+        self.itemView = self.b.get_object('itemView')
+        AddTextColumn(self.itemView,'Name',ItemStore.col('Name'))
+        AddTextColumn(self.itemView,'Bonuses',ItemStore.col('Bonuses'))
+        AddTextColumn(self.itemView,'Description',ItemStore.col('Description'))
     def BuildStatTable(self,char):
         """
         Clears out and constructs the Stat table on the Overview tab.
@@ -238,11 +265,11 @@ class MainWindow(object):
                 None,None,None,event.button,event.time)
     def FromAddChildSkill(self,*args):
         sk = self.skillStore[self.clicked_path][0]
-        newSkill = Character.Skill(0,Names=['New Skill'],Parents=[sk.Name])
+        newSkill = Character.Skill(0,Names=['New Skill'],Options=['Skill'],Parents=[sk.Name])
         self.char.AddVal(newSkill)
     def FromAddSiblingSkill(self,*args):
         sk = self.skillStore[self.clicked_path][0]
-        newSkill = Character.Skill(0,Names=['New Skill'],Parents = [par.Name for par in sk.Parents])
+        newSkill = Character.Skill(0,Names=['New Skill'],Options=['Skill'],Parents = [par.Name for par in sk.Parents])
         self.char.AddVal(newSkill)
     def FromRemoveSkill(self,*args):
         sk = self.skillStore[self.clicked_path][0]
@@ -265,6 +292,54 @@ class MainWindow(object):
             self.char.XP = int(widget.get_text())
         except ValueError:
             pass
+    def FromItemSelected(self,*args):
+        selection = self.itemView.get_selection()
+        model,itIter = selection.get_selected()
+        if itIter is not None:
+            item = model.get(itIter,ItemStore.col('Item'))[0]
+            self.activeItem = item
+            self.OnItemChange(item)
+    def OnItemChange(self,item):
+        if item is self.activeItem:
+            self.b.get_object('itemNameBox').set_text(item.Name)
+            self.b.get_object('itemBonusBox').set_text(item.RelativeSaveString())
+            self.b.get_object('itemDescriptionBox').get_buffer().set_text(item.Description)
+    def FromItemRightClick(self,widget,event):
+        if event.button==3:
+            path = widget.get_path_at_pos(int(event.x),int(event.y))
+            if path is None:
+                self.clicked_item = None
+            else:
+                path = path[0]
+                self.clicked_item = self.itemStore[path][0]
+            self.b.get_object('rcItemMenu').popup(
+                None,None,None,event.button,event.time)
+    def FromAddItem(self,*args):
+        newItem = Character.Item(None,Names=['New Item'],Options=['Item'])
+        self.char.AddVal(newItem)
+    def FromRemoveItem(self,*args):
+        if self.clicked_item is None:
+            return
+        dialog = gtk.Dialog('Are you sure?', self.window,
+                            gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
+                            (gtk.STOCK_NO,gtk.RESPONSE_CANCEL,
+                             gtk.STOCK_YES,gtk.RESPONSE_OK))
+        dialog.vbox.pack_start(gtk.Label("Are you sure you want to delete '{0}'".format(self.clicked_item.Name)))
+        dialog.show_all()
+        result = dialog.run()
+        dialog.destroy()
+        if result==gtk.RESPONSE_OK:
+            self.char.RemoveVal(self.clicked_item)
+    def FromItemNameChange(self,widget):
+        if self.activeItem is not None:
+            self.activeItem.Name = widget.get_text()
+    def FromItemBonusChange(self,widget):
+        if self.activeItem is not None:
+            self.activeItem.ChangeBonuses(widget.get_text())
+    def FromItemDescriptionChange(self,widget):
+        if self.activeItem is not None:
+            self.activeItem.Description = widget.get_text(
+                widget.get_start_iter(),widget.get_end_iter())
         
 
 if __name__=='__main__':

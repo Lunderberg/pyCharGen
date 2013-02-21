@@ -96,7 +96,7 @@ class Character(object):
             if (par is val) or (ch is val):
                 toRemove.append(i)
         for i in reversed(toRemove):
-            del toRemove[i]
+            del self.Links[i]
     def RemoveVal(self,val):
         """
         Removes the value given.
@@ -193,6 +193,13 @@ class Value(object):
     @Value.setter
     def Value(self,val):
         self._value = val
+        self.Changed()
+    @property
+    def Description(self):
+        return self._Description
+    @Description.setter
+    def Description(self,val):
+        self._Description = val
         self.Changed()
     def Changed(self):
         self.Events(self.Type+' Changed',self)
@@ -298,6 +305,13 @@ class Item(Value):
     def __init__(self,*args,**kwargs):
         super(Item,self).__init__(*args,**kwargs)
         self.MakeList(self.requestedChildren)
+    def ChangeBonuses(self,bonusStr):
+        newList = [s.strip() for s in bonusStr.split(',')]
+        self.MakeList(newList)
+        if self.char is not None:
+            self.char.UnlinkVal(self)
+            self.char.LinkVal(self)
+        self.Changed()
     def MakeList(self,chList):
         """
         Constructs the list of requestedChildren and ChildValues.

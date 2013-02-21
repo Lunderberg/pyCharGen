@@ -68,7 +68,7 @@ class TestChar(unittest.TestCase):
         self.assertEqual(char['Ag'].Value,1)
         self.assertEqual(char['Constitution'].Value,100)
         self.assertEqual(char['Linguistics'].Value,0)
-        self.assertEqual(char['Lore'].Bonus(),15)
+        self.assertEqual(char['Lore'].Bonus(),17)
         self.assertEqual(len(list(char.Stats)),10)
         self.assertEqual(len(list(char.Skills)),5)
         self.assertEqual(char.Name,'Grognar')

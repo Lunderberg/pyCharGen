@@ -111,6 +111,51 @@ class SkillStore(gtk.TreeStore,object):
                 self.remove(skIter)
                 return
 
+class ItemStore(gtk.ListStore,object):
+    store_format = [
+        ('Item',gobject.TYPE_PYOBJECT),
+        ('Name',str),('Bonuses',str),('Description',str)
+        ]
+    names = {n:i for i,(n,t) in enumerate(store_format)}
+    types = [t for n,t in store_format]
+    def __init__(self,char):
+        gtk.ListStore.__init__(self,*self.types)
+        self.UpdateAll(char)
+    @classmethod
+    def col(cls,key):
+        return cls.names[key]
+    @property
+    def IterAll(self):
+        loc = self.get_iter_first()
+        while loc:
+            yield loc
+            loc = self.iter_next(loc)
+    def UpdateAll(self,char):
+        self.clear()
+        for it in char.Items:
+            itIter = self.append()
+            self.set(itIter,self.col('Item'),it)
+            self.UpdateItem(itIter)
+    def UpdateItem(self,itIter):
+        it = self.get(itIter,self.col('Item'))[0]
+        self.set(itIter,
+                 self.col('Name'),it.Name,
+                 self.col('Bonuses'),it.RelativeSaveString(),
+                 self.col('Description'),it.Description)
+    def OnItemAdded(self,item):
+        itIter = self.append()
+        self.set(itIter,self.col('Item'),item)
+        self.UpdateItem(itIter)
+    def OnItemChange(self,item):
+        for itIter in self.IterAll:
+            if item is self.get(itIter,self.col('Item'))[0]:
+                self.UpdateItem(itIter)
+    def OnItemRemove(self,item):
+        for itIter in self.IterAll:
+            if item is self.get(itIter,self.col('Item'))[0]:
+                self.remove(itIter)
+                return
+
 def AddTextColumn(treeview,name,columnnumber,sortable=False,editable=None,xalign=0.0):
     CellText = gtk.CellRendererText()
     output = gtk.TreeViewColumn(name)

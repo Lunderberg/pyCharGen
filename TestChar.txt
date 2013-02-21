@@ -41,3 +41,8 @@ Common {Linguistics} [Skill]: 2
 Elvish {Linguistics} [Skill]: 1
 Lore {Me, Me, Re} [Skill, NoBonus]
 Science {Me, Re, Re} [Skill]: 2
+
+#Inventory
+#-------------------------
+Research Book {Lore+2} [Item]
+Pointy Ears {Elvish+9000} [Item] "Those elves will never guess that it's me."

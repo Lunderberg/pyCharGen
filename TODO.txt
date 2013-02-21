@@ -10,13 +10,15 @@ Figure out how to make the Resistance and Stat tables have right-aligned text bo
 
 Improve saved character text file appearance
 
-Implement Inventory
-  New Value type, with option 'Item'
-  Modification of reading of 'relatives' option in Value.FromLine
-    Should be of form 'ValueName Op Bonus', where Op is in '+-*/' for different types of bonuses.
-  SelfBonus will need to know who is asking, so that a different bonus can be given for different skills.
-    e.g. 'Strength+2, Rapier+5'
+Inventory
+  Implement multiplicative bonuses
 
 Modified syntax for locating relatives.
   'Parent Skill/Child Skill', with 'Parent Skill/' being optional.
   Avoids ambiguity of 'Riding/Horse' with 'Animal Handling/Horse'
+
+Have each value type automatically add the type into the Options list if not specified.
+  Otherwise, when saving, then reloading, guaranteed that values won't be lost.
+
+Fix reading of Miscellaneous values when empty.
+  Currently, makes a Value with no options, instead of making a default emptystring for the names.

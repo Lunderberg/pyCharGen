@@ -6,15 +6,15 @@ Culture:
 Level:
 Experience:
 
-Format:  "Name (Nickname1, Nickname2, ...) {Parent1, Parent2, ...} [Opt1, Opt2, ...]: Value
-Options: "Stat"    - Indicates that the value is a stat.
-	 "Skill"   - Indicates that the value is a skill.
-	 "NoBonus" - For a skill, indicates that no ranks can be spent.
-	             Used for skill categories that have no allowed specializations.
-		     Used for the Realm stat.
+#Format:  "Name (Nickname1, Nickname2, ...) {Parent1, Parent2, ...} [Opt1, Opt2, ...]: Value
+#Options: "Stat"    - Indicates that the value is a stat.
+#	 "Skill"   - Indicates that the value is a skill.
+#	 "NoBonus" - For a skill, indicates that no ranks can be spent.
+#	             Used for skill categories that have no allowed specializations.
+#		     Used for the Realm stat.
 
-Stats
-------------------------
+#Stats
+#------------------------
 Agility	(Ag) [Stat]: 50
 Constitution (Co) [Stat]: 50
 Empathy (Em) [Stat]: 50
@@ -27,8 +27,8 @@ Self Discipline (SD) [Stat]: 50
 Strength (St) [Stat]: 50
 Realm [Stat, NoBonus]: 0
 
-Resistances
-------------------------
+#Resistances
+#------------------------
 Poison {Co, Co, SD} [Resistance, NoBonus]
 Disease {Co, Co, SD} [Resistance, NoBonus]
 Fear {SD, SD, Re} [Resistance, NoBonus]
@@ -36,8 +36,8 @@ Channeling {In, In, SD} [Resistance, NoBonus]
 Essence {Em, Em, SD} [Resistance, NoBonus]
 Mentalism {Pr, Pr, SD} [Resistance, NoBonus]
 
-Skills
-------------------------
+#Skills
+#------------------------
 Linguistics {Me, Me, Re} [Skill, NoBonus]
   Language, Written {Linguistics} [Skill]: 0
   Language, Spoken {Linguistics} [Skill]: 0
