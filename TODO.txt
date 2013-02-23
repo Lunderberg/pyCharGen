@@ -23,5 +23,3 @@ Fix reading of Miscellaneous values when empty.
 
 Implement StatBonus, ParentBonus, ItemBonus in Value
    Add extra hiden-by-default columns in SkillStore, StatStore to hold these values.
-
-Implement Commonly Used Skills
