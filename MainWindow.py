@@ -4,7 +4,7 @@ import gtk
 import os.path as path
 
 import Character
-from TreeModelHelpers import StatStore,SkillStore,ItemStore,AddTextColumn,AddCheckboxColumn
+import TreeModelHelpers as TMH
 
 class MainWindow(object):
     """
@@ -52,6 +52,7 @@ class MainWindow(object):
 
         self.SetUpStatView()
         self.SetUpSkillView()
+        self.SetUpCommonlyUsedSkillView()
     def Show(self):
         self.window.show_all()
     def Hide(self):
@@ -87,14 +88,17 @@ class MainWindow(object):
         self.registered = [
             ('Misc Changed',self.UpdateMisc),
             ('Stat Changed',self.OnStatChange),
-            ('Stat Changed',self.statStore.OnStatChange),
-            ('Skill Added',self.skillStore.OnSkillAdd),
-            ('Skill Changed',self.skillStore.OnSkillChange),
-            ('Skill Removed',self.skillStore.OnSkillRemove),
+            ('Stat Changed',self.statStore.OnValueChange),
+            ('Skill Added',self.skillStore.OnValueAdd),
+            ('Skill Added',self.skillListStore.OnValueAdd),
+            ('Skill Changed',self.skillStore.OnValueChange),
+            ('Skill Changed',self.skillListStore.OnValueChange),
+            ('Skill Removed',self.skillStore.OnValueRemove),
+            ('Skill Removed',self.skillListStore.OnValueRemove),
             ('Resistance Changed',self.OnResistanceChange),
-            ('Item Added',self.itemStore.OnItemAdded),
-            ('Item Changed',self.itemStore.OnItemChange),
-            ('Item Removed',self.itemStore.OnItemRemove),
+            ('Item Added',self.itemStore.OnValueAdd),
+            ('Item Changed',self.itemStore.OnValueChange),
+            ('Item Removed',self.itemStore.OnValueRemove),
             ('Item Removed',self.OnItemRemove),
             ]
         for key,func in self.registered:
@@ -127,11 +131,15 @@ class MainWindow(object):
         Rebuilds self.statStore and self.skillStore.
         Rebuilds table of resistances.
         """
-        self.statStore = StatStore(self.char)
+        self.statStore = TMH.StatListStore(self.char)
         self.statView.set_model(self.statStore)
-        self.skillStore = SkillStore(self.char)
+        self.skillStore = TMH.SkillTreeStore(self.char)
         self.skillView.set_model(self.skillStore)
-        self.itemStore = ItemStore(self.char)
+        self.skillListStore = TMH.SkillListStore(self.char)
+        commonSkillStore = self.skillListStore.filter_new()
+        commonSkillStore.set_visible_column(TMH.SkillTreeStore.col('CommonlyUsed'))
+        self.commonSkillView.set_model(commonSkillStore)
+        self.itemStore = TMH.ItemListStore(self.char)
         self.itemView.set_model(self.itemStore)
         self.BuildStatTable(self.char)
         self.BuildResistanceTable(self.char)
@@ -149,76 +157,46 @@ class MainWindow(object):
         Builds the TreeView for the stats.
         """
         self.statView = self.b.get_object('statView')
-        self.statColumnSelect = gtk.Menu()
-        columns = []
-        col = AddTextColumn(self.statView,'Name',StatStore.col('Name'),
+        TMH.AddTextColumn(self.statView,'Name',TMH.StatListStore.col('Name'),
+                          editable=self.FromEditStatCell)
+        TMH.AddTextColumn(self.statView,'Temp',TMH.StatListStore.col('Temporary'),
                       editable=self.FromEditStatCell)
-        columns.append((col,'Name'))
-        col = AddTextColumn(self.statView,'Temp',StatStore.col('Temporary'),
-                      editable=self.FromEditStatCell)
-        columns.append((col,'Temporary'))
-        col = AddTextColumn(self.statView,'Value Bonus',StatStore.col('SelfBonus'))
-        columns.append((col,'Value Bonus'))
-        col = AddTextColumn(self.statView,'Bonus',StatStore.col('Bonus'))
-        columns.append((col,'Bonus'))
+        TMH.AddTextColumn(self.statView,'Value Bonus',TMH.StatListStore.col('SelfBonus'))
+        TMH.AddTextColumn(self.statView,'Bonus',TMH.StatListStore.col('Bonus'))
 
-        for col,colName in columns:
-            menuItem = gtk.CheckMenuItem(colName)
-            menuItem.set_active(col.get_visible())
-            menuItem.connect('toggled',self.FromToggleColumn,col)
-            col.set_clickable(True)
-            col.connect('clicked',self.FromStatHeaderClick)
-            menuItem.show()
-            self.statColumnSelect.append(menuItem)
+        TMH.RightClickToggle(self.statView)
     def SetUpSkillView(self):
         """
         Builds the TreeView for the skills.
         Also builds the right-click menu to select visible columns.
         """
         self.skillView = self.b.get_object('skillView')
-        self.skillColumnSelect = gtk.Menu()
-        columns = []
-        col = AddTextColumn(self.skillView,'Name',SkillStore.col('Name'),
+        TMH.AddTextColumn(self.skillView,'Name',TMH.SkillTreeStore.col('Name'),
                             editable=self.FromEditSkillCell)
-        columns.append((col,'Name'))
-        col = AddTextColumn(self.skillView,'Ranks',SkillStore.col('Ranks'),
+        TMH.AddTextColumn(self.skillView,'Ranks',TMH.SkillTreeStore.col('Ranks'),
                             editable=self.FromEditSkillCell)
-        columns.append((col,'Ranks'))
-        col = AddTextColumn(self.skillView,'Rank Bonus',SkillStore.col('SelfBonus'))
-        columns.append((col,'Rank Bonus'))
-        col = AddTextColumn(self.skillView,'Bonus',SkillStore.col('Bonus'))
-        columns.append((col,'Bonus'))
+        TMH.AddTextColumn(self.skillView,'Rank Bonus',TMH.SkillTreeStore.col('SelfBonus'))
+        TMH.AddTextColumn(self.skillView,'Bonus',TMH.SkillTreeStore.col('Bonus'))
+        TMH.AddCheckboxColumn(self.skillView,'Commonly Used',TMH.SkillTreeStore.col('CommonlyUsed'),
+                          editable=self.FromToggleSkillCell)
 
-        for col,colName in columns:
-            menuItem = gtk.CheckMenuItem(colName)
-            menuItem.set_active(col.get_visible())
-            menuItem.connect('toggled',self.FromToggleColumn,col)
-            col.set_clickable(True)
-            col.connect('clicked',self.FromSkillHeaderClick)
-            menuItem.show()
-            self.skillColumnSelect.append(menuItem)
+        TMH.RightClickToggle(self.skillView)
+    def SetUpCommonlyUsedSkillView(self):
+        self.commonSkillView = self.b.get_object('commonSkillView')
+        TMH.AddTextColumn(self.commonSkillView,'Name',TMH.SkillTreeStore.col('Name'))
+        TMH.AddTextColumn(self.commonSkillView,'Ranks',TMH.SkillTreeStore.col('Ranks'))
+        TMH.AddTextColumn(self.commonSkillView,'Bonus',TMH.SkillTreeStore.col('Bonus'))
+        
     def SetUpItemView(self):
         """
         Builds the TreeView for the items.
         """
         self.itemView = self.b.get_object('itemView')
-        self.invColumnSelect = gtk.Menu()
-        columns = []
-        col = AddTextColumn(self.itemView,'Name',ItemStore.col('Name'))
-        columns.append((col,'Name'))
-        col = AddTextColumn(self.itemView,'Bonuses',ItemStore.col('Bonuses'))
-        columns.append((col,'Bonuses'))
-        col = AddTextColumn(self.itemView,'Description',ItemStore.col('Description'))
-        columns.append((col,'Description'))
+        TMH.AddTextColumn(self.itemView,'Name',TMH.ItemListStore.col('Name'))
+        TMH.AddTextColumn(self.itemView,'Bonuses',TMH.ItemListStore.col('Bonuses'))
+        TMH.AddTextColumn(self.itemView,'Description',TMH.ItemListStore.col('Description'))
 
-        for col,colName in columns:
-            menuItem = gtk.CheckMenuItem(colName)
-            menuItem.set_active(col.get_visible())
-            menuItem.connect('toggled',self.FromToggleColumn,col)
-            col.set_clickable(True)
-            col.connect('clicked',self.FromInventoryHeaderClick)
-            menuItem.show()
-            self.invColumnSelect.append(menuItem)
+        TMH.RightClickToggle(self.itemView)
     def BuildStatTable(self,char):
         """
         Clears out and constructs the Stat table on the Overview tab.
@@ -293,22 +271,20 @@ class MainWindow(object):
         bonusWid.set_text(str(stat.Bonus()))
     def FromEditStatCell(self,cell,path,text,col):
         st = self.statStore[path][0]
-        if col==StatStore.col('Name'):
+        if col==TMH.StatListStore.col('Name'):
             st.Name = text
-        elif col==StatStore.col('Temporary'):
+        elif col==TMH.StatListStore.col('Temporary'):
             st.Value = int(text)
     def FromEditSkillCell(self,cell,path,text,col):
         sk = self.skillStore[path][0]
-        if col==SkillStore.col('Name'):
+        if col==TMH.SkillTreeStore.col('Name'):
             sk.Name = text
-        elif col==SkillStore.col('Ranks'):
+        elif col==TMH.SkillTreeStore.col('Ranks'):
             sk.Value = int(text)
-    def FromSkillHeaderClick(self,col):
-        self.skillColumnSelect.popup(None,None,None,3,0)
-    def FromStatHeaderClick(self,col):
-        self.statColumnSelect.popup(None,None,None,3,0)
-    def FromInventoryHeaderClick(self,col):
-        self.invColumnSelect.popup(None,None,None,3,0)
+    def FromToggleSkillCell(self,cell,path,col):
+        sk = self.skillStore[path][0]
+        if col==TMH.SkillTreeStore.col('CommonlyUsed'):
+            sk.CommonlyUsed = not sk.CommonlyUsed
     def FromSkillRightClick(self,widget,event):
         if event.button==3: #Right-click
             path = widget.get_path_at_pos(int(event.x),int(event.y))
@@ -352,7 +328,7 @@ class MainWindow(object):
         selection = self.itemView.get_selection()
         model,itIter = selection.get_selected()
         if itIter is not None:
-            item = model.get(itIter,ItemStore.col('Item'))[0]
+            item = model.get(itIter,TMH.ItemListStore.col('obj'))[0]
             self.activeItem = item
             self.OnItemChange(item)
         self.ItemSensitivity()
@@ -371,12 +347,6 @@ class MainWindow(object):
     def OnItemRemove(self,item):
         self.activeItem = None
         self.ItemSensitivity()
-    def FromToggleColumn(self,menuItem,col):
-        newState = menuItem.get_active()
-        col.set_visible(newState)
-        if not any(item.get_active() for item in menuItem.get_parent().get_children()):
-            menuItem.set_active(True)
-            menuItem.toggled()
     def FromItemRightClick(self,widget,event):
         if event.button==3:
             path = widget.get_path_at_pos(int(event.x),int(event.y))

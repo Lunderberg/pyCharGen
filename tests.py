@@ -5,7 +5,7 @@ import os.path as path
 
 import Character
 import DiceParse
-from TreeModelHelpers import StatStore,SkillStore,ItemStore,AddTextColumn,AddCheckboxColumn
+import TreeModelHelpers as TMH
 from MainWindow import MainWindow
 
 charfile = path.join(path.dirname(__file__),'TestChar.txt')
@@ -109,30 +109,30 @@ class TestStatSkillStores(unittest.TestCase):
     def setUp(self):
         self.char = Character.Character.Open(charfile)
     def test_statstore(self):
-        store = StatStore(self.char)
+        store = TMH.StatListStore(self.char)
         for row,stat in zip(store,self.char.Stats):
-            self.assertIs(row[StatStore.col('Stat')],stat)
-            self.assertEqual(row[StatStore.col('Name')],stat.Name)
-            self.assertEqual(row[StatStore.col('Temporary')],stat.Value)
-            self.assertEqual(row[StatStore.col('SelfBonus')],stat.SelfBonus())
-            self.assertEqual(row[StatStore.col('Bonus')],stat.Bonus())
+            self.assertIs(row[TMH.StatListStore.col('obj')],stat)
+            self.assertEqual(row[TMH.StatListStore.col('Name')],stat.Name)
+            self.assertEqual(row[TMH.StatListStore.col('Temporary')],stat.Value)
+            self.assertEqual(row[TMH.StatListStore.col('SelfBonus')],stat.SelfBonus())
+            self.assertEqual(row[TMH.StatListStore.col('Bonus')],stat.Bonus())
         for stIter,stat in zip(store.IterAll,self.char.Stats):
             st,stName,stSB,stBon,stTemp = store.get(stIter,
-                                                    StatStore.col('Stat'),StatStore.col('Name'),
-                                                    StatStore.col('SelfBonus'),StatStore.col('Bonus'),
-                                                    StatStore.col('Temporary'))
+                                                    TMH.StatListStore.col('obj'),TMH.StatListStore.col('Name'),
+                                                    TMH.StatListStore.col('SelfBonus'),TMH.StatListStore.col('Bonus'),
+                                                    TMH.StatListStore.col('Temporary'))
             self.assertIs(st,stat)
             self.assertEqual(stName,stat.Name)
             self.assertEqual(stSB,stat.SelfBonus())
             self.assertEqual(stBon,stat.Bonus())
             self.assertEqual(stTemp,stat.Value)
     def test_skillstore(self):
-        store = SkillStore(self.char)
+        store = TMH.SkillTreeStore(self.char)
         for skIter,skill in zip(store.IterAll,self.char.Skills):
             sk,skName,skSB,skBon,skRanks = store.get(skIter,
-                                                     SkillStore.col('Skill'),SkillStore.col('Name'),
-                                                     SkillStore.col('SelfBonus'),SkillStore.col('Bonus'),
-                                                     SkillStore.col('Ranks'))
+                                                     TMH.SkillTreeStore.col('obj'),TMH.SkillTreeStore.col('Name'),
+                                                     TMH.SkillTreeStore.col('SelfBonus'),TMH.SkillTreeStore.col('Bonus'),
+                                                     TMH.SkillTreeStore.col('Ranks'))
             self.assertIs(sk,skill)
             self.assertEqual(skName,skill.Name)
             self.assertEqual(skSB,skill.SelfBonus())
@@ -216,43 +216,43 @@ class TestMainWindow(unittest.TestCase):
         self.assertEqual(temp.get_text(),'97')
         self.assertEqual(bonus.get_text(),'12')
         for row in self.gui.statStore:
-            if row[StatStore.col('Name')]=='Agility':
+            if row[TMH.StatListStore.col('Name')]=='Agility':
                 agRow = row
-            elif row[StatStore.col('Name')]=='Presence':
+            elif row[TMH.StatListStore.col('Name')]=='Presence':
                 prRow = row
-        self.assertEqual(agRow[StatStore.col('Temporary')],1)
-        self.assertEqual(agRow[StatStore.col('Bonus')],-15)
-        self.assertEqual(prRow[StatStore.col('Temporary')],50)
-        self.assertEqual(prRow[StatStore.col('Bonus')],0)
-        agRow[StatStore.col('Stat')].Value = 100
-        self.assertEqual(agRow[StatStore.col('Bonus')],15)
+        self.assertEqual(agRow[TMH.StatListStore.col('Temporary')],1)
+        self.assertEqual(agRow[TMH.StatListStore.col('Bonus')],-15)
+        self.assertEqual(prRow[TMH.StatListStore.col('Temporary')],50)
+        self.assertEqual(prRow[TMH.StatListStore.col('Bonus')],0)
+        agRow[TMH.StatListStore.col('obj')].Value = 100
+        self.assertEqual(agRow[TMH.StatListStore.col('Bonus')],15)
     def test_load_skills(self):
         self.gui.LoadChar(self.char)
         for skIter in self.gui.skillStore.IterAll:
             skill,ranks,bonus = self.gui.skillStore.get(skIter,
-                                                        SkillStore.col('Skill'),
-                                                        SkillStore.col('Ranks'),
-                                                        SkillStore.col('Bonus'))
+                                                        TMH.SkillTreeStore.col('obj'),
+                                                        TMH.SkillTreeStore.col('Ranks'),
+                                                        TMH.SkillTreeStore.col('Bonus'))
             if skill.Name=='Elvish':
                 self.assertEqual(ranks,1)
                 self.assertEqual(bonus,9020)
                 skill.Value = 15
                 skill,ranks,bonus = self.gui.skillStore.get(skIter,
-                                                            SkillStore.col('Skill'),
-                                                            SkillStore.col('Ranks'),
-                                                            SkillStore.col('Bonus'))
+                                                            TMH.SkillTreeStore.col('obj'),
+                                                            TMH.SkillTreeStore.col('Ranks'),
+                                                            TMH.SkillTreeStore.col('Bonus'))
                 self.assertEqual(ranks,15)
                 self.assertEqual(bonus,9080)
     def test_load_items(self):
         self.gui.LoadChar(self.char)
         bookIter,earIter = list(self.gui.itemStore.IterAll)
-        book = self.gui.itemStore.get(bookIter,ItemStore.col('Item'))[0]
-        ear = self.gui.itemStore.get(earIter,ItemStore.col('Item'))[0]
-        self.assertEqual(self.gui.itemStore.get(bookIter,ItemStore.col('Name'))[0],'Research Book')
+        book = self.gui.itemStore.get(bookIter,TMH.ItemListStore.col('obj'))[0]
+        ear = self.gui.itemStore.get(earIter,TMH.ItemListStore.col('obj'))[0]
+        self.assertEqual(self.gui.itemStore.get(bookIter,TMH.ItemListStore.col('Name'))[0],'Research Book')
         book.Name = 'Researchy Awesome Book'
-        self.assertEqual(self.gui.itemStore.get(bookIter,ItemStore.col('Name'))[0],'Researchy Awesome Book')
+        self.assertEqual(self.gui.itemStore.get(bookIter,TMH.ItemListStore.col('Name'))[0],'Researchy Awesome Book')
         ear.Description = 'Maybe a bit transparent'
-        self.assertEqual(self.gui.itemStore.get(earIter,ItemStore.col('Description'))[0],
+        self.assertEqual(self.gui.itemStore.get(earIter,TMH.ItemListStore.col('Description'))[0],
                          'Maybe a bit transparent')
                 
 

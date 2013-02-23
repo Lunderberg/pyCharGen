@@ -298,6 +298,17 @@ class Skill(Value):
     Type = 'Skill'
     def SelfBonus(self,asker=None):
         return 0 if 'NoBonus' in self.Options else _skillBonuses(self.Value)
+    @property
+    def CommonlyUsed(self):
+        return 'CommonlyUsed' in self.Options
+    @CommonlyUsed.setter
+    def CommonlyUsed(self,val):
+        current = 'CommonlyUsed' in self.Options
+        if val and not current:
+            self.Options.append('CommonlyUsed')
+        elif not val and current:
+            self.Options.remove('CommonlyUsed')
+        self.Changed()
 
 class Item(Value):
     Type = 'Item'
