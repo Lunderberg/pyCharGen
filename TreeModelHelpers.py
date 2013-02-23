@@ -138,10 +138,14 @@ class ItemStore(gtk.ListStore,object):
             self.UpdateItem(itIter)
     def UpdateItem(self,itIter):
         it = self.get(itIter,self.col('Item'))[0]
+        name = it.Name if len(it.Name)<25 else it.Name[:25]+'...'
+        bonus = it.RelativeSaveString()
+        bonus = bonus if len(bonus)<25 else bonus[:25]+'...'
+        descrip = it.Description if len(it.Description)<25 else it.Description[:25]+'...'
         self.set(itIter,
-                 self.col('Name'),it.Name,
-                 self.col('Bonuses'),it.RelativeSaveString(),
-                 self.col('Description'),it.Description)
+                 self.col('Name'),name,
+                 self.col('Bonuses'),bonus,
+                 self.col('Description'),descrip)
     def OnItemAdded(self,item):
         itIter = self.append()
         self.set(itIter,self.col('Item'),item)
@@ -156,7 +160,7 @@ class ItemStore(gtk.ListStore,object):
                 self.remove(itIter)
                 return
 
-def AddTextColumn(treeview,name,columnnumber,sortable=False,editable=None,xalign=0.0):
+def AddTextColumn(treeview,name,columnnumber,sortable=False,editable=None,xalign=0.0,visible=True):
     CellText = gtk.CellRendererText()
     output = gtk.TreeViewColumn(name)
     output.pack_start(CellText,True)
@@ -167,6 +171,7 @@ def AddTextColumn(treeview,name,columnnumber,sortable=False,editable=None,xalign
     if sortable:
         output.set_sort_column_id(0)
     CellText.set_property('xalign',xalign)
+    CellText.set_visible(visible)
     treeview.append_column(output)
     return output
 

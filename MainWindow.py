@@ -47,10 +47,11 @@ class MainWindow(object):
         self.b.get_object('itemView').connect('button-press-event',self.FromItemRightClick)
         self.b.get_object('rcAddItem').connect('button-press-event',self.FromAddItem)
         self.b.get_object('rcDeleteItem').connect('button-press-event',self.FromRemoveItem)
+        self.SetUpItemView()
+        self.FromItemSelected()
 
         self.SetUpStatView()
         self.SetUpSkillView()
-        self.SetUpItemView()
     def Show(self):
         self.window.show_all()
     def Hide(self):
@@ -94,6 +95,7 @@ class MainWindow(object):
             ('Item Added',self.itemStore.OnItemAdded),
             ('Item Changed',self.itemStore.OnItemChange),
             ('Item Removed',self.itemStore.OnItemRemove),
+            ('Item Removed',self.OnItemRemove),
             ]
         for key,func in self.registered:
             self.char.Events.Register(key,func)
@@ -147,31 +149,76 @@ class MainWindow(object):
         Builds the TreeView for the stats.
         """
         self.statView = self.b.get_object('statView')
-        AddTextColumn(self.statView,'Name',StatStore.col('Name'),
+        self.statColumnSelect = gtk.Menu()
+        columns = []
+        col = AddTextColumn(self.statView,'Name',StatStore.col('Name'),
                       editable=self.FromEditStatCell)
-        AddTextColumn(self.statView,'Temp',StatStore.col('Temporary'),
+        columns.append((col,'Name'))
+        col = AddTextColumn(self.statView,'Temp',StatStore.col('Temporary'),
                       editable=self.FromEditStatCell)
-        AddTextColumn(self.statView,'SelfBonus',StatStore.col('SelfBonus'))
-        AddTextColumn(self.statView,'Bonus',StatStore.col('Bonus'))
+        columns.append((col,'Temporary'))
+        col = AddTextColumn(self.statView,'Value Bonus',StatStore.col('SelfBonus'))
+        columns.append((col,'Value Bonus'))
+        col = AddTextColumn(self.statView,'Bonus',StatStore.col('Bonus'))
+        columns.append((col,'Bonus'))
+
+        for col,colName in columns:
+            menuItem = gtk.CheckMenuItem(colName)
+            menuItem.set_active(col.get_visible())
+            menuItem.connect('toggled',self.FromToggleColumn,col)
+            col.set_clickable(True)
+            col.connect('clicked',self.FromStatHeaderClick)
+            menuItem.show()
+            self.statColumnSelect.append(menuItem)
     def SetUpSkillView(self):
         """
         Builds the TreeView for the skills.
+        Also builds the right-click menu to select visible columns.
         """
         self.skillView = self.b.get_object('skillView')
-        AddTextColumn(self.skillView,'Name',SkillStore.col('Name'),
-                      editable=self.FromEditSkillCell)
-        AddTextColumn(self.skillView,'Ranks',SkillStore.col('Ranks'),
-                      editable=self.FromEditSkillCell)
-        AddTextColumn(self.skillView,'Rank Bonus',SkillStore.col('SelfBonus'))
-        AddTextColumn(self.skillView,'Bonus',SkillStore.col('Bonus'))
+        self.skillColumnSelect = gtk.Menu()
+        columns = []
+        col = AddTextColumn(self.skillView,'Name',SkillStore.col('Name'),
+                            editable=self.FromEditSkillCell)
+        columns.append((col,'Name'))
+        col = AddTextColumn(self.skillView,'Ranks',SkillStore.col('Ranks'),
+                            editable=self.FromEditSkillCell)
+        columns.append((col,'Ranks'))
+        col = AddTextColumn(self.skillView,'Rank Bonus',SkillStore.col('SelfBonus'))
+        columns.append((col,'Rank Bonus'))
+        col = AddTextColumn(self.skillView,'Bonus',SkillStore.col('Bonus'))
+        columns.append((col,'Bonus'))
+
+        for col,colName in columns:
+            menuItem = gtk.CheckMenuItem(colName)
+            menuItem.set_active(col.get_visible())
+            menuItem.connect('toggled',self.FromToggleColumn,col)
+            col.set_clickable(True)
+            col.connect('clicked',self.FromSkillHeaderClick)
+            menuItem.show()
+            self.skillColumnSelect.append(menuItem)
     def SetUpItemView(self):
         """
         Builds the TreeView for the items.
         """
         self.itemView = self.b.get_object('itemView')
-        AddTextColumn(self.itemView,'Name',ItemStore.col('Name'))
-        AddTextColumn(self.itemView,'Bonuses',ItemStore.col('Bonuses'))
-        AddTextColumn(self.itemView,'Description',ItemStore.col('Description'))
+        self.invColumnSelect = gtk.Menu()
+        columns = []
+        col = AddTextColumn(self.itemView,'Name',ItemStore.col('Name'))
+        columns.append((col,'Name'))
+        col = AddTextColumn(self.itemView,'Bonuses',ItemStore.col('Bonuses'))
+        columns.append((col,'Bonuses'))
+        col = AddTextColumn(self.itemView,'Description',ItemStore.col('Description'))
+        columns.append((col,'Description'))
+
+        for col,colName in columns:
+            menuItem = gtk.CheckMenuItem(colName)
+            menuItem.set_active(col.get_visible())
+            menuItem.connect('toggled',self.FromToggleColumn,col)
+            col.set_clickable(True)
+            col.connect('clicked',self.FromInventoryHeaderClick)
+            menuItem.show()
+            self.invColumnSelect.append(menuItem)
     def BuildStatTable(self,char):
         """
         Clears out and constructs the Stat table on the Overview tab.
@@ -199,7 +246,9 @@ class MainWindow(object):
         #Add stat information
         for i,st in enumerate(char.Stats):
             loc = i + offset
-            stTable.attach(gtk.Label(st.Name),0,1,loc,loc+1)
+            nameLabel = gtk.Label(st.Name)
+            nameLabel.set_alignment(1.0,0.5)
+            stTable.attach(nameLabel,0,1,loc,loc+1)
             tempWid = gtk.Label(str(st.Value))
             stTable.attach(tempWid,2,3,loc,loc+1)
             bonusWid = gtk.Label(str(st.Bonus()))
@@ -222,6 +271,7 @@ class MainWindow(object):
         resTable.resize(len(resList),2)
         for i,res in enumerate(resList):
             label = gtk.Label(res.Name + ':')
+            label.set_alignment(1.0,0.5)
             value_holder = gtk.Label(str(res.Bonus()))
             resTable.attach(label,0,1,i,i+1)
             self.resistanceWidgets[res.Name] = value_holder
@@ -253,6 +303,12 @@ class MainWindow(object):
             sk.Name = text
         elif col==SkillStore.col('Ranks'):
             sk.Value = int(text)
+    def FromSkillHeaderClick(self,col):
+        self.skillColumnSelect.popup(None,None,None,3,0)
+    def FromStatHeaderClick(self,col):
+        self.statColumnSelect.popup(None,None,None,3,0)
+    def FromInventoryHeaderClick(self,col):
+        self.invColumnSelect.popup(None,None,None,3,0)
     def FromSkillRightClick(self,widget,event):
         if event.button==3: #Right-click
             path = widget.get_path_at_pos(int(event.x),int(event.y))
@@ -299,11 +355,28 @@ class MainWindow(object):
             item = model.get(itIter,ItemStore.col('Item'))[0]
             self.activeItem = item
             self.OnItemChange(item)
+        self.ItemSensitivity()
+    def ItemSensitivity(self):
+        for widName in ['itemNameBox','itemBonusBox','itemDescriptionBox']:
+            wid = self.b.get_object(widName)
+            if self.activeItem is None:
+                wid.set_sensitive(False)
+            else:
+                wid.set_sensitive(True)
     def OnItemChange(self,item):
-        if item is self.activeItem:
+        if item is self.activeItem and item is not None:
             self.b.get_object('itemNameBox').set_text(item.Name)
             self.b.get_object('itemBonusBox').set_text(item.RelativeSaveString())
             self.b.get_object('itemDescriptionBox').get_buffer().set_text(item.Description)
+    def OnItemRemove(self,item):
+        self.activeItem = None
+        self.ItemSensitivity()
+    def FromToggleColumn(self,menuItem,col):
+        newState = menuItem.get_active()
+        col.set_visible(newState)
+        if not any(item.get_active() for item in menuItem.get_parent().get_children()):
+            menuItem.set_active(True)
+            menuItem.toggled()
     def FromItemRightClick(self,widget,event):
         if event.button==3:
             path = widget.get_path_at_pos(int(event.x),int(event.y))

@@ -5,7 +5,8 @@ import os.path as path
 
 import Character
 import DiceParse
-from TreeModelHelpers import StatStore,SkillStore,AddTextColumn,AddCheckboxColumn
+from TreeModelHelpers import StatStore,SkillStore,ItemStore,AddTextColumn,AddCheckboxColumn
+from MainWindow import MainWindow
 
 charfile = path.join(path.dirname(__file__),'TestChar.txt')
 
@@ -51,15 +52,6 @@ class TestStatSkill(unittest.TestCase):
         self.assertEqual(testSkill.SelfBonus(),90)
         testSkill.Value = 35
         self.assertEqual(testSkill.SelfBonus(),105)
-    def test_parentage(self):
-        c = Character.Character()
-        par1 = Character.Stat(100,Names=['name1'])
-        c.AddVal(par1)
-        par2 = Character.Skill(25,Names=['name2'])
-        c.AddVal(par2)
-        child = Character.Skill(1,Parents=['name1','name2'])
-        c.AddVal(child)
-        self.assertEqual(child.Bonus(),child.SelfBonus()+par1.SelfBonus()+par2.SelfBonus())
 
 class TestChar(unittest.TestCase):
     def test_char_building(self):
@@ -77,6 +69,33 @@ class TestChar(unittest.TestCase):
         self.assertEqual(char.Race,'Troll')
         self.assertEqual(char.Level,3)
         self.assertEqual(char.Experience,12345)
+    def test_linking(self):
+        c = Character.Character()
+        par1 = Character.Stat(100,Names=['name1'])
+        c.AddVal(par1)
+        par2 = Character.Skill(25,Names=['name2'])
+        c.AddVal(par2)
+        child = Character.Skill(1,Names=['child'],Parents=['name1','name2'])
+        c.AddVal(child)
+        self.assertEqual(child.Bonus(),child.SelfBonus()+par1.SelfBonus()+par2.SelfBonus())
+        pars = child.Parents
+        self.assertIs(par1,pars.next())
+        self.assertIs(par2,pars.next())
+        self.assertRaises(StopIteration,lambda :pars.next())
+        item1 = Character.Item(None,Children=['child+5'])
+        c.AddVal(item1)
+        self.assertEqual(child.Bonus(),child.SelfBonus()+par1.SelfBonus()+par2.SelfBonus()+5)
+        pars = child.Parents
+        self.assertEqual(len(list(child.Parents)),3)
+        self.assertIs(par1,pars.next())
+        self.assertIs(par2,pars.next())
+        self.assertIs(item1,pars.next())
+        self.assertRaises(StopIteration,lambda :pars.next())
+        c.UnlinkVal(par2)
+        pars = child.Parents
+        self.assertIs(par1,pars.next())
+        self.assertIs(item1,pars.next())
+        self.assertRaises(StopIteration,lambda :pars.next())
     def test_resistances(self):
         char = Character.Character.Open(charfile)
         self.assertEqual(char['Poison'].Bonus(),42)
@@ -169,6 +188,73 @@ class TestValueParse(unittest.TestCase):
             self.assertEqual(it.ChildValues[1][0],'SD')
             self.assertEqual(it.ChildValues[1][1],-2)
             self.assertEqual(it.SaveString(),r'ItemDescription (axe) {Axe+1, SD-2} [Item]')
+
+class TestMainWindow(unittest.TestCase):
+    def setUp(self):
+        self.gui = MainWindow()
+        self.char = Character.Character.Open(charfile)
+    def test_load_misc(self):
+        self.gui.LoadChar(self.char)
+        self.assertEqual(self.gui.b.get_object('characterName').get_text(),'Grognar')
+        self.assertEqual(self.gui.b.get_object('playerName').get_text(),'Grog')
+        self.assertEqual(self.gui.b.get_object('profName').get_text(),'Fighter')
+        self.assertEqual(self.gui.b.get_object('raceName').get_text(),'Troll')
+        self.assertEqual(self.gui.b.get_object('charLevel').get_text(),'3')
+        self.assertEqual(self.gui.b.get_object('cultureName').get_text(),'Hobbit')
+        self.assertEqual(self.gui.b.get_object('experience').get_text(),'12345')
+    def test_load_stats(self):
+        self.gui.LoadChar(self.char)
+        self.assertEqual(self.gui.b.get_object('statTable').get_property('n-columns'),5)
+        self.assertEqual(self.gui.b.get_object('statTable').get_property('n-rows'),13)
+        temp,bonus = self.gui.statWidgets['Constitution']
+        self.assertEqual(temp.get_text(),'100')
+        self.assertEqual(bonus.get_text(),'15')
+        temp,bonus = self.gui.statWidgets['Memory']
+        self.assertEqual(temp.get_text(),'50')
+        self.assertEqual(bonus.get_text(),'0')
+        temp,bonus = self.gui.statWidgets['Self Discipline']
+        self.assertEqual(temp.get_text(),'97')
+        self.assertEqual(bonus.get_text(),'12')
+        for row in self.gui.statStore:
+            if row[StatStore.col('Name')]=='Agility':
+                agRow = row
+            elif row[StatStore.col('Name')]=='Presence':
+                prRow = row
+        self.assertEqual(agRow[StatStore.col('Temporary')],1)
+        self.assertEqual(agRow[StatStore.col('Bonus')],-15)
+        self.assertEqual(prRow[StatStore.col('Temporary')],50)
+        self.assertEqual(prRow[StatStore.col('Bonus')],0)
+        agRow[StatStore.col('Stat')].Value = 100
+        self.assertEqual(agRow[StatStore.col('Bonus')],15)
+    def test_load_skills(self):
+        self.gui.LoadChar(self.char)
+        for skIter in self.gui.skillStore.IterAll:
+            skill,ranks,bonus = self.gui.skillStore.get(skIter,
+                                                        SkillStore.col('Skill'),
+                                                        SkillStore.col('Ranks'),
+                                                        SkillStore.col('Bonus'))
+            if skill.Name=='Elvish':
+                self.assertEqual(ranks,1)
+                self.assertEqual(bonus,9020)
+                skill.Value = 15
+                skill,ranks,bonus = self.gui.skillStore.get(skIter,
+                                                            SkillStore.col('Skill'),
+                                                            SkillStore.col('Ranks'),
+                                                            SkillStore.col('Bonus'))
+                self.assertEqual(ranks,15)
+                self.assertEqual(bonus,9080)
+    def test_load_items(self):
+        self.gui.LoadChar(self.char)
+        bookIter,earIter = list(self.gui.itemStore.IterAll)
+        book = self.gui.itemStore.get(bookIter,ItemStore.col('Item'))[0]
+        ear = self.gui.itemStore.get(earIter,ItemStore.col('Item'))[0]
+        self.assertEqual(self.gui.itemStore.get(bookIter,ItemStore.col('Name'))[0],'Research Book')
+        book.Name = 'Researchy Awesome Book'
+        self.assertEqual(self.gui.itemStore.get(bookIter,ItemStore.col('Name'))[0],'Researchy Awesome Book')
+        ear.Description = 'Maybe a bit transparent'
+        self.assertEqual(self.gui.itemStore.get(earIter,ItemStore.col('Description'))[0],
+                         'Maybe a bit transparent')
+                
 
 if __name__=='__main__':
     unittest.main()

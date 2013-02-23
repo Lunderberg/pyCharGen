@@ -6,8 +6,6 @@ Allow for changing of parent skills of Stats/Skills.
 
 Have some method for modifying resistances.
 
-Figure out how to make the Resistance and Stat tables have right-aligned text boxes.
-
 Improve saved character text file appearance
 
 Inventory
@@ -22,3 +20,8 @@ Have each value type automatically add the type into the Options list if not spe
 
 Fix reading of Miscellaneous values when empty.
   Currently, makes a Value with no options, instead of making a default emptystring for the names.
+
+Implement StatBonus, ParentBonus, ItemBonus in Value
+   Add extra hiden-by-default columns in SkillStore, StatStore to hold these values.
+
+Implement Commonly Used Skills

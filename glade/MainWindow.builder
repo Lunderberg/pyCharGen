@@ -694,6 +694,7 @@
                     </child>
                     <child>
                       <object class="GtkFrame" id="frame9">
+                        <property name="height_request">100</property>
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <property name="label_xalign">0</property>
@@ -807,88 +808,44 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkVPaned" id="vpaned1">
+                  <object class="GtkFrame" id="frame14">
+                    <property name="width_request">500</property>
                     <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="position">350</property>
-                    <property name="position_set">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="label_xalign">0</property>
                     <child>
-                      <object class="GtkFrame" id="frame14">
+                      <object class="GtkAlignment" id="alignment14">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="label_xalign">0</property>
+                        <property name="left_padding">12</property>
                         <child>
-                          <object class="GtkAlignment" id="alignment14">
+                          <object class="GtkScrolledWindow" id="scrolledwindow2">
                             <property name="visible">True</property>
-                            <property name="can_focus">False</property>
-                            <property name="left_padding">12</property>
+                            <property name="can_focus">True</property>
+                            <property name="hscrollbar_policy">never</property>
                             <child>
-                              <object class="GtkScrolledWindow" id="scrolledwindow2">
+                              <object class="GtkTreeView" id="commonSkillView">
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
-                                <property name="hscrollbar_policy">never</property>
-                                <child>
-                                  <object class="GtkTreeView" id="commonSkillView">
-                                    <property name="visible">True</property>
-                                    <property name="can_focus">True</property>
-                                  </object>
-                                </child>
                               </object>
                             </child>
                           </object>
                         </child>
-                        <child type="label">
-                          <object class="GtkLabel" id="label6">
-                            <property name="visible">True</property>
-                            <property name="can_focus">False</property>
-                            <property name="label" translatable="yes">&lt;b&gt;Commonly Used Skills&lt;/b&gt;</property>
-                            <property name="use_markup">True</property>
-                          </object>
-                        </child>
                       </object>
-                      <packing>
-                        <property name="resize">False</property>
-                        <property name="shrink">False</property>
-                      </packing>
                     </child>
-                    <child>
-                      <object class="GtkFrame" id="frame15">
+                    <child type="label">
+                      <object class="GtkLabel" id="label6">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="label_xalign">0</property>
-                        <child>
-                          <object class="GtkAlignment" id="alignment15">
-                            <property name="visible">True</property>
-                            <property name="can_focus">False</property>
-                            <property name="left_padding">12</property>
-                            <child>
-                              <object class="GtkLabel" id="label90">
-                                <property name="visible">True</property>
-                                <property name="can_focus">False</property>
-                                <property name="label" translatable="yes">Not implemented yet.</property>
-                              </object>
-                            </child>
-                          </object>
-                        </child>
-                        <child type="label">
-                          <object class="GtkLabel" id="label89">
-                            <property name="visible">True</property>
-                            <property name="can_focus">False</property>
-                            <property name="label" translatable="yes">&lt;b&gt;Commonly Used Items&lt;/b&gt;</property>
-                            <property name="use_markup">True</property>
-                          </object>
-                        </child>
+                        <property name="label" translatable="yes">&lt;b&gt;Commonly Used Skills&lt;/b&gt;</property>
+                        <property name="use_markup">True</property>
                       </object>
-                      <packing>
-                        <property name="resize">True</property>
-                        <property name="shrink">True</property>
-                      </packing>
                     </child>
                   </object>
                   <packing>
                     <property name="expand">True</property>
                     <property name="fill">True</property>
-                    <property name="position">350</property>
+                    <property name="position">1</property>
                   </packing>
                 </child>
               </object>
