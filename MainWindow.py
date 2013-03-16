@@ -14,7 +14,7 @@ class MainWindow(object):
     """
     def __init__(self):
         builderfile = path.join(path.dirname(__file__),
-                              'glade','MainWindow.builder')
+                              'glade','MainWindow.ui')
 
         self.registered = []
         self.char = None
@@ -174,8 +174,9 @@ class MainWindow(object):
         TMH.AddTextColumn(self.skillView,'Name',TMH.SkillTreeStore.col('Name'),
                             editable=self.FromEditSkillCell)
         TMH.AddTextColumn(self.skillView,'Ranks',TMH.SkillTreeStore.col('Ranks'),
-                            editable=self.FromEditSkillCell)
-        TMH.AddTextColumn(self.skillView,'Rank Bonus',TMH.SkillTreeStore.col('SelfBonus'))
+                            editable=self.FromEditSkillCell,viscol=TMH.SkillTreeStore.col('HasBonus'))
+        TMH.AddTextColumn(self.skillView,'Rank Bonus',TMH.SkillTreeStore.col('SelfBonus'),
+                          viscol=TMH.SkillTreeStore.col('HasBonus'))
         TMH.AddTextColumn(self.skillView,'Bonus',TMH.SkillTreeStore.col('Bonus'))
         TMH.AddCheckboxColumn(self.skillView,'Commonly Used',TMH.SkillTreeStore.col('CommonlyUsed'),
                           editable=self.FromToggleSkillCell)

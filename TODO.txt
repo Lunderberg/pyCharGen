@@ -6,6 +6,9 @@ Allow for changing of parent skills of Stats/Skills.
 
 Have some method for modifying resistances.
 
+Resize resistance frame on adding resistances.
+  Currently, some resistances will not be shown because the frame is too small.
+
 Improve saved character text file appearance
 
 Inventory
@@ -23,3 +26,5 @@ Fix reading of Miscellaneous values when empty.
 
 Implement StatBonus, ParentBonus, ItemBonus in Value
    Add extra hiden-by-default columns in SkillStore, StatStore to hold these values.
+
+Add GUI forms to modify Delta of stats/skills (Levelling up)

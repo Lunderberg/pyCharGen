@@ -52,6 +52,11 @@ class TestStatSkill(unittest.TestCase):
         self.assertEqual(testSkill.SelfBonus(),90)
         testSkill.Value = 35
         self.assertEqual(testSkill.SelfBonus(),105)
+    def test_skill_delta(self):
+        testSkill = Character.Skill(0)
+        testSkill.Delta = 5
+        self.assertEqual(testSkill.SelfBonus(),-25)
+        self.assertEqual(testSkill.SelfBonus(levelled=True),25)
 
 class TestChar(unittest.TestCase):
     def test_char_building(self):
@@ -163,7 +168,7 @@ class TestStringOut(unittest.TestCase):
 
 class TestValueParse(unittest.TestCase):
     def test_value_building(self):
-        sk = Character.Value.FromLine(r'    Test Name (nick1,nick2){par1}[] [Skill]: 5 "Descript \"hi\""')
+        sk = Character.Value.FromLine(r'    Test Name (nick1,nick2)<2,4> {par1}[] [Skill]: 5 "Descript \"hi\""')
         self.assertEqual(type(sk),Character.Skill)
         self.assertEqual(sk.Name,'Test Name')
         self.assertEqual(sk.Names[1],'nick1')
@@ -171,6 +176,10 @@ class TestValueParse(unittest.TestCase):
         self.assertEqual(sk.requestedParents[0],'par1')
         self.assertEqual(sk.Value,5)
         self.assertEqual(sk.Description,'Descript "hi"')
+        self.assertEqual(sk.Costs[0],2)
+        self.assertEqual(sk.Costs[1],4)
+        self.assertEqual(sk.SaveString(),
+                         r'Test Name (nick1, nick2) [Skill] <2,4> : 5 "Descript \"hi\""')
     def test_item_parse(self):
         descList = [r'ItemDescription(axe){Axe+1,SD-2}[Item]',
                     r'ItemDescription(axe){ Axe +1, SD-2}[Item]',
@@ -254,7 +263,6 @@ class TestMainWindow(unittest.TestCase):
         ear.Description = 'Maybe a bit transparent'
         self.assertEqual(self.gui.itemStore.get(earIter,TMH.ItemListStore.col('Description'))[0],
                          'Maybe a bit transparent')
-                
 
 if __name__=='__main__':
     unittest.main()

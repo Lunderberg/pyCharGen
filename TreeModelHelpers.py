@@ -87,7 +87,8 @@ class SkillTreeStore(gtk.TreeStore,object):
     store_format = [
         ('obj',gobject.TYPE_PYOBJECT),
         ('Name',str),('Ranks',int),('SelfBonus',int),('Bonus',int),
-        ('Parents',str),('CommonlyUsed',bool),
+        ('Parents',str),('CommonlyUsed',bool),('HasBonus',bool),
+        ('Delta',int),('NewRanks',int),('NewSelfBonus',int),('NewBonus',int),
         ]
     names = {n:i for i,(n,t) in enumerate(store_format)}
     types = [t for n,t in store_format]
@@ -133,7 +134,13 @@ class SkillTreeStore(gtk.TreeStore,object):
                  self.col('Ranks'),sk.Value,
                  self.col('SelfBonus'),sk.SelfBonus(),
                  self.col('Bonus'),sk.Bonus(),
-                 self.col('CommonlyUsed'),sk.CommonlyUsed)
+                 self.col('CommonlyUsed'),sk.CommonlyUsed,
+                 self.col('HasBonus'),not sk.NoBonus,
+                 self.col('Delta'),sk.Delta,
+                 self.col('NewRanks'),sk.Value+sk.Delta,
+                 self.col('NewSelfBonus'),sk.SelfBonus(levelled=True),
+                 self.col('NewBonus'),sk.Bonus(levelled=True),
+                 )
     def OnValueAdd(self,skill):
         pars = list(skill.Parents)
         for skIter in self.IterAll:
@@ -160,16 +167,9 @@ class SkillListStore(ValueListStore):
     names = {n:i for i,(n,t) in enumerate(store_format)}
     def getVals(self,char):
         return char.Skills 
-    def UpdateVal(self,skIter):
-        sk = self.get(skIter,self.col('obj'))[0]
-        self.set(skIter,
-                 self.col('Name'),sk.Name,
-                 self.col('Ranks'),sk.Value,
-                 self.col('SelfBonus'),sk.SelfBonus(),
-                 self.col('Bonus'),sk.Bonus(),
-                 self.col('CommonlyUsed'),sk.CommonlyUsed)
+    UpdateVal = SkillTreeStore.__dict__['UpdateVal']
 
-def AddTextColumn(treeview,name,columnnumber,editable=None,xalign=0.0,visible=True):
+def AddTextColumn(treeview,name,columnnumber,editable=None,xalign=0.0,visible=True,viscol=None):
     CellText = gtk.CellRendererText()
     output = gtk.TreeViewColumn(name)
     output.pack_start(CellText,True)
@@ -178,6 +178,8 @@ def AddTextColumn(treeview,name,columnnumber,editable=None,xalign=0.0,visible=Tr
         CellText.set_property('editable',True)
         CellText.connect('edited',editable,columnnumber)
     CellText.set_property('xalign',xalign)
+    if viscol is not None:
+        output.add_attribute(CellText,'visible',viscol)
     CellText.set_visible(visible)
     treeview.append_column(output)
     return output

@@ -40,6 +40,9 @@ class Character(object):
         except KeyError:
             raise AttributeError(key)
     @property
+    def Values(self):
+        return iter(self.LinkedVals)
+    @property
     def Skills(self):
         return (val for val in self.LinkedVals if isinstance(val,Skill))
     @property
@@ -165,6 +168,7 @@ class Value(object):
         self.Options = [] if Options is None else Options
         self.Value = Value
         self.Description = Description
+        self.Delta = 0
     @property
     def Name(self):
         return self.Names[0]
@@ -195,6 +199,13 @@ class Value(object):
         self._value = val
         self.Changed()
     @property
+    def Delta(self):
+        return self._delta
+    @Delta.setter
+    def Delta(self,val):
+        self._delta = val
+        self.Changed()
+    @property
     def Description(self):
         return self._Description
     @Description.setter
@@ -202,30 +213,36 @@ class Value(object):
         self._Description = val
         self.Changed()
     def Changed(self):
+        self.Events('Value Changed',self)
         self.Events(self.Type+' Changed',self)
         for ch in self.Children:
             ch.Changed()
-    def SelfBonus(self,asker=None):
+    def SelfBonus(self,asker=None,levelled=False):
         return 0
-    def Bonus(self,asker=None):
-        return self.SelfBonus(asker) + sum(par.Bonus(self) for par in self.Parents)
+    def Bonus(self,asker=None,levelled=False):
+        return self.SelfBonus(asker,levelled) + sum(par.Bonus(self,levelled) for par in self.Parents)
     def RelativeSaveString(self):
         parnames = [par.ShortestName for par in self.Parents]
-        pars = ', '.join(parnames) if parnames else ''
+        pars = ', '.join(parnames)
         return pars
+    def CostSaveString(self):
+        return ''
     def SaveString(self):
         nicks = ('(' + ', '.join(self.Names[1:]) + ')'
                  if len(self.Names)>1 else '')
         relatives = self.RelativeSaveString()
         relatives = '{' + relatives + '}' if relatives else ''
+        costs = self.CostSaveString()
+        costs = '<' + costs + '>' if costs else ''
         opts = ('[' + ', '.join(self.Options) + ']'
                 if self.Options else '')
         val = (': ' + str(self._value)
                if self._value is not None else '')
-        descript = ('"' + self.Description + '"') if self.Description else ''
-        out = ' '.join(s for s in [self.Name,nicks,relatives,opts,val,descript] if s)
+        descript = self.Description if self.Description else ''
         for unescaped,escaped in self._escape_chars:
-            out = out.replace(unescaped,escaped)
+            descript = descript.replace(unescaped,escaped)
+        descript = ('"' + descript + '"') if descript else ''
+        out = ' '.join(s for s in [self.Name,nicks,relatives,opts,costs,val,descript] if s)
         return out
     @classmethod
     def FromLine(cls,line):
@@ -275,7 +292,7 @@ class Value(object):
             description = description.replace(escaped,unescaped)
 
         if 'Skill' in opts:
-            return Skill(Value=value,Names=names,Parents=relatives,Options=opts,Description=description)
+            return Skill(Costs=costs,Value=value,Names=names,Parents=relatives,Options=opts,Description=description)
         elif 'Stat' in opts:
             return Stat(Value=value,Names=names,Parents=relatives,Options=opts,Description=description)
         elif 'Resistance' in opts:
@@ -288,16 +305,21 @@ class Value(object):
 
 class Stat(Value):
     Type = 'Stat'
-    def SelfBonus(self,asker=None):
-        return 0 if 'NoBonus' in self.Options else _statBonuses(self.Value)
+    def SelfBonus(self,asker=None,levelled=False):
+        return 0 if 'NoBonus' in self.Options else _statBonuses(self.Value + (self.Delta if levelled else 0))
+    def Points(self):
+        return 0 if 'NoBonus' in self.Options else _statBonuses(self.Value,item=1)
 
 class Resistance(Value):
     Type = 'Resistance'
 
 class Skill(Value):
     Type = 'Skill'
-    def SelfBonus(self,asker=None):
-        return 0 if 'NoBonus' in self.Options else _skillBonuses(self.Value)
+    def __init__(self,Costs=None,*args,**kwargs):
+        super(Skill,self).__init__(*args,**kwargs)
+        self.Costs = None if Costs is None else Costs
+    def SelfBonus(self,asker=None,levelled=False):
+        return 0 if self.NoBonus else _skillBonuses(self.Value + (self.Delta if levelled else 0))
     @property
     def CommonlyUsed(self):
         return 'CommonlyUsed' in self.Options
@@ -309,6 +331,29 @@ class Skill(Value):
         elif not val and current:
             self.Options.remove('CommonlyUsed')
         self.Changed()
+    @property
+    def NoBonus(self):
+        return 'NoBonus' in self.Options
+    @property
+    def Costs(self):
+        """
+        Return a list of integers given the cost of levelling up skills.
+        If the current skill has no cost, looks in parent skills.
+        """
+        if self._costs:
+            return self._costs
+        for par in self.Parents:
+            if isinstance(par,Skill):
+                res = par.Costs
+                if res:
+                    return par.Costs
+        return []
+    @Costs.setter
+    def Costs(self,val):
+        self._costs = val
+        self.Changed()
+    def CostSaveString(self):
+        return '' if self._costs is None else ','.join(str(i) for i in self._costs)
 
 class Item(Value):
     Type = 'Item'
@@ -347,7 +392,7 @@ class Item(Value):
             return ', '.join('{0}{1:+d}'.format(name,val) for name,val in self.ChildValues)
         else:
             return ''
-    def SelfBonus(self,asker=None):
+    def SelfBonus(self,asker=None,levelled=False):
         if asker is None:
             return 0
         for name,bonus in self.ChildValues:
