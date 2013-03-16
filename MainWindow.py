@@ -6,6 +6,11 @@ import os.path as path
 import Character
 import TreeModelHelpers as TMH
 
+def better_set_text(buff,text):
+    buffText = buff.get_text(buff.get_start_iter(),buff.get_end_iter())
+    if buffText!=text:
+        buff.set_text(text)
+
 class MainWindow(object):
     """
     The main window of the Rolemaster GUI.
@@ -39,20 +44,35 @@ class MainWindow(object):
         self.b.get_object('rcAddSiblingSkill').connect('button-press-event',self.FromAddSiblingSkill)
         self.b.get_object('rcDeleteSkill').connect('button-press-event',self.FromRemoveSkill)
         #Item modifying commands
-        self.activeItem = None
-        self.b.get_object('itemView').connect('cursor-changed',self.FromItemSelected)
-        self.b.get_object('itemNameBox').connect('changed',self.FromItemNameChange)
-        self.b.get_object('itemBonusBox').connect('changed',self.FromItemBonusChange)
-        self.b.get_object('itemDescriptionBox').get_buffer().connect('changed',self.FromItemDescriptionChange)
         self.b.get_object('itemView').connect('button-press-event',self.FromItemRightClick)
         self.b.get_object('rcAddItem').connect('button-press-event',self.FromAddItem)
         self.b.get_object('rcDeleteItem').connect('button-press-event',self.FromRemoveItem)
+
+        self.activeStat = None
+        self.SetUpStatView()
+        self.FromStatSelected()
+        self.b.get_object('statView').connect('cursor-changed',self.FromStatSelected)
+        self.b.get_object('statNameBox').connect('changed',self.FromActiveStatNameChange)
+        self.b.get_object('statCurrentBox').connect('changed',self.FromActiveStatCurrentChange)
+        self.b.get_object('statDescriptionBox').get_buffer().connect('changed',self.FromActiveStatDescriptionChange)
+
+        self.activeSkill = None
+        self.SetUpSkillView()
+        self.FromSkillSelected()
+        self.SetUpCommonlyUsedSkillView()
+        self.b.get_object('skillView').connect('cursor-changed',self.FromSkillSelected)
+        self.b.get_object('skillNameBox').connect('changed',self.FromActiveSkillNameChange)
+        self.b.get_object('skillRankBox').connect('changed',self.FromActiveSkillRankChange)
+        self.b.get_object('skillDescriptionBox').get_buffer().connect('changed',self.FromActiveSkillDescriptionChange)
+
+
+        self.activeItem = None
         self.SetUpItemView()
         self.FromItemSelected()
-
-        self.SetUpStatView()
-        self.SetUpSkillView()
-        self.SetUpCommonlyUsedSkillView()
+        self.b.get_object('itemView').connect('cursor-changed',self.FromItemSelected)
+        self.b.get_object('itemNameBox').connect('changed',self.FromActiveItemNameChange)
+        self.b.get_object('itemBonusBox').connect('changed',self.FromActiveItemBonusChange)
+        self.b.get_object('itemDescriptionBox').get_buffer().connect('changed',self.FromActiveItemDescriptionChange)
     def Show(self):
         self.window.show_all()
     def Hide(self):
@@ -91,12 +111,14 @@ class MainWindow(object):
             ('Stat Changed',self.statStore.OnValueChange),
             ('Skill Added',self.skillStore.OnValueAdd),
             ('Skill Added',self.skillListStore.OnValueAdd),
+            ('Skill Changed',self.OnSkillChange),
             ('Skill Changed',self.skillStore.OnValueChange),
             ('Skill Changed',self.skillListStore.OnValueChange),
             ('Skill Removed',self.skillStore.OnValueRemove),
             ('Skill Removed',self.skillListStore.OnValueRemove),
             ('Resistance Changed',self.OnResistanceChange),
             ('Item Added',self.itemStore.OnValueAdd),
+            ('Item Changed',self.OnItemChange),
             ('Item Changed',self.itemStore.OnValueChange),
             ('Item Removed',self.itemStore.OnValueRemove),
             ('Item Removed',self.OnItemRemove),
@@ -256,8 +278,6 @@ class MainWindow(object):
             self.resistanceWidgets[res.Name] = value_holder
             resTable.attach(value_holder,1,2,i,i+1)
         resTable.show_all()
-    def OnStatChange(self,stat):
-        self.UpdateStat(stat)
     def OnResistanceChange(self,res):
         try:
             self.resistanceWidgets[res.Name].set_text(str(res.Bonus()))
@@ -325,6 +345,55 @@ class MainWindow(object):
             self.char.XP = int(widget.get_text())
         except ValueError:
             pass
+    def FromStatSelected(self,*args):
+        selection = self.statView.get_selection()
+        model,stIter = selection.get_selected()
+        if stIter is not None:
+            stat = model.get(stIter,TMH.StatListStore.col('obj'))[0]
+            self.activeStat = stat
+            self.OnStatChange(stat)
+        self.StatSensitivity()
+    def StatSensitivity(self):
+        for widName in ['statNameBox','statCurrentBox','statPotentialBox','statDescriptionBox']:
+            wid = self.b.get_object(widName)
+            wid.set_sensitive(self.activeStat is not None)
+    def OnStatChange(self,stat):
+        self.UpdateStat(stat)
+        if stat is self.activeStat and stat is not None:
+            self.b.get_object('statNameBox').set_text(stat.Name)
+            self.b.get_object('statCurrentBox').set_text(str(stat.Value))
+            self.b.get_object('statSelfBonusLabel').set_text(str(stat.SelfBonus()))
+            self.b.get_object('statBonusLabel').set_text(str(stat.Bonus()))
+            self.b.get_object('statPotentialBox').set_text('IMPLEMENT POTENTIAL')
+            better_set_text(self.b.get_object('statDescriptionBox').get_buffer(),stat.Description)
+    def FromSkillSelected(self,*args):
+        selection = self.skillView.get_selection()
+        model,skIter = selection.get_selected()
+        if skIter is not None:
+            skill = model.get(skIter,TMH.SkillTreeStore.col('obj'))[0]
+            self.activeSkill = skill
+            self.OnSkillChange(skill)
+        self.SkillSensitivity()
+    def SkillSensitivity(self):
+        for widName in ['skillNameBox','skillDescriptionBox']:
+            wid = self.b.get_object(widName)
+            wid.set_sensitive(self.activeSkill is not None)
+        for widName in ['skillRankBox']:
+            wid = self.b.get_object(widName)
+            wid.set_sensitive(self.activeSkill is not None and self.activeSkill
+    def OnSkillChange(self,skill):
+        if skill is self.activeSkill and skill is not None:
+            self.b.get_object('skillNameBox').set_text(skill.Name)
+            self.b.get_object('skillRankBox').set_text(str(skill.Value))
+            self.b.get_object('skillRankBonusLabel').set_text(str(skill.SelfBonus()))
+            self.b.get_object('skillCategoryBonusLabel').set_text(str(skill.CategoryBonus()))
+            self.b.get_object('skillStatBonusLabel').set_text(str(skill.StatBonus()))
+            self.b.get_object('skillItemBonusLabel').set_text(str(skill.ItemBonus()))
+            self.b.get_object('skillBonusLabel').set_text(str(skill.Bonus()))
+            better_set_text(self.b.get_object('skillDescriptionBox').get_buffer(),skill.Description)
+    def OnSkillRemove(self,skill):
+        self.activeSkill = None
+        self.SkillSensitivity()
     def FromItemSelected(self,*args):
         selection = self.itemView.get_selection()
         model,itIter = selection.get_selected()
@@ -336,15 +405,12 @@ class MainWindow(object):
     def ItemSensitivity(self):
         for widName in ['itemNameBox','itemBonusBox','itemDescriptionBox']:
             wid = self.b.get_object(widName)
-            if self.activeItem is None:
-                wid.set_sensitive(False)
-            else:
-                wid.set_sensitive(True)
+            wid.set_sensitive(self.activeItem is not None)
     def OnItemChange(self,item):
         if item is self.activeItem and item is not None:
             self.b.get_object('itemNameBox').set_text(item.Name)
             self.b.get_object('itemBonusBox').set_text(item.RelativeSaveString())
-            self.b.get_object('itemDescriptionBox').get_buffer().set_text(item.Description)
+            better_set_text(self.b.get_object('itemDescriptionBox').get_buffer(),item.Description)
     def OnItemRemove(self,item):
         self.activeItem = None
         self.ItemSensitivity()
@@ -374,16 +440,43 @@ class MainWindow(object):
         dialog.destroy()
         if result==gtk.RESPONSE_OK:
             self.char.RemoveVal(self.clicked_item)
-    def FromItemNameChange(self,widget):
+    def FromActiveStatNameChange(self,widget):
+        if self.activeStat is not None:
+            self.activeStat.Name = widget.get_text()
+    def FromActiveStatCurrentChange(self,widget):
+        if self.activeStat is not None:
+            try:
+                self.activeStat.Value = int(widget.get_text())
+            except ValueError:
+                pass
+    def FromActiveStatDescriptionChange(self,widget):
+        if self.activeStat is not None:
+            text = widget.get_text(widget.get_start_iter(),widget.get_end_iter())
+            self.activeStat.Description = text
+    def FromActiveSkillNameChange(self,widget):
+        if self.activeSkill is not None:
+            self.activeSkill.Name = self.b.get_object('skillNameBox').get_text()
+    def FromActiveSkillRankChange(self,widget):
+        if self.activeSkill is not None:
+            try:
+                self.activeSkill.Value = int(widget.get_text())
+            except ValueError:
+                pass
+    def FromActiveSkillDescriptionChange(self,widget):
+        if self.activeSkill is not None:
+            text = widget.get_text(widget.get_start_iter(),widget.get_end_iter())
+            self.activeSkill.Description = text
+    def FromActiveItemNameChange(self,widget):
         if self.activeItem is not None:
             self.activeItem.Name = widget.get_text()
-    def FromItemBonusChange(self,widget):
+    def FromActiveItemBonusChange(self,widget):
         if self.activeItem is not None:
             self.activeItem.ChangeBonuses(widget.get_text())
-    def FromItemDescriptionChange(self,widget):
+    def FromActiveItemDescriptionChange(self,widget):
         if self.activeItem is not None:
-            self.activeItem.Description = widget.get_text(
-                widget.get_start_iter(),widget.get_end_iter())
+            self.activeItem.Description = widget.get_text(widget.get_start_iter(),
+                                                          widget.get_end_iter())
+                
         
 
 if __name__=='__main__':

@@ -175,7 +175,7 @@ class Value(object):
     @Name.setter
     def Name(self,val):
         self.Names[0] = val
-        self.Changed()
+        self.Changed(False)
     @property
     def ShortestName(self):
         return min(self.Names,key=len)
@@ -211,16 +211,28 @@ class Value(object):
     @Description.setter
     def Description(self,val):
         self._Description = val
-        self.Changed()
-    def Changed(self):
+        self.Changed(False)
+    @property
+    def NoBonus(self):
+        return 'NoBonus' in self.Options
+    def Changed(self,propagate=True):
         self.Events('Value Changed',self)
         self.Events(self.Type+' Changed',self)
-        for ch in self.Children:
-            ch.Changed()
+        if propagate:
+            for ch in self.Children:
+                ch.Changed()
     def SelfBonus(self,asker=None,levelled=False):
         return 0
     def Bonus(self,asker=None,levelled=False):
         return self.SelfBonus(asker,levelled) + sum(par.Bonus(self,levelled) for par in self.Parents)
+    def CategoryBonus(self,asker=None,levelled=False):
+        return sum(par.Bonus(self,levelled) for par in self.Parents if isinstance(par,Skill) and not par.NoBonus)
+    def StatBonus(self,asker=None,levelled=False):
+        return (sum(par.Bonus(self,levelled) for par in self.Parents if isinstance(par,Stat))
+               + sum(par.StatBonus(self,levelled) for par in self.Parents if par.NoBonus))
+    def ItemBonus(self,asker=None,levelled=False):
+        return (sum(par.Bonus(self,levelled) for par in self.Parents if isinstance(par,Item))
+                +sum(par.Bonus(self,levelled) for par in self.Parents if par.NoBonus))
     def RelativeSaveString(self):
         parnames = [par.ShortestName for par in self.Parents]
         pars = ', '.join(parnames)
@@ -306,9 +318,9 @@ class Value(object):
 class Stat(Value):
     Type = 'Stat'
     def SelfBonus(self,asker=None,levelled=False):
-        return 0 if 'NoBonus' in self.Options else _statBonuses(self.Value + (self.Delta if levelled else 0))
+        return 0 if self.NoBonus else _statBonuses(self.Value + (self.Delta if levelled else 0))
     def Points(self):
-        return 0 if 'NoBonus' in self.Options else _statBonuses(self.Value,item=1)
+        return 0 if self.NoBonus else _statBonuses(self.Value,item=1)
 
 class Resistance(Value):
     Type = 'Resistance'
@@ -330,10 +342,7 @@ class Skill(Value):
             self.Options.append('CommonlyUsed')
         elif not val and current:
             self.Options.remove('CommonlyUsed')
-        self.Changed()
-    @property
-    def NoBonus(self):
-        return 'NoBonus' in self.Options
+        self.Changed(False)
     @property
     def Costs(self):
         """
@@ -363,11 +372,14 @@ class Item(Value):
         self.MakeList(self.requestedChildren)
     def ChangeBonuses(self,bonusStr):
         newList = [s.strip() for s in bonusStr.split(',')]
+        oldChList = self.ChildValues
         self.MakeList(newList)
+        newChList = self.ChildValues
         if self.char is not None:
             self.char.UnlinkVal(self)
             self.char.LinkVal(self)
-        self.Changed()
+        if oldChList!=newChList:
+            self.Changed()
     def MakeList(self,chList):
         """
         Constructs the list of requestedChildren and ChildValues.

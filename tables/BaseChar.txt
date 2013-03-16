@@ -25,7 +25,7 @@ Quickness (Qu) [Stat]: 50
 Reasoning (Re) [Stat]: 50
 Self Discipline (SD) [Stat]: 50
 Strength (St) [Stat]: 50
-Realm [Stat, NoBonus]: 0
+Realm [NoBonus]: 0
 
 #Resistances
 #------------------------

@@ -28,3 +28,11 @@ Implement StatBonus, ParentBonus, ItemBonus in Value
    Add extra hiden-by-default columns in SkillStore, StatStore to hold these values.
 
 Add GUI forms to modify Delta of stats/skills (Levelling up)
+
+Have Ctrl-N,O,S start New, Open, and Save commands.
+
+Add potential stat to the save format and to the Character.Stat object.
+
+Removing a bonus from an item does not update skills that were children, but are no longer.
+  Ex. "Dagger+5, Linguistics-2" becomes "Dagger+5" would not remove the -2 from Linguistics.
+  Fix this.
