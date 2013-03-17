@@ -380,7 +380,8 @@ class MainWindow(object):
             wid.set_sensitive(self.activeSkill is not None)
         for widName in ['skillRankBox']:
             wid = self.b.get_object(widName)
-            wid.set_sensitive(self.activeSkill is not None and self.activeSkill
+            wid.set_sensitive(self.activeSkill is not None and
+                              not self.activeSkill.NoBonus)
     def OnSkillChange(self,skill):
         if skill is self.activeSkill and skill is not None:
             self.b.get_object('skillNameBox').set_text(skill.Name)
