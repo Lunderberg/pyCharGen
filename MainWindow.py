@@ -2,6 +2,7 @@
 
 import gtk
 import os.path as path
+import sys
 
 import Character
 import TreeModelHelpers as TMH
@@ -92,9 +93,11 @@ class MainWindow(object):
         filename = t.get_filename()
         t.destroy()
         if response==gtk.RESPONSE_OK:
-            char = Character.Character.Open(filename)
-            self.filename = filename
-            self.LoadChar(char)
+            self.LoadFile(filename)
+    def LoadFile(self,filename):
+        char = Character.Character.Open(filename)
+        self.filename = filename
+        self.LoadChar(char)
     def LoadChar(self,char):
         """
         Removes any registered functions from the old character, if any.
@@ -531,4 +534,6 @@ class MainWindow(object):
 if __name__=='__main__':
     gui = MainWindow()
     gui.Show()
+    if len(sys.argv)>=2:
+        gui.LoadFile(sys.argv[1])
     gtk.main()

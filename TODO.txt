@@ -42,6 +42,4 @@ Have a "Print to PDF" option.
 
 Make Character.DPallowed and Character.StatPointsAllowed be configurable for multiple rules.
 
-If an argument is passed, the GUI should attempt to load it as a character.
-
 Make the stat increase scheme be configurable.
