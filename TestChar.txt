@@ -37,10 +37,10 @@ Mentalism {Pr, Pr, SD} [Resistance, NoBonus]
 #Skills
 #------------------------
 Linguistics {Me, Me, Re} [Skill, NoBonus]
-Common {Linguistics} [Skill]: 2
-Elvish {Linguistics} [Skill]: 1
+Common {Linguistics} [Skill] <1,1>: 2
+Elvish {Linguistics} [Skill] <1,1,2>: 1
 Lore {Me, Me, Re} [Skill, NoBonus]
-Science {Me, Re, Re} [Skill]: 2
+Science {Me, Re, Re} [Skill] <15>: 2
 
 #Inventory
 #-------------------------

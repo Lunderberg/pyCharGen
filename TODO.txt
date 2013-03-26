@@ -36,3 +36,12 @@ Add potential stat to the save format and to the Character.Stat object.
 Removing a bonus from an item does not update skills that were children, but are no longer.
   Ex. "Dagger+5, Linguistics-2" becomes "Dagger+5" would not remove the -2 from Linguistics.
   Fix this.
+
+Have a "Print to PDF" option.
+  Should generate a latex file, then compile it.
+
+Make Character.DPallowed and Character.StatPointsAllowed be configurable for multiple rules.
+
+If an argument is passed, the GUI should attempt to load it as a character.
+
+Make the stat increase scheme be configurable.

@@ -110,6 +110,23 @@ class Character(object):
         for ch in val.Children:
             self.RemoveVal(ch)
         self.Events('{0} Removed'.format(val.Type),val)
+    def ApplyLevelUp(self):
+        """
+        Applies the increase in level as given by the Delta of each Value.
+        Increments the Level by 1.
+        """
+        for val in self.LinkedVals:
+            val.ApplyLevelUp()
+        self.SetMisc('Level',self.Level+1)
+    def StatPoints(self,levelled=False):
+        return sum(st.Points(levelled) for st in self.Stats)
+    def StatPointsAllowed(self,levelled=False):
+        level = self.Level + (1 if levelled else 0)
+        return 55+12*level
+    def DPspent(self):
+        return sum(sk.DPspent() for sk in self.Skills)
+    def DPallowed(self):
+        return 50
     def SaveString(self):
         lines = ['{0}: {1}'.format(k,v) for k,v in self.MiscVals.items()]
         lines += [val.SaveString() for val in self.LinkedVals]
@@ -221,6 +238,10 @@ class Value(object):
         if propagate:
             for ch in self.Children:
                 ch.Changed()
+    def ApplyLevelUp(self):
+        if self.Value is not None:
+            self.Value += self.Delta
+            self.Delta = 0
     def SelfBonus(self,asker=None,levelled=False):
         return 0
     def Bonus(self,asker=None,levelled=False):
@@ -317,10 +338,40 @@ class Value(object):
 
 class Stat(Value):
     Type = 'Stat'
+    @property
+    def Min(self):
+        for opt in self.Options:
+            if opt[:3]=='Min':
+                try:
+                    return int(opt[3:])
+                except:
+                    pass
+        else:
+            return 1
+    @Min.setter
+    def Min(self,val):
+        self.Options = [opt for opt in self.Options if opt[3:]!='Min']
+        self.Options.append('Min' + '{0:+d}'.format(val))
+        self.Changed(False)
+    @property
+    def Max(self):
+        for opt in self.Options:
+            if opt[:3]=='Max':
+                try:
+                    return int(opt[3:])
+                except:
+                    pass
+        else:
+            return 100
+    @Max.setter
+    def Max(self,val):
+        self.Options = [opt for opt in self.Options if opt[3:]!='Max']
+        self.Options.append('Max' + '{0:+d}'.format(val))
+        self.Changed(False)
     def SelfBonus(self,asker=None,levelled=False):
         return 0 if self.NoBonus else _statBonuses(self.Value + (self.Delta if levelled else 0))
-    def Points(self):
-        return 0 if self.NoBonus else _statBonuses(self.Value,item=1)
+    def Points(self,levelled=False):
+        return 0 if self.NoBonus else _statBonuses(self.Value + (self.Delta if levelled else 0),item=1)
 
 class Resistance(Value):
     Type = 'Resistance'
@@ -363,6 +414,8 @@ class Skill(Value):
         self.Changed()
     def CostSaveString(self):
         return '' if self._costs is None else ','.join(str(i) for i in self._costs)
+    def DPspent(self):
+        return sum(self.Costs[:self.Delta])
 
 class Item(Value):
     Type = 'Item'

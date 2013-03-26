@@ -34,6 +34,7 @@ class MainWindow(object):
         self.b.get_object('fileOpen').connect('activate',self.Open)
         self.b.get_object('fileSave').connect('activate',self.Save)
         self.b.get_object('fileSaveAs').connect('activate',self.SaveAs)
+        self.b.get_object('actionLevelUp').connect('activate',self.FromLevelUp)
         #Updating overview text boxes
         self.b.get_object('characterName').connect('changed',self.FromNameChange)
         self.b.get_object('playerName').connect('changed',self.FromPlayerNameChange)
@@ -55,6 +56,8 @@ class MainWindow(object):
         self.b.get_object('statNameBox').connect('changed',self.FromActiveStatNameChange)
         self.b.get_object('statCurrentBox').connect('changed',self.FromActiveStatCurrentChange)
         self.b.get_object('statDescriptionBox').get_buffer().connect('changed',self.FromActiveStatDescriptionChange)
+        self.b.get_object('postLevelStatValue').connect('changed',self.FromActiveStatLevellingChange)
+        self.b.get_object('postLevelStatValue').connect('value-changed',self.FromActiveStatLevellingChange)
 
         self.activeSkill = None
         self.SetUpSkillView()
@@ -283,13 +286,61 @@ class MainWindow(object):
             self.resistanceWidgets[res.Name].set_text(str(res.Bonus()))
         except KeyError:
             pass
-    def UpdateStat(self,stat):
+    def UpdateStatOverview(self,stat):
         try:
             tempWid,bonusWid = self.statWidgets[stat.Name]
         except KeyError:
             return
         tempWid.set_text(str(stat.Value))
         bonusWid.set_text(str(stat.Bonus()))
+    def UpdateActiveStat(self,stat):
+        self.b.get_object('statNameBox').set_text(stat.Name)
+        self.b.get_object('statCurrentBox').set_text(str(stat.Value))
+        self.b.get_object('statSelfBonusLabel').set_text(str(stat.SelfBonus()))
+        self.b.get_object('statBonusLabel').set_text(str(stat.Bonus()))
+        self.b.get_object('statPotentialBox').set_text(str(stat.Max))
+        better_set_text(self.b.get_object('statDescriptionBox').get_buffer(),stat.Description)
+        adj = self.b.get_object('postLevelStatValue')
+        adj.set_value(stat.Value + stat.Delta)
+        adj.set_lower(stat.Min)
+        adj.set_upper(stat.Max)
+        self.b.get_object('postLevelStatBonus').set_text(str(stat.SelfBonus(levelled=True)))
+    def UpdateActiveSkill(self,skill):
+        self.b.get_object('skillNameBox').set_text(skill.Name)
+        self.b.get_object('skillRankBox').set_text(str(skill.Value))
+        self.b.get_object('skillRankBonusLabel').set_text(str(skill.SelfBonus()))
+        self.b.get_object('skillCategoryBonusLabel').set_text(str(skill.CategoryBonus()))
+        self.b.get_object('skillStatBonusLabel').set_text(str(skill.StatBonus()))
+        self.b.get_object('skillItemBonusLabel').set_text(str(skill.ItemBonus()))
+        self.b.get_object('skillBonusLabel').set_text(str(skill.Bonus()))
+        better_set_text(self.b.get_object('skillDescriptionBox').get_buffer(),skill.Description)
+        self.BuildRanksButtons(skill)
+        self.b.get_object('postLevelSkillRanks').set_text(str(skill.Value+skill.Delta))
+        self.b.get_object('postLevelSkillBonus').set_text(str(skill.SelfBonus(levelled=True)))
+    def BuildRanksButtons(self,skill):
+        """
+        Builds the buttons to be pressed to select the skill ranks to be bought.
+        Currently, is called whenever the active skill changes.
+        Rather overkill to destroy and rebuild the buttons each time,
+             and I might simplify it later.
+        """
+        if not hasattr(self,'_rankButtonHandlers'):
+            self._rankButtonHandlers = []
+        box = self.b.get_object('skillRanksButtonBox')
+        for handler,button in self._rankButtonHandlers:
+            button.disconnect(handler)
+            box.remove(button)
+        self._rankButtonHandlers = []
+        for i,cost in enumerate(skill.Costs):
+            button = gtk.ToggleButton(str(cost))
+            button.set_active((i+1)<=skill.Delta)
+            box.pack_start(button)
+            button.show()
+            handler = button.connect('toggled',self.FromRankButtonToggle,i+1)
+            self._rankButtonHandlers.append((handler,button))
+    def FromRankButtonToggle(self,button,ranks):
+        if self.activeSkill is not None:
+            self.activeSkill.Delta = ranks + (0 if button.get_active() else -1)
     def FromEditStatCell(self,cell,path,text,col):
         st = self.statStore[path][0]
         if col==TMH.StatListStore.col('Name'):
@@ -358,14 +409,11 @@ class MainWindow(object):
             wid = self.b.get_object(widName)
             wid.set_sensitive(self.activeStat is not None)
     def OnStatChange(self,stat):
-        self.UpdateStat(stat)
+        self.UpdateStatOverview(stat)
         if stat is self.activeStat and stat is not None:
-            self.b.get_object('statNameBox').set_text(stat.Name)
-            self.b.get_object('statCurrentBox').set_text(str(stat.Value))
-            self.b.get_object('statSelfBonusLabel').set_text(str(stat.SelfBonus()))
-            self.b.get_object('statBonusLabel').set_text(str(stat.Bonus()))
-            self.b.get_object('statPotentialBox').set_text('IMPLEMENT POTENTIAL')
-            better_set_text(self.b.get_object('statDescriptionBox').get_buffer(),stat.Description)
+            self.UpdateActiveStat(stat)
+        self.b.get_object('SPspentLabel').set_text('Stat Points Spent: {0}/{1}'.format(
+                self.char.StatPoints(levelled=True), self.char.StatPointsAllowed(levelled=True)))
     def FromSkillSelected(self,*args):
         selection = self.skillView.get_selection()
         model,skIter = selection.get_selected()
@@ -384,14 +432,9 @@ class MainWindow(object):
                               not self.activeSkill.NoBonus)
     def OnSkillChange(self,skill):
         if skill is self.activeSkill and skill is not None:
-            self.b.get_object('skillNameBox').set_text(skill.Name)
-            self.b.get_object('skillRankBox').set_text(str(skill.Value))
-            self.b.get_object('skillRankBonusLabel').set_text(str(skill.SelfBonus()))
-            self.b.get_object('skillCategoryBonusLabel').set_text(str(skill.CategoryBonus()))
-            self.b.get_object('skillStatBonusLabel').set_text(str(skill.StatBonus()))
-            self.b.get_object('skillItemBonusLabel').set_text(str(skill.ItemBonus()))
-            self.b.get_object('skillBonusLabel').set_text(str(skill.Bonus()))
-            better_set_text(self.b.get_object('skillDescriptionBox').get_buffer(),skill.Description)
+            self.UpdateActiveSkill(skill)
+        self.b.get_object('DPspentLabel').set_text('Development Points Spent: {0}/{1}'.format(
+                self.char.DPspent(), self.char.DPallowed()))
     def OnSkillRemove(self,skill):
         self.activeSkill = None
         self.SkillSensitivity()
@@ -454,6 +497,9 @@ class MainWindow(object):
         if self.activeStat is not None:
             text = widget.get_text(widget.get_start_iter(),widget.get_end_iter())
             self.activeStat.Description = text
+    def FromActiveStatLevellingChange(self,widget):
+        if self.activeStat is not None:
+            self.activeStat.Delta = int(widget.get_value())-self.activeStat.Value
     def FromActiveSkillNameChange(self,widget):
         if self.activeSkill is not None:
             self.activeSkill.Name = self.b.get_object('skillNameBox').get_text()
@@ -477,6 +523,8 @@ class MainWindow(object):
         if self.activeItem is not None:
             self.activeItem.Description = widget.get_text(widget.get_start_iter(),
                                                           widget.get_end_iter())
+    def FromLevelUp(self,*args):
+        self.char.ApplyLevelUp()
                 
         
 
