@@ -1,0 +1,35 @@
+#Format:
+#
+#  Profession Name [StatMin+Num, StatMin+Num] {Skill, Cost1, Cost2} {Skill, Cost1, Cost2}
+
+No Profession {Linguistics, 2, 4} {Lore, 2, 4} {Science, 3, 5}
+              {Body Development, 4, 6} {Gymnastic, 3, 5} {Movement, 2, 4}
+	      {Combat Expertise, 3, 5} {Shield, 3, 4}
+	      {Combat Training 1, 3, 5} {Combat Training 2, 5, 7} {Combat Training 3, 9, 12} 
+ 	      {Combat Training 4, 12, 15} {Combat Training 5, 16, 20}
+	      {Body Discipline, 3, 4} {Mental Discipline, 3, 4}
+	      {Delving, 3, 5} {Magical Expertise, 3, 5} {Power Manipulation, 3, 5}
+	      {Animal Handling, 3, 4} {Riding, 3, 4} {Driving/Pilot, 3, 4} {Survival, 3, 4}
+	      {Navigation, 2, 4} {Perception, 2, 4} {Tracking, 2, 4}
+	      {Influence, 3, 4} {Leadership, 3, 4} {Social Awareness, 3, 4}
+	      {Magic Ritual, 4, 6} {Power Development, 4, 6} {Base/Open, 4, 6}
+	      {Closed Spells, 4, 6} {Arcane Spells, 20, 24} {Restricted Spells, 20, 24}
+	      {Ambush, 4, 6} {Stalk/Hide, 3, 5} {Trickery, 2, 4}
+	      {Composition, 3, 4} {Crafting, 3, 4} {Mechanical, 3, 5}
+	      {Medical, 3, 4} {Performance Art, 3, 4} {Vocation, 2, 4}
+
+Fighter {Linguistics, 3, 5} {Lore, 3, 5} {Science, 5, 7}
+       	{Body Development, 1, 3} {Gymnastic, 2, 4} {Movement, 1, 3}
+       	{Combat Expertise, 1, 2} {Shield, 1, 2}
+       	{Combat Training 1, 1, 2} {Combat Training 2, 2, 3} {Combat Training 3, 3, 4} 
+       	{Combat Training 4, 3, 5} {Combat Training 5, 4, 6}
+       	{Body Discipline, 2, 3} {Mental Discipline, 4, 6}
+       	{Delving, 9, 12} {Magical Expertise, 9, 12} {Power Manipulation, 9, 12}
+       	{Animal Handling, 2, 4} {Riding, 2, 3} {Driving/Pilot, 2, 4} {Survival, 2, 4}
+       	{Navigation, 3, 4} {Perception, 3, 4} {Tracking, 2, 4}
+       	{Influence, 3, 4} {Leadership, 2, 4} {Social Awareness, 3, 4}
+       	{Magic Ritual, 12, 15} {Power Development, 12, 15} {Base/Open, 12, 15}
+       	{Closed Spells, 20, 24} {Arcane Spells, 20, 24} {Restricted Spells, 20, 24}
+       	{Ambush, 3, 4} {Stalk/Hide, 2, 4} {Trickery, 2, 3}
+       	{Composition, 3, 5} {Crafting, 2, 4} {Mechanical, 4, 6}
+        {Medical, 3, 4} {Performance Art, 3, 5} {Vocation, 2, 4}

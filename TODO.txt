@@ -27,11 +27,11 @@ Fix reading of Miscellaneous values when empty.
 Implement StatBonus, ParentBonus, ItemBonus in Value
    Add extra hiden-by-default columns in SkillStore, StatStore to hold these values.
 
-Add GUI forms to modify Delta of stats/skills (Levelling up)
-
 Have Ctrl-N,O,S start New, Open, and Save commands.
 
 Add potential stat to the save format and to the Character.Stat object.
+  Added as "Max+Num" option.
+  Still need to add GUI options to change this.
 
 Removing a bonus from an item does not update skills that were children, but are no longer.
   Ex. "Dagger+5, Linguistics-2" becomes "Dagger+5" would not remove the -2 from Linguistics.
@@ -43,3 +43,9 @@ Have a "Print to PDF" option.
 Make Character.DPallowed and Character.StatPointsAllowed be configurable for multiple rules.
 
 Make the stat increase scheme be configurable.
+
+Experiment with having text columns update only on losing focus
+
+Add a "Disabled" parameter to items,
+  allowing for item-bonuses to be temporarily disabled.
+  This could be used, for example, if an item is broken, but can be repaired.

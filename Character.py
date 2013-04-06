@@ -34,11 +34,8 @@ class Character(object):
             self.Events('Misc Changed')
         else:
             raise KeyError(val)
-    def __getattr__(self,key):
-        try:
-            return self.MiscVals[key]
-        except KeyError:
-            raise AttributeError(key)
+    def GetMisc(self,key):
+        return self.MiscVals[key]
     @property
     def Values(self):
         return iter(self.LinkedVals)
@@ -117,11 +114,23 @@ class Character(object):
         """
         for val in self.LinkedVals:
             val.ApplyLevelUp()
-        self.SetMisc('Level',self.Level+1)
+        self.SetMisc('Level',self.GetMisc('Level')+1)
+    def LoadProfession(self,profname,profdict):
+        """
+        Expects a dictionary from skill names to a list of skill costs.
+        """
+        for val in self.Values:
+            val.Costs = None
+        self.SetMisc("Profession",profname)
+        for skill,costs in profdict.items():
+            try:
+                self[skill].Costs = costs[:]
+            except KeyError:
+                pass
     def StatPoints(self,levelled=False):
         return sum(st.Points(levelled) for st in self.Stats)
     def StatPointsAllowed(self,levelled=False):
-        level = self.Level + (1 if levelled else 0)
+        level = self.GetMisc('Level') + (1 if levelled else 0)
         return 55+12*level
     def DPspent(self):
         return sum(sk.DPspent() for sk in self.Skills)
@@ -411,7 +420,7 @@ class Skill(Value):
     @Costs.setter
     def Costs(self,val):
         self._costs = val
-        self.Changed()
+        self.Changed(False)
     def CostSaveString(self):
         return '' if self._costs is None else ','.join(str(i) for i in self._costs)
     def DPspent(self):

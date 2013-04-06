@@ -6,6 +6,7 @@ import sys
 
 import Character
 import TreeModelHelpers as TMH
+from Professions import LoadProfessions
 
 def better_set_text(buff,text):
     buffText = buff.get_text(buff.get_start_iter(),buff.get_end_iter())
@@ -22,9 +23,6 @@ class MainWindow(object):
         builderfile = path.join(path.dirname(__file__),
                               'glade','MainWindow.ui')
 
-        self.registered = []
-        self.char = None
-        self.filename = None
 
         self.b = gtk.Builder()
         self.b.add_from_file(builderfile)
@@ -50,6 +48,7 @@ class MainWindow(object):
         self.b.get_object('rcAddItem').connect('button-press-event',self.FromAddItem)
         self.b.get_object('rcDeleteItem').connect('button-press-event',self.FromRemoveItem)
 
+        #Stat modifications.
         self.activeStat = None
         self.SetUpStatView()
         self.FromStatSelected()
@@ -60,6 +59,7 @@ class MainWindow(object):
         self.b.get_object('postLevelStatValue').connect('changed',self.FromActiveStatLevellingChange)
         self.b.get_object('postLevelStatValue').connect('value-changed',self.FromActiveStatLevellingChange)
 
+        #Skill modifications
         self.activeSkill = None
         self.SetUpSkillView()
         self.FromSkillSelected()
@@ -69,7 +69,7 @@ class MainWindow(object):
         self.b.get_object('skillRankBox').connect('changed',self.FromActiveSkillRankChange)
         self.b.get_object('skillDescriptionBox').get_buffer().connect('changed',self.FromActiveSkillDescriptionChange)
 
-
+        #Item modifications
         self.activeItem = None
         self.SetUpItemView()
         self.FromItemSelected()
@@ -77,6 +77,18 @@ class MainWindow(object):
         self.b.get_object('itemNameBox').connect('changed',self.FromActiveItemNameChange)
         self.b.get_object('itemBonusBox').connect('changed',self.FromActiveItemBonusChange)
         self.b.get_object('itemDescriptionBox').get_buffer().connect('changed',self.FromActiveItemDescriptionChange)
+
+        #Profession setup
+        self.MakeProfessionList()
+        self.b.get_object('profBox').connect('changed',self.FromProfessionChange)
+
+        #Set up a default character.
+        self.registered = []
+        self.char = None
+        #self.LoadChar(Character.Character())
+        self.LoadFile(path.join(path.dirname(__file__),
+                                'tables','BaseChar.txt'))
+        self.filename = None
     def Show(self):
         self.window.show_all()
     def Hide(self):
@@ -152,6 +164,23 @@ class MainWindow(object):
             with open(filename,'w') as f:
                 f.write(self.char.SaveString())
             self.filename = filename
+    def MakeProfessionList(self):
+        self._profdict = LoadProfessions(path.join(
+                path.dirname(__file__),'tables','Professions.txt'))
+        profBox = self.b.get_object('profBox')
+        # profBox.clear()
+        # for key in self._profdict:
+        #     profBox.append_text(key)
+        model = gtk.ListStore(str)
+        for key in self._profdict:
+            model.set(model.append(),0,key)
+        profBox.set_model(model)
+        cell = gtk.CellRendererText()
+        profBox.pack_start(cell,True)
+        profBox.add_attribute(cell,'text',0)
+    def FromProfessionChange(self,wid):
+        profname = wid.get_active_text()
+        self.char.LoadProfession(profname,self._profdict[profname])
     def UpdateAll(self,*args):
         """
         Refreshes all character information from self.char.
@@ -173,13 +202,13 @@ class MainWindow(object):
         self.BuildResistanceTable(self.char)
         self.UpdateMisc()
     def UpdateMisc(self,*args):
-        self.b.get_object('playerName').set_text(self.char.PlayerName)
-        self.b.get_object('characterName').set_text(self.char.Name)
-        self.b.get_object('profName').set_text(self.char.Profession)
-        self.b.get_object('raceName').set_text(self.char.Race)
-        self.b.get_object('cultureName').set_text(self.char.Culture)
-        self.b.get_object('charLevel').set_text(str(self.char.Level))
-        self.b.get_object('experience').set_text(str(self.char.Experience))
+        self.b.get_object('playerName').set_text(self.char.GetMisc('PlayerName'))
+        self.b.get_object('characterName').set_text(self.char.GetMisc('Name'))
+        self.b.get_object('profName').set_text(self.char.GetMisc('Profession'))
+        self.b.get_object('raceName').set_text(self.char.GetMisc('Race'))
+        self.b.get_object('cultureName').set_text(self.char.GetMisc('Culture'))
+        self.b.get_object('charLevel').set_text(str(self.char.GetMisc('Level')))
+        self.b.get_object('experience').set_text(str(self.char.GetMisc('Experience')))
     def SetUpStatView(self):
         """
         Builds the TreeView for the stats.
@@ -334,13 +363,14 @@ class MainWindow(object):
             button.disconnect(handler)
             box.remove(button)
         self._rankButtonHandlers = []
-        for i,cost in enumerate(skill.Costs):
-            button = gtk.ToggleButton(str(cost))
-            button.set_active((i+1)<=skill.Delta)
-            box.pack_start(button)
-            button.show()
-            handler = button.connect('toggled',self.FromRankButtonToggle,i+1)
-            self._rankButtonHandlers.append((handler,button))
+        if not skill.NoBonus:
+            for i,cost in enumerate(skill.Costs):
+                button = gtk.ToggleButton(str(cost))
+                button.set_active((i+1)<=skill.Delta)
+                box.pack_start(button)
+                button.show()
+                handler = button.connect('toggled',self.FromRankButtonToggle,i+1)
+                self._rankButtonHandlers.append((handler,button))
     def FromRankButtonToggle(self,button,ranks):
         if self.activeSkill is not None:
             self.activeSkill.Delta = ranks + (0 if button.get_active() else -1)
@@ -391,12 +421,12 @@ class MainWindow(object):
         if result==gtk.RESPONSE_OK:
             self.char.RemoveVal(sk)
     def FromNameChange(self,widget):
-        self.char.Name = widget.get_text()
+        self.char.SetMisc('Name',widget.get_text())
     def FromPlayerNameChange(self,widget):
-        self.char.PlayerName = widget.get_text()
+        self.char.SetMisc('PlayerName',widget.get_text())
     def FromXPChange(self,widget):
         try:
-            self.char.XP = int(widget.get_text())
+            self.char.SetMisc('Experience',int(widget.get_text()))
         except ValueError:
             pass
     def FromStatSelected(self,*args):
