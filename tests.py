@@ -57,6 +57,12 @@ class TestStatSkill(unittest.TestCase):
         testSkill.Delta = 5
         self.assertEqual(testSkill.SelfBonus(),-25)
         self.assertEqual(testSkill.SelfBonus(levelled=True),25)
+    def test_stat_minmax(self):
+        testStat = Character.Stat(50)
+        testStat.Min = 5
+        self.assertEqual(testStat.Min,5)
+        testStat.Max = 75
+        self.assertEqual(testStat.Max,75)
 
 class TestChar(unittest.TestCase):
     def test_char_building(self):
@@ -68,12 +74,12 @@ class TestChar(unittest.TestCase):
         self.assertEqual(char['Lore'].Bonus(),17)
         self.assertEqual(len(list(char.Stats)),10)
         self.assertEqual(len(list(char.Skills)),5)
-        self.assertEqual(char.Name,'Grognar')
-        self.assertEqual(char.PlayerName,'Grog')
-        self.assertEqual(char.Profession,'Fighter')
-        self.assertEqual(char.Race,'Troll')
-        self.assertEqual(char.Level,3)
-        self.assertEqual(char.Experience,12345)
+        self.assertEqual(char.GetMisc('Name'),'Grognar')
+        self.assertEqual(char.GetMisc('PlayerName'),'Grog')
+        self.assertEqual(char.GetMisc('Profession'),'Fighter')
+        self.assertEqual(char.GetMisc('Race'),'Troll')
+        self.assertEqual(char.GetMisc('Level'),3)
+        self.assertEqual(char.GetMisc('Experience'),12345)
     def test_linking(self):
         c = Character.Character()
         par1 = Character.Stat(100,Names=['name1'])

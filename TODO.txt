@@ -29,10 +29,6 @@ Implement StatBonus, ParentBonus, ItemBonus in Value
 
 Have Ctrl-N,O,S start New, Open, and Save commands.
 
-Add potential stat to the save format and to the Character.Stat object.
-  Added as "Max+Num" option.
-  Still need to add GUI options to change this.
-
 Removing a bonus from an item does not update skills that were children, but are no longer.
   Ex. "Dagger+5, Linguistics-2" becomes "Dagger+5" would not remove the -2 from Linguistics.
   Fix this.
@@ -49,3 +45,19 @@ Experiment with having text columns update only on losing focus
 Add a "Disabled" parameter to items,
   allowing for item-bonuses to be temporarily disabled.
   This could be used, for example, if an item is broken, but can be repaired.
+
+Improve GUI-backend communication.
+  Currently, the reading of values from the backend can cause additional backend changes,
+   such as when reloading the active stat.
+  This can cause infinite loops that become hard to diagnose.
+  To fix this, should make two big changes.
+  1. Have EventHandler collect the signals to be run,
+      but not call them until an "Execute" function is called.
+     This will allow for delayed updating of the GUI.
+  2. Have a MainWindow.Update() function, to be called when the GUI is to be updated from the backend.
+     Should first disable all the signals from the GUI.
+          object.handler_block(handler_id)
+     Then, should call self.char.Events.Executes()  (Probably through a self.char.Update())
+     Finally, re-enable the signals from the GUI.
+          object.handler_unblock(handler_id)
+  This way, the GUI will only be updated at specified times.

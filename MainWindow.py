@@ -55,9 +55,10 @@ class MainWindow(object):
         self.b.get_object('statView').connect('cursor-changed',self.FromStatSelected)
         self.b.get_object('statNameBox').connect('changed',self.FromActiveStatNameChange)
         self.b.get_object('statCurrentBox').connect('changed',self.FromActiveStatCurrentChange)
+        self.b.get_object('statPotentialBox').connect('changed',self.FromActiveStatPotentialChange)
         self.b.get_object('statDescriptionBox').get_buffer().connect('changed',self.FromActiveStatDescriptionChange)
-        self.b.get_object('postLevelStatValue').connect('changed',self.FromActiveStatLevellingChange)
-        self.b.get_object('postLevelStatValue').connect('value-changed',self.FromActiveStatLevellingChange)
+        self.b.get_object('levellingStatGain').connect('changed',self.FromActiveStatLevellingChange)
+        self.b.get_object('levellingStatGain').connect('value-changed',self.FromActiveStatLevellingChange)
 
         #Skill modifications
         self.activeSkill = None
@@ -332,10 +333,10 @@ class MainWindow(object):
         self.b.get_object('statBonusLabel').set_text(str(stat.Bonus()))
         self.b.get_object('statPotentialBox').set_text(str(stat.Max))
         better_set_text(self.b.get_object('statDescriptionBox').get_buffer(),stat.Description)
-        adj = self.b.get_object('postLevelStatValue')
-        adj.set_value(stat.Value + stat.Delta)
-        adj.set_lower(stat.Min)
-        adj.set_upper(stat.Max)
+        adj = self.b.get_object('levellingStatGain')
+        adj.set_value(stat.Delta)
+        adj.set_lower(0)
+        adj.set_upper(stat.Max-stat.Value)
         self.b.get_object('postLevelStatBonus').set_text(str(stat.SelfBonus(levelled=True)))
     def UpdateActiveSkill(self,skill):
         self.b.get_object('skillNameBox').set_text(skill.Name)
@@ -445,8 +446,11 @@ class MainWindow(object):
         self.UpdateStatOverview(stat)
         if stat is self.activeStat and stat is not None:
             self.UpdateActiveStat(stat)
-        self.b.get_object('SPspentLabel').set_text('Stat Points Spent: {0}/{1}'.format(
-                self.char.StatPoints(levelled=True), self.char.StatPointsAllowed(levelled=True)))
+        for widname in ['SPspentLabel','initSPspent']:
+            self.b.get_object(widname).set_text('Stat Points Spent: {0}/{1}'.format(
+                    self.char.StatPoints(levelled=True)-self.char.StatPoints(), self.char.StatPointsAllowed()))
+        self.b.get_object('potlSPspent').set_text("Pot'l Stat Points Spent: {0}/{1}".format(
+                self.char.StatPoints(potl=True), self.char.StatPointsAllowed(potl=True)))
     def FromSkillSelected(self,*args):
         selection = self.skillView.get_selection()
         model,skIter = selection.get_selected()
@@ -523,7 +527,16 @@ class MainWindow(object):
     def FromActiveStatCurrentChange(self,widget):
         if self.activeStat is not None:
             try:
+                print "Changing stat to ",widget.get_text()
                 self.activeStat.Value = int(widget.get_text())
+            except ValueError:
+                pass
+        print "Done Changing"
+    def FromActiveStatPotentialChange(self,widget):
+        if self.activeStat is not None:
+            print "box text ", widget.get_text()
+            try:
+                self.activeStat.Max = int(widget.get_text())
             except ValueError:
                 pass
     def FromActiveStatDescriptionChange(self,widget):
@@ -532,7 +545,7 @@ class MainWindow(object):
             self.activeStat.Description = text
     def FromActiveStatLevellingChange(self,widget):
         if self.activeStat is not None:
-            self.activeStat.Delta = int(widget.get_value())-self.activeStat.Value
+            self.activeStat.Delta = int(widget.get_value())
     def FromActiveSkillNameChange(self,widget):
         if self.activeSkill is not None:
             self.activeSkill.Name = self.b.get_object('skillNameBox').get_text()

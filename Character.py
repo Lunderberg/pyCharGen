@@ -127,11 +127,14 @@ class Character(object):
                 self[skill].Costs = costs[:]
             except KeyError:
                 pass
-    def StatPoints(self,levelled=False):
-        return sum(st.Points(levelled) for st in self.Stats)
-    def StatPointsAllowed(self,levelled=False):
-        level = self.GetMisc('Level') + (1 if levelled else 0)
-        return 55+12*level
+    def StatPoints(self,levelled=False,potl=False):
+        return sum(st.Points(levelled,potl) for st in self.Stats)
+    def StatPointsAllowed(self,level=None,potl=False):
+        if potl:
+            return 355
+        else:
+            level = self.GetMisc('Level') if level is None else level
+            return 55 if level==0 else 12
     def DPspent(self):
         return sum(sk.DPspent() for sk in self.Skills)
     def DPallowed(self):
@@ -222,8 +225,11 @@ class Value(object):
         return 0 if self._value is None else self._value
     @Value.setter
     def Value(self,val):
-        self._value = val
-        self.Changed()
+        if self.IsValid(val):
+            self._value = val
+            self.Changed()
+    def IsValid(self,val):
+        return True
     @property
     def Delta(self):
         return self._delta
@@ -371,16 +377,28 @@ class Stat(Value):
                 except:
                     pass
         else:
-            return 100
+            return 50
     @Max.setter
     def Max(self,val):
         self.Options = [opt for opt in self.Options if opt[3:]!='Max']
         self.Options.append('Max' + '{0:+d}'.format(val))
         self.Changed(False)
-    def SelfBonus(self,asker=None,levelled=False):
-        return 0 if self.NoBonus else _statBonuses(self.Value + (self.Delta if levelled else 0))
-    def Points(self,levelled=False):
-        return 0 if self.NoBonus else _statBonuses(self.Value + (self.Delta if levelled else 0),item=1)
+    def IsValid(self,val):
+        return 1 <= val <= 100
+    def SelfBonus(self,asker=None,levelled=False,potl=False):
+        if self.NoBonus:
+            return 0
+        elif potl:
+            return _statBonuses(self.Max)
+        else:
+            return _statBonuses(self.Value + (self.Delta if levelled else 0))
+    def Points(self,levelled=False,potl=False):
+        if self.NoBonus:
+            return 0
+        elif potl:
+            return _statBonuses(self.Max,item=1)
+        else:
+            return _statBonuses(self.Value + (self.Delta if levelled else 0),item=1)
 
 class Resistance(Value):
     Type = 'Resistance'

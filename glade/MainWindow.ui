@@ -777,87 +777,100 @@
                 <property name="visible">True</property>
                 <property name="orientation">vertical</property>
                 <child>
-                  <object class="GtkFrame" id="frame22">
+                  <object class="GtkHBox" id="hbox5">
                     <property name="visible">True</property>
-                    <property name="label_xalign">0</property>
                     <child>
-                      <object class="GtkAlignment" id="alignment24">
+                      <object class="GtkFrame" id="frame22">
                         <property name="visible">True</property>
-                        <property name="left_padding">12</property>
+                        <property name="label_xalign">0</property>
                         <child>
-                          <object class="GtkComboBox" id="profBox">
+                          <object class="GtkAlignment" id="alignment24">
                             <property name="visible">True</property>
+                            <property name="left_padding">12</property>
+                            <child>
+                              <object class="GtkComboBox" id="profBox">
+                                <property name="visible">True</property>
+                              </object>
+                            </child>
+                          </object>
+                        </child>
+                        <child type="label">
+                          <object class="GtkLabel" id="label59">
+                            <property name="visible">True</property>
+                            <property name="label" translatable="yes">&lt;b&gt;Profession&lt;/b&gt;</property>
+                            <property name="use_markup">True</property>
                           </object>
                         </child>
                       </object>
+                      <packing>
+                        <property name="position">0</property>
+                      </packing>
                     </child>
-                    <child type="label">
-                      <object class="GtkLabel" id="label59">
+                    <child>
+                      <object class="GtkFrame" id="frame23">
                         <property name="visible">True</property>
-                        <property name="label" translatable="yes">&lt;b&gt;Profession&lt;/b&gt;</property>
-                        <property name="use_markup">True</property>
+                        <property name="label_xalign">0</property>
+                        <child>
+                          <object class="GtkAlignment" id="alignment25">
+                            <property name="visible">True</property>
+                            <property name="left_padding">12</property>
+                            <child>
+                              <object class="GtkLabel" id="label63">
+                                <property name="visible">True</property>
+                                <property name="label" translatable="yes">Not implemented</property>
+                              </object>
+                            </child>
+                          </object>
+                        </child>
+                        <child type="label">
+                          <object class="GtkLabel" id="label60">
+                            <property name="visible">True</property>
+                            <property name="label" translatable="yes">&lt;b&gt;Race&lt;/b&gt;</property>
+                            <property name="use_markup">True</property>
+                          </object>
+                        </child>
                       </object>
+                      <packing>
+                        <property name="position">1</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkFrame" id="frame24">
+                        <property name="visible">True</property>
+                        <property name="label_xalign">0</property>
+                        <child>
+                          <object class="GtkAlignment" id="alignment26">
+                            <property name="visible">True</property>
+                            <property name="left_padding">12</property>
+                            <child>
+                              <object class="GtkLabel" id="label64">
+                                <property name="visible">True</property>
+                                <property name="label" translatable="yes">Not implemented</property>
+                              </object>
+                            </child>
+                          </object>
+                        </child>
+                        <child type="label">
+                          <object class="GtkLabel" id="label61">
+                            <property name="visible">True</property>
+                            <property name="label" translatable="yes">&lt;b&gt;Culture&lt;/b&gt;</property>
+                            <property name="use_markup">True</property>
+                          </object>
+                        </child>
+                      </object>
+                      <packing>
+                        <property name="position">2</property>
+                      </packing>
                     </child>
                   </object>
                   <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">False</property>
                     <property name="position">0</property>
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkFrame" id="frame23">
-                    <property name="visible">True</property>
-                    <property name="label_xalign">0</property>
-                    <child>
-                      <object class="GtkAlignment" id="alignment25">
-                        <property name="visible">True</property>
-                        <property name="left_padding">12</property>
-                        <child>
-                          <object class="GtkLabel" id="label63">
-                            <property name="visible">True</property>
-                            <property name="label" translatable="yes">Not implemented</property>
-                          </object>
-                        </child>
-                      </object>
-                    </child>
-                    <child type="label">
-                      <object class="GtkLabel" id="label60">
-                        <property name="visible">True</property>
-                        <property name="label" translatable="yes">&lt;b&gt;Race&lt;/b&gt;</property>
-                        <property name="use_markup">True</property>
-                      </object>
-                    </child>
-                  </object>
-                  <packing>
-                    <property name="position">1</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkFrame" id="frame24">
-                    <property name="visible">True</property>
-                    <property name="label_xalign">0</property>
-                    <child>
-                      <object class="GtkAlignment" id="alignment26">
-                        <property name="visible">True</property>
-                        <property name="left_padding">12</property>
-                        <child>
-                          <object class="GtkLabel" id="label64">
-                            <property name="visible">True</property>
-                            <property name="label" translatable="yes">Not implemented</property>
-                          </object>
-                        </child>
-                      </object>
-                    </child>
-                    <child type="label">
-                      <object class="GtkLabel" id="label61">
-                        <property name="visible">True</property>
-                        <property name="label" translatable="yes">&lt;b&gt;Culture&lt;/b&gt;</property>
-                        <property name="use_markup">True</property>
-                      </object>
-                    </child>
-                  </object>
-                  <packing>
-                    <property name="position">2</property>
-                  </packing>
+                  <placeholder/>
                 </child>
               </object>
               <packing>
@@ -911,6 +924,68 @@
                   <object class="GtkVBox" id="vbox2">
                     <property name="visible">True</property>
                     <property name="orientation">vertical</property>
+                    <child>
+                      <object class="GtkFrame" id="frame25">
+                        <property name="visible">True</property>
+                        <property name="label_xalign">0</property>
+                        <child>
+                          <object class="GtkAlignment" id="alignment27">
+                            <property name="visible">True</property>
+                            <property name="left_padding">12</property>
+                            <child>
+                              <object class="GtkTable" id="table7">
+                                <property name="visible">True</property>
+                                <property name="n_rows">2</property>
+                                <property name="n_columns">2</property>
+                                <child>
+                                  <object class="GtkLabel" id="initSPspent">
+                                    <property name="visible">True</property>
+                                  </object>
+                                  <packing>
+                                    <property name="top_attach">1</property>
+                                    <property name="bottom_attach">2</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <object class="GtkLabel" id="potlSPspent">
+                                    <property name="visible">True</property>
+                                  </object>
+                                  <packing>
+                                    <property name="left_attach">1</property>
+                                    <property name="right_attach">2</property>
+                                    <property name="top_attach">1</property>
+                                    <property name="bottom_attach">2</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <object class="GtkLabel" id="label66">
+                                    <property name="visible">True</property>
+                                    <property name="xalign">0</property>
+                                    <property name="xpad">10</property>
+                                    <property name="label" translatable="yes">	Select each stat, then choose a value for the current and potential stat value.  The higher the stat value, the stronger the character.  The allowed number of stat points for the starting and the potential stat are shown here.</property>
+                                    <property name="wrap">True</property>
+                                  </object>
+                                  <packing>
+                                    <property name="right_attach">2</property>
+                                    <property name="x_options">GTK_EXPAND</property>
+                                  </packing>
+                                </child>
+                              </object>
+                            </child>
+                          </object>
+                        </child>
+                        <child type="label">
+                          <object class="GtkLabel" id="label65">
+                            <property name="visible">True</property>
+                            <property name="label" translatable="yes">&lt;b&gt;Initial Stats&lt;/b&gt;</property>
+                            <property name="use_markup">True</property>
+                          </object>
+                        </child>
+                      </object>
+                      <packing>
+                        <property name="position">0</property>
+                      </packing>
+                    </child>
                     <child>
                       <object class="GtkFrame" id="frame2">
                         <property name="visible">True</property>
@@ -1004,7 +1079,7 @@
                                               <object class="GtkEntry" id="statCurrentBox">
                                                 <property name="visible">True</property>
                                                 <property name="can_focus">True</property>
-                                                <property name="invisible_char">&#x2022;</property>
+                                                <property name="invisible_char">&#x25CF;</property>
                                                 <property name="primary_icon_sensitive">True</property>
                                                 <property name="secondary_icon_sensitive">True</property>
                                               </object>
@@ -1123,7 +1198,7 @@
                         </child>
                       </object>
                       <packing>
-                        <property name="position">0</property>
+                        <property name="position">1</property>
                       </packing>
                     </child>
                     <child>
@@ -1144,7 +1219,7 @@
                                     <property name="visible">True</property>
                                     <property name="xalign">1</property>
                                     <property name="xpad">10</property>
-                                    <property name="label" translatable="yes">New Value:</property>
+                                    <property name="label" translatable="yes">Stat Increase:</property>
                                   </object>
                                 </child>
                                 <child>
@@ -1167,7 +1242,7 @@
                                     <property name="invisible_char_set">True</property>
                                     <property name="primary_icon_sensitive">True</property>
                                     <property name="secondary_icon_sensitive">True</property>
-                                    <property name="adjustment">postLevelStatValue</property>
+                                    <property name="adjustment">levellingStatGain</property>
                                     <property name="snap_to_ticks">True</property>
                                     <property name="numeric">True</property>
                                   </object>
@@ -1216,7 +1291,7 @@
                         </child>
                       </object>
                       <packing>
-                        <property name="position">1</property>
+                        <property name="position">2</property>
                       </packing>
                     </child>
                   </object>
@@ -1927,7 +2002,7 @@
       </object>
     </child>
   </object>
-  <object class="GtkAdjustment" id="postLevelStatValue">
+  <object class="GtkAdjustment" id="levellingStatGain">
     <property name="upper">100</property>
     <property name="step_increment">1</property>
     <property name="page_increment">10</property>

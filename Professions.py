@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import re
+from collections import OrderedDict
 
 def LoadProfessions(filename):
     """
@@ -10,7 +11,7 @@ def LoadProfessions(filename):
     """
     with open(filename) as f:
         text = f.read()
-    profs = {}
+    profs = OrderedDict()
     #Strip out comments.
     text = re.sub(r'(^|[^\\])#.*',r'',text)
     for profMatch in re.finditer(r'(\S[^{}]*?)\s*'
@@ -28,4 +29,5 @@ def LoadProfessions(filename):
         
 if __name__=='__main__':
     import pprint
-    pprint.pprint(LoadProfessions('tables/Professions.txt'))
+    LoadProfessions('tables/Professions.txt')
+
