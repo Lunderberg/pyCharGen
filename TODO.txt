@@ -40,10 +40,17 @@ Make Character.DPallowed and Character.StatPointsAllowed be configurable for mul
 
 Make the stat increase scheme be configurable.
 
-Experiment with having text columns update only on losing focus
+Experiment with having text boxes update only on losing focus or receiving "Enter"
 
 Add a "Disabled" parameter to items,
   allowing for item-bonuses to be temporarily disabled.
   This could be used, for example, if an item is broken, but can be repaired.
 
 Adjust EventHandler's Execute function so it will not call the same function twice.
+
+Have explicit "Fudge-factor mode" and "Normal mode"
+  In Normal mode, cannot adjust things that should not be adjustable.
+    No changing of stat values other than through levelling up.
+    No changing of skill ranks other than through levelling up.
+    No changing of potential stat value whatsoever.
+  In "Fudge-factor mode" ("GM Mode"?), can adjust any value however you feel like it.

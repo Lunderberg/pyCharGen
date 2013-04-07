@@ -322,6 +322,8 @@
                         </child>
                       </object>
                       <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">False</property>
                         <property name="position">0</property>
                       </packing>
                     </child>
@@ -614,12 +616,13 @@
                         </child>
                       </object>
                       <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">False</property>
                         <property name="position">1</property>
                       </packing>
                     </child>
                     <child>
                       <object class="GtkFrame" id="frame9">
-                        <property name="height_request">100</property>
                         <property name="visible">True</property>
                         <property name="label_xalign">0</property>
                         <child>
@@ -629,68 +632,8 @@
                             <child>
                               <object class="GtkTable" id="resistanceTable">
                                 <property name="visible">True</property>
-                                <property name="n_rows">12</property>
+                                <property name="n_rows">2</property>
                                 <property name="n_columns">2</property>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
                                 <child>
                                   <placeholder/>
                                 </child>
@@ -716,6 +659,8 @@
                         </child>
                       </object>
                       <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">False</property>
                         <property name="position">2</property>
                       </packing>
                     </child>
@@ -878,19 +823,19 @@
               </packing>
             </child>
             <child type="tab">
-              <object class="GtkLabel" id="label58">
+              <object class="GtkLabel" id="label67">
                 <property name="visible">True</property>
                 <property name="label" translatable="yes">Starting Character</property>
               </object>
               <packing>
-                <property name="position">4</property>
+                <property name="position">1</property>
                 <property name="tab_fill">False</property>
               </packing>
             </child>
             <child>
-              <object class="GtkHBox" id="hbox1">
+              <object class="GtkHPaned" id="hpaned1">
                 <property name="visible">True</property>
-                <property name="spacing">10</property>
+                <property name="can_focus">True</property>
                 <child>
                   <object class="GtkFrame" id="frame1">
                     <property name="visible">True</property>
@@ -917,7 +862,8 @@
                     </child>
                   </object>
                   <packing>
-                    <property name="position">0</property>
+                    <property name="resize">False</property>
+                    <property name="shrink">True</property>
                   </packing>
                 </child>
                 <child>
@@ -925,7 +871,8 @@
                     <property name="visible">True</property>
                     <property name="orientation">vertical</property>
                     <child>
-                      <object class="GtkFrame" id="frame25">
+                      <object class="GtkFrame" id="startStatFrame">
+                        <property name="height_request">150</property>
                         <property name="visible">True</property>
                         <property name="label_xalign">0</property>
                         <child>
@@ -983,6 +930,8 @@
                         </child>
                       </object>
                       <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">False</property>
                         <property name="position">0</property>
                       </packing>
                     </child>
@@ -1028,6 +977,7 @@
                                   </object>
                                   <packing>
                                     <property name="expand">False</property>
+                                    <property name="fill">False</property>
                                     <property name="position">0</property>
                                   </packing>
                                 </child>
@@ -1153,6 +1103,7 @@
                                   </object>
                                   <packing>
                                     <property name="expand">False</property>
+                                    <property name="fill">False</property>
                                     <property name="position">1</property>
                                   </packing>
                                 </child>
@@ -1203,6 +1154,7 @@
                     </child>
                     <child>
                       <object class="GtkFrame" id="statLevellingUpFrame">
+                        <property name="height_request">125</property>
                         <property name="visible">True</property>
                         <property name="label_xalign">0</property>
                         <child>
@@ -1291,12 +1243,15 @@
                         </child>
                       </object>
                       <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">False</property>
                         <property name="position">2</property>
                       </packing>
                     </child>
                   </object>
                   <packing>
-                    <property name="position">1</property>
+                    <property name="resize">True</property>
+                    <property name="shrink">True</property>
                   </packing>
                 </child>
               </object>
@@ -1315,9 +1270,9 @@
               </packing>
             </child>
             <child>
-              <object class="GtkHBox" id="hbox2">
+              <object class="GtkHPaned" id="hpaned2">
                 <property name="visible">True</property>
-                <property name="spacing">10</property>
+                <property name="can_focus">True</property>
                 <child>
                   <object class="GtkFrame" id="frame6">
                     <property name="visible">True</property>
@@ -1352,7 +1307,8 @@
                     </child>
                   </object>
                   <packing>
-                    <property name="position">0</property>
+                    <property name="resize">False</property>
+                    <property name="shrink">True</property>
                   </packing>
                 </child>
                 <child>
@@ -1387,7 +1343,7 @@
                                           <object class="GtkEntry" id="skillNameBox">
                                             <property name="visible">True</property>
                                             <property name="can_focus">True</property>
-                                            <property name="invisible_char">&#x2022;</property>
+                                            <property name="invisible_char">&#x25CF;</property>
                                             <property name="primary_icon_sensitive">True</property>
                                             <property name="secondary_icon_sensitive">True</property>
                                           </object>
@@ -1403,6 +1359,8 @@
                                     </child>
                                   </object>
                                   <packing>
+                                    <property name="expand">False</property>
+                                    <property name="fill">False</property>
                                     <property name="position">0</property>
                                   </packing>
                                 </child>
@@ -1454,7 +1412,7 @@
                                               <object class="GtkEntry" id="skillRankBox">
                                                 <property name="visible">True</property>
                                                 <property name="can_focus">True</property>
-                                                <property name="invisible_char">&#x2022;</property>
+                                                <property name="invisible_char">&#x25CF;</property>
                                                 <property name="primary_icon_sensitive">True</property>
                                                 <property name="secondary_icon_sensitive">True</property>
                                               </object>
@@ -1594,6 +1552,8 @@
                                     </child>
                                   </object>
                                   <packing>
+                                    <property name="expand">False</property>
+                                    <property name="fill">False</property>
                                     <property name="position">1</property>
                                   </packing>
                                 </child>
@@ -1639,7 +1599,6 @@
                         </child>
                       </object>
                       <packing>
-                        <property name="expand">False</property>
                         <property name="position">0</property>
                       </packing>
                     </child>
@@ -1665,6 +1624,7 @@
                                         <property name="left_padding">12</property>
                                         <child>
                                           <object class="GtkHBox" id="skillRanksButtonBox">
+                                            <property name="height_request">30</property>
                                             <property name="visible">True</property>
                                             <child>
                                               <placeholder/>
@@ -1688,13 +1648,16 @@
                                     </child>
                                   </object>
                                   <packing>
+                                    <property name="expand">False</property>
+                                    <property name="fill">False</property>
                                     <property name="position">0</property>
                                   </packing>
                                 </child>
                                 <child>
                                   <object class="GtkTable" id="table6">
+                                    <property name="height_request">100</property>
                                     <property name="visible">True</property>
-                                    <property name="n_rows">2</property>
+                                    <property name="n_rows">3</property>
                                     <property name="n_columns">2</property>
                                     <child>
                                       <object class="GtkLabel" id="label49">
@@ -1736,19 +1699,21 @@
                                         <property name="bottom_attach">2</property>
                                       </packing>
                                     </child>
+                                    <child>
+                                      <object class="GtkLabel" id="DPspentLabel">
+                                        <property name="visible">True</property>
+                                        <property name="xalign">1</property>
+                                        <property name="xpad">10</property>
+                                      </object>
+                                      <packing>
+                                        <property name="right_attach">2</property>
+                                        <property name="top_attach">2</property>
+                                        <property name="bottom_attach">3</property>
+                                      </packing>
+                                    </child>
                                   </object>
                                   <packing>
                                     <property name="position">1</property>
-                                  </packing>
-                                </child>
-                                <child>
-                                  <object class="GtkLabel" id="DPspentLabel">
-                                    <property name="visible">True</property>
-                                    <property name="xalign">1</property>
-                                    <property name="xpad">10</property>
-                                  </object>
-                                  <packing>
-                                    <property name="position">2</property>
                                   </packing>
                                 </child>
                               </object>
@@ -1764,13 +1729,15 @@
                         </child>
                       </object>
                       <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">False</property>
                         <property name="position">1</property>
                       </packing>
                     </child>
                   </object>
                   <packing>
-                    <property name="expand">False</property>
-                    <property name="position">1</property>
+                    <property name="resize">True</property>
+                    <property name="shrink">True</property>
                   </packing>
                 </child>
               </object>
@@ -1789,8 +1756,9 @@
               </packing>
             </child>
             <child>
-              <object class="GtkHBox" id="hbox4">
+              <object class="GtkHPaned" id="hpaned3">
                 <property name="visible">True</property>
+                <property name="can_focus">True</property>
                 <child>
                   <object class="GtkFrame" id="frame16">
                     <property name="visible">True</property>
@@ -1816,7 +1784,8 @@
                     </child>
                   </object>
                   <packing>
-                    <property name="position">0</property>
+                    <property name="resize">False</property>
+                    <property name="shrink">True</property>
                   </packing>
                 </child>
                 <child>
@@ -1843,7 +1812,7 @@
                                       <object class="GtkEntry" id="itemNameBox">
                                         <property name="visible">True</property>
                                         <property name="can_focus">True</property>
-                                        <property name="invisible_char">&#x2022;</property>
+                                        <property name="invisible_char">&#x25CF;</property>
                                         <property name="primary_icon_sensitive">True</property>
                                         <property name="secondary_icon_sensitive">True</property>
                                       </object>
@@ -1860,6 +1829,7 @@
                               </object>
                               <packing>
                                 <property name="expand">False</property>
+                                <property name="fill">False</property>
                                 <property name="position">0</property>
                               </packing>
                             </child>
@@ -1875,7 +1845,7 @@
                                       <object class="GtkEntry" id="itemBonusBox">
                                         <property name="visible">True</property>
                                         <property name="can_focus">True</property>
-                                        <property name="invisible_char">&#x2022;</property>
+                                        <property name="invisible_char">&#x25CF;</property>
                                         <property name="primary_icon_sensitive">True</property>
                                         <property name="secondary_icon_sensitive">True</property>
                                       </object>
@@ -1892,6 +1862,7 @@
                               </object>
                               <packing>
                                 <property name="expand">False</property>
+                                <property name="fill">False</property>
                                 <property name="position">1</property>
                               </packing>
                             </child>
@@ -1937,7 +1908,8 @@
                     </child>
                   </object>
                   <packing>
-                    <property name="position">1</property>
+                    <property name="resize">True</property>
+                    <property name="shrink">True</property>
                   </packing>
                 </child>
               </object>
@@ -1946,7 +1918,7 @@
               </packing>
             </child>
             <child type="tab">
-              <object class="GtkLabel" id="label26">
+              <object class="GtkLabel" id="label58">
                 <property name="visible">True</property>
                 <property name="label" translatable="yes">Inventory</property>
               </object>

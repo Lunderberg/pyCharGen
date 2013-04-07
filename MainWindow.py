@@ -109,6 +109,7 @@ class MainWindow(object):
         self.Unblock()
     def Show(self):
         self.window.show_all()
+        self.ShowHideLevelling()
     def Hide(self):
         self.window.hide()
     def Open(self,*args):
@@ -221,6 +222,7 @@ class MainWindow(object):
         self.BuildStatTable(self.char)
         self.BuildResistanceTable(self.char)
         self.UpdateMisc()
+        self.ShowHideLevelling()
         self.Unblock()
     def UpdateMisc(self,*args):
         self.b.get_object('playerName').set_text(self.char.GetMisc('PlayerName'))
@@ -334,6 +336,23 @@ class MainWindow(object):
             self.resistanceWidgets[res.Name] = value_holder
             resTable.attach(value_holder,1,2,i,i+1)
         resTable.show_all()
+    def ShowHideLevelling(self):
+        """
+        Shows or hide widgets based on the current character state.
+        Character starting information should not be present once hitting level 1.
+        Likewise, levelling-up information should not be present until hitting level 1.
+        """
+        if self.char is None:
+            return
+        level = self.char.GetMisc('Level')
+        if level==0:
+            self.b.get_object('statLevellingUpFrame').hide()
+            self.b.get_object('mainTabs').get_nth_page(1).show()
+            self.b.get_object('startStatFrame').show()
+        else:
+            self.b.get_object('statLevellingUpFrame').show()
+            self.b.get_object('mainTabs').get_nth_page(1).hide()
+            self.b.get_object('startStatFrame').hide()
     def OnResistanceChange(self,res):
         try:
             self.resistanceWidgets[res.Name].set_text(str(res.Bonus()))
@@ -628,6 +647,7 @@ class MainWindow(object):
         self.Update()
     def FromLevelUp(self,*args):
         self.char.ApplyLevelUp()
+        self.ShowHideLevelling()
         self.Update()
                 
         
