@@ -36,6 +36,8 @@ class Character(object):
             raise KeyError(val)
     def GetMisc(self,key):
         return self.MiscVals[key]
+    def Update(self):
+        self.Events.Execute()
     @property
     def Values(self):
         return iter(self.LinkedVals)
@@ -365,7 +367,7 @@ class Stat(Value):
             return 1
     @Min.setter
     def Min(self,val):
-        self.Options = [opt for opt in self.Options if opt[3:]!='Min']
+        self.Options = [opt for opt in self.Options if opt[:3]!='Min']
         self.Options.append('Min' + '{0:+d}'.format(val))
         self.Changed(False)
     @property
@@ -380,7 +382,7 @@ class Stat(Value):
             return 50
     @Max.setter
     def Max(self,val):
-        self.Options = [opt for opt in self.Options if opt[3:]!='Max']
+        self.Options = [opt for opt in self.Options if opt[:3]!='Max']
         self.Options.append('Max' + '{0:+d}'.format(val))
         self.Changed(False)
     def IsValid(self,val):

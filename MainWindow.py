@@ -22,7 +22,7 @@ class MainWindow(object):
     def __init__(self):
         builderfile = path.join(path.dirname(__file__),
                               'glade','MainWindow.ui')
-
+        self.char = None
 
         self.b = gtk.Builder()
         self.b.add_from_file(builderfile)
@@ -30,66 +30,83 @@ class MainWindow(object):
         self.window.connect('delete_event',gtk.main_quit)
         
         #Menu commands
-        self.b.get_object('fileOpen').connect('activate',self.Open)
-        self.b.get_object('fileSave').connect('activate',self.Save)
-        self.b.get_object('fileSaveAs').connect('activate',self.SaveAs)
-        self.b.get_object('actionLevelUp').connect('activate',self.FromLevelUp)
+        self.Connect(self.b.get_object('fileOpen'),'activate',self.Open)
+        self.Connect(self.b.get_object('fileSave'),'activate',self.Save)
+        self.Connect(self.b.get_object('fileSaveAs'),'activate',self.SaveAs)
+        self.Connect(self.b.get_object('actionLevelUp'),'activate',self.FromLevelUp)
         #Updating overview text boxes
-        self.b.get_object('characterName').connect('changed',self.FromNameChange)
-        self.b.get_object('playerName').connect('changed',self.FromPlayerNameChange)
-        self.b.get_object('experience').connect('changed',self.FromXPChange)
+        self.Connect(self.b.get_object('characterName'),'changed',self.FromNameChange)
+        self.Connect(self.b.get_object('playerName'),'changed',self.FromPlayerNameChange)
+        self.Connect(self.b.get_object('experience'),'changed',self.FromXPChange)
         #Skill right-clicking commands
-        self.b.get_object('skillView').connect('button-press-event',self.FromSkillRightClick)
-        self.b.get_object('rcAddChildSkill').connect('button-press-event',self.FromAddChildSkill)
-        self.b.get_object('rcAddSiblingSkill').connect('button-press-event',self.FromAddSiblingSkill)
-        self.b.get_object('rcDeleteSkill').connect('button-press-event',self.FromRemoveSkill)
+        self.Connect(self.b.get_object('skillView'),'button-press-event',self.FromSkillRightClick)
+        self.Connect(self.b.get_object('rcAddChildSkill'),'button-press-event',self.FromAddChildSkill)
+        self.Connect(self.b.get_object('rcAddSiblingSkill'),'button-press-event',self.FromAddSiblingSkill)
+        self.Connect(self.b.get_object('rcDeleteSkill'),'button-press-event',self.FromRemoveSkill)
         #Item modifying commands
-        self.b.get_object('itemView').connect('button-press-event',self.FromItemRightClick)
-        self.b.get_object('rcAddItem').connect('button-press-event',self.FromAddItem)
-        self.b.get_object('rcDeleteItem').connect('button-press-event',self.FromRemoveItem)
+        self.Connect(self.b.get_object('itemView'),'button-press-event',self.FromItemRightClick)
+        self.Connect(self.b.get_object('rcAddItem'),'button-press-event',self.FromAddItem)
+        self.Connect(self.b.get_object('rcDeleteItem'),'button-press-event',self.FromRemoveItem)
 
         #Stat modifications.
         self.activeStat = None
         self.SetUpStatView()
         self.FromStatSelected()
-        self.b.get_object('statView').connect('cursor-changed',self.FromStatSelected)
-        self.b.get_object('statNameBox').connect('changed',self.FromActiveStatNameChange)
-        self.b.get_object('statCurrentBox').connect('changed',self.FromActiveStatCurrentChange)
-        self.b.get_object('statPotentialBox').connect('changed',self.FromActiveStatPotentialChange)
-        self.b.get_object('statDescriptionBox').get_buffer().connect('changed',self.FromActiveStatDescriptionChange)
-        self.b.get_object('levellingStatGain').connect('changed',self.FromActiveStatLevellingChange)
-        self.b.get_object('levellingStatGain').connect('value-changed',self.FromActiveStatLevellingChange)
+        self.Connect(self.b.get_object('statView'),'cursor-changed',self.FromStatSelected)
+        self.Connect(self.b.get_object('statNameBox'),'changed',self.FromActiveStatNameChange)
+        self.Connect(self.b.get_object('statCurrentBox'),'changed',self.FromActiveStatCurrentChange)
+        self.Connect(self.b.get_object('statPotentialBox'),'changed',self.FromActiveStatPotentialChange)
+        self.Connect(self.b.get_object('statDescriptionBox').get_buffer(),
+                     'changed',self.FromActiveStatDescriptionChange)
+        self.Connect(self.b.get_object('levellingStatGain'),'changed',self.FromActiveStatLevellingChange)
+        self.Connect(self.b.get_object('levellingStatGain'),'value-changed',self.FromActiveStatLevellingChange)
 
         #Skill modifications
         self.activeSkill = None
         self.SetUpSkillView()
         self.FromSkillSelected()
         self.SetUpCommonlyUsedSkillView()
-        self.b.get_object('skillView').connect('cursor-changed',self.FromSkillSelected)
-        self.b.get_object('skillNameBox').connect('changed',self.FromActiveSkillNameChange)
-        self.b.get_object('skillRankBox').connect('changed',self.FromActiveSkillRankChange)
-        self.b.get_object('skillDescriptionBox').get_buffer().connect('changed',self.FromActiveSkillDescriptionChange)
+        self.Connect(self.b.get_object('skillView'),'cursor-changed',self.FromSkillSelected)
+        self.Connect(self.b.get_object('skillNameBox'),'changed',self.FromActiveSkillNameChange)
+        self.Connect(self.b.get_object('skillRankBox'),'changed',self.FromActiveSkillRankChange)
+        self.Connect(self.b.get_object('skillDescriptionBox').get_buffer(),
+                     'changed',self.FromActiveSkillDescriptionChange)
 
         #Item modifications
         self.activeItem = None
         self.SetUpItemView()
         self.FromItemSelected()
-        self.b.get_object('itemView').connect('cursor-changed',self.FromItemSelected)
-        self.b.get_object('itemNameBox').connect('changed',self.FromActiveItemNameChange)
-        self.b.get_object('itemBonusBox').connect('changed',self.FromActiveItemBonusChange)
-        self.b.get_object('itemDescriptionBox').get_buffer().connect('changed',self.FromActiveItemDescriptionChange)
+        self.Connect(self.b.get_object('itemView'),'cursor-changed',self.FromItemSelected)
+        self.Connect(self.b.get_object('itemNameBox'),'changed',self.FromActiveItemNameChange)
+        self.Connect(self.b.get_object('itemBonusBox'),'changed',self.FromActiveItemBonusChange)
+        self.Connect(self.b.get_object('itemDescriptionBox').get_buffer(),'changed',self.FromActiveItemDescriptionChange)
 
         #Profession setup
         self.MakeProfessionList()
-        self.b.get_object('profBox').connect('changed',self.FromProfessionChange)
+        self.Connect(self.b.get_object('profBox'),'changed',self.FromProfessionChange)
 
         #Set up a default character.
         self.registered = []
-        self.char = None
-        #self.LoadChar(Character.Character())
         self.LoadFile(path.join(path.dirname(__file__),
                                 'tables','BaseChar.txt'))
         self.filename = None
+    def Connect(self,wid,sig,hand):
+        if not hasattr(self,'_handlers'):
+            self._handlers = []
+        hand_id = wid.connect(sig,hand)
+        self._handlers.append( (wid,hand_id) )
+    def Block(self):
+        for wid,handler_id in self._handlers:
+            wid.handler_block(handler_id)
+    def Unblock(self):
+        for wid,handler_id in self._handlers:
+            wid.handler_unblock(handler_id)
+    def Update(self):
+        if self.char is None:
+            return
+        self.Block()
+        self.char.Update()
+        self.Unblock()
     def Show(self):
         self.window.show_all()
     def Hide(self):
@@ -182,6 +199,7 @@ class MainWindow(object):
     def FromProfessionChange(self,wid):
         profname = wid.get_active_text()
         self.char.LoadProfession(profname,self._profdict[profname])
+        self.Update()
     def UpdateAll(self,*args):
         """
         Refreshes all character information from self.char.
@@ -189,6 +207,7 @@ class MainWindow(object):
         Rebuilds self.statStore and self.skillStore.
         Rebuilds table of resistances.
         """
+        self.Block()
         self.statStore = TMH.StatListStore(self.char)
         self.statView.set_model(self.statStore)
         self.skillStore = TMH.SkillTreeStore(self.char)
@@ -202,6 +221,7 @@ class MainWindow(object):
         self.BuildStatTable(self.char)
         self.BuildResistanceTable(self.char)
         self.UpdateMisc()
+        self.Unblock()
     def UpdateMisc(self,*args):
         self.b.get_object('playerName').set_text(self.char.GetMisc('PlayerName'))
         self.b.get_object('characterName').set_text(self.char.GetMisc('Name'))
@@ -334,9 +354,9 @@ class MainWindow(object):
         self.b.get_object('statPotentialBox').set_text(str(stat.Max))
         better_set_text(self.b.get_object('statDescriptionBox').get_buffer(),stat.Description)
         adj = self.b.get_object('levellingStatGain')
-        adj.set_value(stat.Delta)
         adj.set_lower(0)
-        adj.set_upper(stat.Max-stat.Value)
+        adj.set_upper(100-stat.Value)
+        adj.set_value(stat.Delta)
         self.b.get_object('postLevelStatBonus').set_text(str(stat.SelfBonus(levelled=True)))
     def UpdateActiveSkill(self,skill):
         self.b.get_object('skillNameBox').set_text(skill.Name)
@@ -375,22 +395,26 @@ class MainWindow(object):
     def FromRankButtonToggle(self,button,ranks):
         if self.activeSkill is not None:
             self.activeSkill.Delta = ranks + (0 if button.get_active() else -1)
+        self.Update()
     def FromEditStatCell(self,cell,path,text,col):
         st = self.statStore[path][0]
         if col==TMH.StatListStore.col('Name'):
             st.Name = text
         elif col==TMH.StatListStore.col('Temporary'):
             st.Value = int(text)
+        self.Update()
     def FromEditSkillCell(self,cell,path,text,col):
         sk = self.skillStore[path][0]
         if col==TMH.SkillTreeStore.col('Name'):
             sk.Name = text
         elif col==TMH.SkillTreeStore.col('Ranks'):
             sk.Value = int(text)
+        self.Update()
     def FromToggleSkillCell(self,cell,path,col):
         sk = self.skillStore[path][0]
         if col==TMH.SkillTreeStore.col('CommonlyUsed'):
             sk.CommonlyUsed = not sk.CommonlyUsed
+        self.Update()
     def FromSkillRightClick(self,widget,event):
         if event.button==3: #Right-click
             path = widget.get_path_at_pos(int(event.x),int(event.y))
@@ -405,10 +429,12 @@ class MainWindow(object):
         sk = self.skillStore[self.clicked_path][0]
         newSkill = Character.Skill(0,Names=['New Skill'],Options=['Skill'],Parents=[sk.Name])
         self.char.AddVal(newSkill)
+        self.Update()
     def FromAddSiblingSkill(self,*args):
         sk = self.skillStore[self.clicked_path][0]
         newSkill = Character.Skill(0,Names=['New Skill'],Options=['Skill'],Parents = [par.Name for par in sk.Parents])
         self.char.AddVal(newSkill)
+        self.Update()
     def FromRemoveSkill(self,*args):
         sk = self.skillStore[self.clicked_path][0]
         dialog = gtk.Dialog('Are you sure?', self.window,
@@ -421,22 +447,28 @@ class MainWindow(object):
         dialog.destroy()
         if result==gtk.RESPONSE_OK:
             self.char.RemoveVal(sk)
+        self.Update()
     def FromNameChange(self,widget):
         self.char.SetMisc('Name',widget.get_text())
+        self.Update()
     def FromPlayerNameChange(self,widget):
         self.char.SetMisc('PlayerName',widget.get_text())
+        self.Update()
     def FromXPChange(self,widget):
         try:
             self.char.SetMisc('Experience',int(widget.get_text()))
         except ValueError:
-            pass
+            pass 
+        self.Update()
     def FromStatSelected(self,*args):
         selection = self.statView.get_selection()
         model,stIter = selection.get_selected()
         if stIter is not None:
             stat = model.get(stIter,TMH.StatListStore.col('obj'))[0]
             self.activeStat = stat
+            self.Block()
             self.OnStatChange(stat)
+            self.Unblock()
         self.StatSensitivity()
     def StatSensitivity(self):
         for widName in ['statNameBox','statCurrentBox','statPotentialBox','statDescriptionBox']:
@@ -446,18 +478,31 @@ class MainWindow(object):
         self.UpdateStatOverview(stat)
         if stat is self.activeStat and stat is not None:
             self.UpdateActiveStat(stat)
-        for widname in ['SPspentLabel','initSPspent']:
-            self.b.get_object(widname).set_text('Stat Points Spent: {0}/{1}'.format(
-                    self.char.StatPoints(levelled=True)-self.char.StatPoints(), self.char.StatPointsAllowed()))
-        self.b.get_object('potlSPspent').set_text("Pot'l Stat Points Spent: {0}/{1}".format(
-                self.char.StatPoints(potl=True), self.char.StatPointsAllowed(potl=True)))
+        try:
+            self.b.get_object('SPspentLabel').set_text('Stat Points Spent: {0}/{1}'.format(
+                    self.char.StatPoints(levelled=True)-self.char.StatPoints(),
+                    self.char.StatPointsAllowed()))
+        except KeyError as e:
+            print "Unknown stat value: ",e.args[1]
+        try:
+            self.b.get_object('potlSPspent').set_text("Pot'l Stat Points Spent: {0}/{1}".format(
+                    self.char.StatPoints(potl=True), self.char.StatPointsAllowed(potl=True)))
+        except KeyError as e:
+            print "Unknown stat value: ",e.args[1]
+        try:
+            self.b.get_object('initSPspent').set_text("Stat Points Spent: {0}/{1}".format(
+                    self.char.StatPoints(), self.char.StatPointsAllowed()))
+        except KeyError as e:
+            print "Unknown stat value: ",e.args[1]
     def FromSkillSelected(self,*args):
         selection = self.skillView.get_selection()
         model,skIter = selection.get_selected()
         if skIter is not None:
             skill = model.get(skIter,TMH.SkillTreeStore.col('obj'))[0]
             self.activeSkill = skill
+            self.Block()
             self.OnSkillChange(skill)
+            self.Unblock()
         self.SkillSensitivity()
     def SkillSensitivity(self):
         for widName in ['skillNameBox','skillDescriptionBox']:
@@ -481,7 +526,9 @@ class MainWindow(object):
         if itIter is not None:
             item = model.get(itIter,TMH.ItemListStore.col('obj'))[0]
             self.activeItem = item
+            self.Block()
             self.OnItemChange(item)
+            self.Unblock()
         self.ItemSensitivity()
     def ItemSensitivity(self):
         for widName in ['itemNameBox','itemBonusBox','itemDescriptionBox']:
@@ -508,6 +555,7 @@ class MainWindow(object):
     def FromAddItem(self,*args):
         newItem = Character.Item(None,Names=['New Item'],Options=['Item'])
         self.char.AddVal(newItem)
+        self.Update()
     def FromRemoveItem(self,*args):
         if self.clicked_item is None:
             return
@@ -521,56 +569,66 @@ class MainWindow(object):
         dialog.destroy()
         if result==gtk.RESPONSE_OK:
             self.char.RemoveVal(self.clicked_item)
+        self.Update()
     def FromActiveStatNameChange(self,widget):
         if self.activeStat is not None:
             self.activeStat.Name = widget.get_text()
+        self.Update()
     def FromActiveStatCurrentChange(self,widget):
         if self.activeStat is not None:
             try:
-                print "Changing stat to ",widget.get_text()
                 self.activeStat.Value = int(widget.get_text())
             except ValueError:
                 pass
-        print "Done Changing"
+        self.Update()
     def FromActiveStatPotentialChange(self,widget):
         if self.activeStat is not None:
-            print "box text ", widget.get_text()
             try:
                 self.activeStat.Max = int(widget.get_text())
             except ValueError:
                 pass
+        self.Update()
     def FromActiveStatDescriptionChange(self,widget):
         if self.activeStat is not None:
             text = widget.get_text(widget.get_start_iter(),widget.get_end_iter())
             self.activeStat.Description = text
+        self.Update()
     def FromActiveStatLevellingChange(self,widget):
         if self.activeStat is not None:
             self.activeStat.Delta = int(widget.get_value())
+        self.Update()
     def FromActiveSkillNameChange(self,widget):
         if self.activeSkill is not None:
             self.activeSkill.Name = self.b.get_object('skillNameBox').get_text()
+        self.Update()
     def FromActiveSkillRankChange(self,widget):
         if self.activeSkill is not None:
             try:
                 self.activeSkill.Value = int(widget.get_text())
             except ValueError:
                 pass
+        self.Update()
     def FromActiveSkillDescriptionChange(self,widget):
         if self.activeSkill is not None:
             text = widget.get_text(widget.get_start_iter(),widget.get_end_iter())
             self.activeSkill.Description = text
+        self.Update()
     def FromActiveItemNameChange(self,widget):
         if self.activeItem is not None:
             self.activeItem.Name = widget.get_text()
+        self.Update()
     def FromActiveItemBonusChange(self,widget):
         if self.activeItem is not None:
             self.activeItem.ChangeBonuses(widget.get_text())
+        self.Update()
     def FromActiveItemDescriptionChange(self,widget):
         if self.activeItem is not None:
             self.activeItem.Description = widget.get_text(widget.get_start_iter(),
                                                           widget.get_end_iter())
+        self.Update()
     def FromLevelUp(self,*args):
         self.char.ApplyLevelUp()
+        self.Update()
                 
         
 

@@ -13,10 +13,15 @@ class EventHandler:
     def __init__(self):
         self.EventDict = defaultdict(list)
         self.Enabled = True
+        self.Call_Immediately = False
+        self._uncalled = []
     def __call__(self, key, *args, **kwargs):
         if self.Enabled:
             for func in self.EventDict[key]:
-                func(*args,**kwargs)
+                if self.Call_Immediately:
+                    func(*args,**kwargs)
+                else:
+                    self._uncalled.append( (func,args,kwargs) )
     def Register(self,key,func):
         self.EventDict[key].append(func)
     def Remove(self,key,func):
@@ -24,4 +29,7 @@ class EventHandler:
             self.EventDict[key].remove(func)
         except ValueError:
             pass
-
+    def Execute(self):
+        for func,args,kwargs in self._uncalled:
+            func(*args,**kwargs)
+        self._uncalled = []

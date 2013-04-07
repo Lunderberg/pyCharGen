@@ -240,6 +240,7 @@ class TestMainWindow(unittest.TestCase):
         self.assertEqual(prRow[TMH.StatListStore.col('Temporary')],50)
         self.assertEqual(prRow[TMH.StatListStore.col('Bonus')],0)
         agRow[TMH.StatListStore.col('obj')].Value = 100
+        self.gui.Update()
         self.assertEqual(agRow[TMH.StatListStore.col('Bonus')],15)
     def test_load_skills(self):
         self.gui.LoadChar(self.char)
@@ -252,6 +253,7 @@ class TestMainWindow(unittest.TestCase):
                 self.assertEqual(ranks,1)
                 self.assertEqual(bonus,9020)
                 skill.Value = 15
+                self.gui.Update()
                 skill,ranks,bonus = self.gui.skillStore.get(skIter,
                                                             TMH.SkillTreeStore.col('obj'),
                                                             TMH.SkillTreeStore.col('Ranks'),
@@ -265,8 +267,10 @@ class TestMainWindow(unittest.TestCase):
         ear = self.gui.itemStore.get(earIter,TMH.ItemListStore.col('obj'))[0]
         self.assertEqual(self.gui.itemStore.get(bookIter,TMH.ItemListStore.col('Name'))[0],'Research Book')
         book.Name = 'Researchy Awesome Book'
+        self.gui.Update()
         self.assertEqual(self.gui.itemStore.get(bookIter,TMH.ItemListStore.col('Name'))[0],'Researchy Awesome Book')
         ear.Description = 'Maybe a bit transparent'
+        self.gui.Update()
         self.assertEqual(self.gui.itemStore.get(earIter,TMH.ItemListStore.col('Description'))[0],
                          'Maybe a bit transparent')
 

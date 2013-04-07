@@ -46,18 +46,4 @@ Add a "Disabled" parameter to items,
   allowing for item-bonuses to be temporarily disabled.
   This could be used, for example, if an item is broken, but can be repaired.
 
-Improve GUI-backend communication.
-  Currently, the reading of values from the backend can cause additional backend changes,
-   such as when reloading the active stat.
-  This can cause infinite loops that become hard to diagnose.
-  To fix this, should make two big changes.
-  1. Have EventHandler collect the signals to be run,
-      but not call them until an "Execute" function is called.
-     This will allow for delayed updating of the GUI.
-  2. Have a MainWindow.Update() function, to be called when the GUI is to be updated from the backend.
-     Should first disable all the signals from the GUI.
-          object.handler_block(handler_id)
-     Then, should call self.char.Events.Executes()  (Probably through a self.char.Update())
-     Finally, re-enable the signals from the GUI.
-          object.handler_unblock(handler_id)
-  This way, the GUI will only be updated at specified times.
+Adjust EventHandler's Execute function so it will not call the same function twice.
