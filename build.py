@@ -76,6 +76,23 @@ def make_windows_exe():
     subprocess.call(['zip','-9','-r','pyCharGen.zip',builddir])
     shutil.rmtree(builddir)
 
+def name_exes():
+    try:
+        os.mkdir('downloads')
+    except OSError:
+        pass
+    os.rename('pyCharGen.zip',join('downloads','pyCharGen.zip'))
+    os.rename('pyCharGen.tar.gz',join('downloads','pyCharGen.tar.gz'))
+
+    
+
+def upload_build():
+    subprocess.call(['rsync -e ssh -r downloads/* eldritchcheese@frs.sourceforge.net:/home/frs/project/pychargen'],shell=True)
+    #subprocess.call(['scp','pyCharGen.zip','eldritchcheese@frs.sourceforge.net:/home/frs/project/pychargen'])
+    #subprocess.call(['scp','pyCharGen.tar.gz','eldritchcheese@frs.sourceforge.net:/home/frs/project/pychargen'])
+
 if __name__=='__main__':
-    make_linux_exe()
-    make_windows_exe()
+    #make_linux_exe()
+    #make_windows_exe()
+    #name_exes()
+    upload_build()

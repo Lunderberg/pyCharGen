@@ -86,5 +86,7 @@ Add syntax to have runtime-specified skill bonus on a per-skill basis.
   On unknown skill progression, attempt to load new table from file.
   This will allow for using RMFRP skill progressions.
 
-Add syntax for saving the Character.WeaponCostList to file.
-  Right now, is stored in memory but is not saved.
+Better escaping characters for save format.
+  Right now, things would choke if () {} [] <> : # , are used in names, descriptions.
+
+Add "Unsaved, are you sure?" dialogs to "New" and "Open" menus.

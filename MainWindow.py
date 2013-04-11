@@ -30,6 +30,7 @@ class MainWindow(object):
         self.window.connect('delete_event',gtk.main_quit)
         
         #Menu commands
+        self.Connect(self.b.get_object('fileNew'),'activate',self.New)
         self.Connect(self.b.get_object('fileOpen'),'activate',self.Open)
         self.Connect(self.b.get_object('fileSave'),'activate',self.Save)
         self.Connect(self.b.get_object('fileSaveAs'),'activate',self.SaveAs)
@@ -127,6 +128,9 @@ class MainWindow(object):
         self.ShowHideLevelling()
     def Hide(self):
         self.window.hide()
+    def New(self,*args):
+        self.LoadFile(path.join(path.dirname(sys.argv[0]),
+                                'tables','BaseChar.txt'))
     def Open(self,*args):
         """
         Displays a dialog to choose a character file.
@@ -193,7 +197,7 @@ class MainWindow(object):
         """
         t = gtk.FileChooserDialog(title=None,action=gtk.FILE_CHOOSER_ACTION_SAVE,
                                   buttons=(gtk.STOCK_CANCEL,gtk.RESPONSE_CANCEL,
-                                           gtk.STOCK_OPEN,gtk.RESPONSE_OK))
+                                           gtk.STOCK_SAVE,gtk.RESPONSE_OK))
         response = t.run()
         filename = t.get_filename()
         t.destroy()
@@ -205,9 +209,6 @@ class MainWindow(object):
         self._profdict = LoadProfessions(path.join(
                 path.dirname(sys.argv[0]),'tables','Professions.txt'))
         profBox = self.b.get_object('profBox')
-        # profBox.clear()
-        # for key in self._profdict:
-        #     profBox.append_text(key)
         model = gtk.ListStore(str)
         for key in self._profdict:
             model.set(model.append(),0,key)
