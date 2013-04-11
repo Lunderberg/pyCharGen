@@ -20,7 +20,7 @@ class MainWindow(object):
     Individual tabs for stats, skills.
     """
     def __init__(self):
-        builderfile = path.join(path.dirname(__file__),
+        builderfile = path.join(path.dirname(sys.argv[0]),
                               'glade','MainWindow.ui')
         self.char = None
 
@@ -71,6 +71,9 @@ class MainWindow(object):
         self.Connect(self.b.get_object('skillRankBox'),'changed',self.FromActiveSkillRankChange)
         self.Connect(self.b.get_object('skillDescriptionBox').get_buffer(),
                      'changed',self.FromActiveSkillDescriptionChange)
+        
+        #Weapon reorderings
+        self.SetUpWeaponSkillView()
 
         #Item modifications
         self.activeItem = None
@@ -87,20 +90,32 @@ class MainWindow(object):
 
         #Set up a default character.
         self.registered = []
-        self.LoadFile(path.join(path.dirname(__file__),
+        self.LoadFile(path.join(path.dirname(sys.argv[0]),
                                 'tables','BaseChar.txt'))
         self.filename = None
-    def Connect(self,wid,sig,hand):
+    def Connect(self,wid,sig,hand,*args):
         if not hasattr(self,'_handlers'):
             self._handlers = []
-        hand_id = wid.connect(sig,hand)
+        hand_id = wid.connect(sig,hand,*args)
         self._handlers.append( (wid,hand_id) )
+        if hasattr(self,'_blocked') and self._blocked:
+            wid.handler_block(hand_id)
+    def Disconnect(self,wid):
+        """
+        Disconnects all signals coming from the specified widget.
+        """
+        for widtest,hand_id in self._handlers:
+            if widtest is wid:
+                wid.disconnect(hand_id)
+        self._handlers = [(w,h) for w,h in self._handlers if (w is not wid)]
     def Block(self):
         for wid,handler_id in self._handlers:
             wid.handler_block(handler_id)
+        self._blocked = True
     def Unblock(self):
         for wid,handler_id in self._handlers:
             wid.handler_unblock(handler_id)
+        self._blocked = False
     def Update(self):
         if self.char is None:
             return
@@ -148,11 +163,14 @@ class MainWindow(object):
             ('Stat Changed',self.statStore.OnValueChange),
             ('Skill Added',self.skillStore.OnValueAdd),
             ('Skill Added',self.skillListStore.OnValueAdd),
+            ('Skill Added',self.weaponSkillStore.OnValueAdd),
             ('Skill Changed',self.OnSkillChange),
             ('Skill Changed',self.skillStore.OnValueChange),
             ('Skill Changed',self.skillListStore.OnValueChange),
+            ('Skill Changed',self.weaponSkillStore.OnValueChange),
             ('Skill Removed',self.skillStore.OnValueRemove),
             ('Skill Removed',self.skillListStore.OnValueRemove),
+            ('Skill Removed',self.weaponSkillStore.OnValueRemove),
             ('Resistance Changed',self.OnResistanceChange),
             ('Item Added',self.itemStore.OnValueAdd),
             ('Item Changed',self.OnItemChange),
@@ -185,7 +203,7 @@ class MainWindow(object):
             self.filename = filename
     def MakeProfessionList(self):
         self._profdict = LoadProfessions(path.join(
-                path.dirname(__file__),'tables','Professions.txt'))
+                path.dirname(sys.argv[0]),'tables','Professions.txt'))
         profBox = self.b.get_object('profBox')
         # profBox.clear()
         # for key in self._profdict:
@@ -217,6 +235,13 @@ class MainWindow(object):
         commonSkillStore = self.skillListStore.filter_new()
         commonSkillStore.set_visible_column(TMH.SkillTreeStore.col('CommonlyUsed'))
         self.commonSkillView.set_model(commonSkillStore)
+        if hasattr(self,'weaponSkillStore'):
+            self.Disconnect(self.weaponSkillStore)
+        self.weaponSkillStore = TMH.WeaponListStore(self.char)
+        self.weaponSkillView.set_model(self.weaponSkillStore)
+        #rows-reordered does nothing, and row-inserted still keeps the old row on.
+        #row-deleted is called last whenever a row is moved.
+        self.Connect(self.weaponSkillStore,'row-deleted',self.FromWeaponReorder)
         self.itemStore = TMH.ItemListStore(self.char)
         self.itemView.set_model(self.itemStore)
         self.BuildStatTable(self.char)
@@ -267,7 +292,13 @@ class MainWindow(object):
         TMH.AddTextColumn(self.commonSkillView,'Name',TMH.SkillTreeStore.col('Name'))
         TMH.AddTextColumn(self.commonSkillView,'Ranks',TMH.SkillTreeStore.col('Ranks'))
         TMH.AddTextColumn(self.commonSkillView,'Bonus',TMH.SkillTreeStore.col('Bonus'))
-        
+    def SetUpWeaponSkillView(self):
+        self.weaponSkillView = self.b.get_object('weaponOrderingView')
+        TMH.AddTextColumn(self.weaponSkillView,'Name',TMH.SkillTreeStore.col('Name'))
+        self.weaponSkillView.set_reorderable(True)
+    def FromWeaponReorder(self,wid,*args):
+        self.char.WeaponList = wid.OrderedSkills()
+        self.Update()
     def SetUpItemView(self):
         """
         Builds the TreeView for the items.

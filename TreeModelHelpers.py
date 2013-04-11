@@ -20,6 +20,12 @@ class ValueListStore(gtk.ListStore,object):
     @classmethod
     def col(cls,key):
         return cls.names[key]
+    def IsValid(self,val):
+        """
+        Should be overridden by subclasses wanting a filtering applied to the store.
+        Can't use a TreeModelFilter, since those don't allow for set_reorderable
+        """
+        return True
     @property
     def IterAll(self):
         loc = self.get_iter_first()
@@ -29,17 +35,23 @@ class ValueListStore(gtk.ListStore,object):
     def UpdateAll(self,char):
         self.clear()
         for val in self.getVals(char):
+            self.OnValueAdd(val)
+    def OnValueAdd(self,val):
+        if self.IsValid(val):
             valIter = self.append()
             self.set(valIter,self.col('obj'),val)
             self.UpdateVal(valIter)
-    def OnValueAdd(self,val):
-        valIter = self.append()
-        self.set(valIter,self.col('obj'),val)
-        self.UpdateVal(valIter)
     def OnValueChange(self,val):
         for valIter in self.IterAll:
             if val is self.get(valIter,self.col('obj'))[0]:
-                self.UpdateVal(valIter)
+                if self.IsValid(val):
+                    self.UpdateVal(valIter)
+                else:
+                    self.remove(valIter)
+                break
+        else:
+            if self.IsValid(val):
+                self.OnValueAdd(val)
     def OnValueRemove(self,val):
         for valIter in self.IterAll:
             if val is self.get(valIter,self.col('obj'))[0]:
@@ -168,6 +180,12 @@ class SkillListStore(ValueListStore):
     def getVals(self,char):
         return char.Skills 
     UpdateVal = SkillTreeStore.__dict__['UpdateVal']
+
+class WeaponListStore(SkillListStore):
+    def IsValid(self,val):
+        return 'Weapon' in val.Options
+    def OrderedSkills(self):
+        return [self.get(skIter,self.col('obj'))[0] for skIter in self.IterAll]
 
 def AddTextColumn(treeview,name,columnnumber,editable=None,xalign=0.0,visible=True,viscol=None):
     CellText = gtk.CellRendererText()

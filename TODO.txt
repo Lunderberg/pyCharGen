@@ -54,3 +54,37 @@ Have explicit "Fudge-factor mode" and "Normal mode"
     No changing of skill ranks other than through levelling up.
     No changing of potential stat value whatsoever.
   In "Fudge-factor mode" ("GM Mode"?), can adjust any value however you feel like it.
+
+Make a WeaponsView to hold the Weapon Order view.
+  Should subclass SkillListStore.
+  Should override UpdateAll, OnValueAdd, OnValuChange, and OnValueRemove
+    to only include skills with the 'Weapon' option.
+  Alternatively, rework those functions in ValueListStore to have a IsValid() function.
+  Would by default return True, can overload it in subclasses.
+  Can't use a TreeModelFilter, since the ordering shouldn't affect the ordering in the Skill page.
+In Character, when loading profession, should keep "Combat Training #" skills separate.
+  If a skill has a 'Weapon #' option, then it will load the Character's "Combat Training #" costs.
+  No, bad idea.
+  Then I would need to have the Character have extra non-Value information.
+Have non-listed values called "Combat Training #" that are parents of the "Weapon" skills?
+  Would require lots of unlinking and relinking when reordering skills.
+Character remembers "Combat Training #" skills, can use to overwrite the Weapon skills.
+  Character.Weapons(*args), where each argument is a weapon skill, in order.
+  Each weapon cost is then loaded directly into the skill, minimizing updates needed.
+  Should have Character store the list of weapon skills, so that Character.Weapons(*args)
+   can be called again at the end of LoadProfession()
+  Rats, I might need to put it into the save file anyways,
+    since otherwise GM-mode which should be able to change the weapon ordering won't be able to.
+So, best idea so far:
+  Values with a 'Weapon' tag get the tag modified to 'Weapon #1', 'Weapon #2', etc.
+  This tag indicates that the self.char.WeaponCosts[i] should be used at costs.
+  Save this to the save format somehow.
+
+Add syntax to have runtime-specified skill bonus on a per-skill basis.
+  Add a tag "Progression-filename.txt" in the options.
+  Make Character have a defaultdict of str->Table.
+  On unknown skill progression, attempt to load new table from file.
+  This will allow for using RMFRP skill progressions.
+
+Add syntax for saving the Character.WeaponCostList to file.
+  Right now, is stored in memory but is not saved.

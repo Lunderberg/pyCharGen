@@ -3,11 +3,12 @@
 import os.path as path
 import re
 from collections import OrderedDict
+import sys
 
 import DiceParse
 from EventHandler import EventHandler
 
-location = path.dirname(__file__)
+location = path.dirname(sys.argv[0])
 _statBonuses = DiceParse.Table(path.join(location,'tables','StatBonus.txt'))
 _skillBonuses = DiceParse.Table(path.join(location,'tables','SkillBonus.txt'))
 
@@ -124,11 +125,46 @@ class Character(object):
         for val in self.Values:
             val.Costs = None
         self.SetMisc("Profession",profname)
+        weaponcosts = []
         for skill,costs in profdict.items():
-            try:
-                self[skill].Costs = costs[:]
-            except KeyError:
-                pass
+            if skill.startswith("Combat Training"):
+                weaponcosts.append(costs)
+            else:
+                try:
+                    self[skill].Costs = costs[:]
+                except KeyError:
+                    pass
+        self.WeaponCostList = weaponcosts
+    @property
+    def WeaponList(self):
+        try:
+            return self._WeaponList
+        except AttributeError:
+            return []
+    @WeaponList.setter
+    def WeaponList(self,val):
+        skChanged = self.WeaponList[:]
+        self._WeaponList = val
+        skChanged.extend(val)
+        for sk in skChanged:
+            sk.Changed()
+    @property
+    def WeaponCostList(self):
+        try:
+            return self._WeaponCostList
+        except AttributeError:
+            return []
+    @WeaponCostList.setter
+    def WeaponCostList(self,val):
+        self._WeaponCostList = val
+        for sk in self.WeaponList:
+            sk.Changed()
+    def WeaponCost(self,sk):
+        for weap,cost in zip(self.WeaponList,self.WeaponCostList):
+            if weap is sk:
+                return cost
+        else:
+            return []
     def StatPoints(self,levelled=False,potl=False):
         return sum(st.Points(levelled,potl) for st in self.Stats)
     def StatPointsAllowed(self,level=None,potl=False):
@@ -427,10 +463,13 @@ class Skill(Value):
     def Costs(self):
         """
         Return a list of integers given the cost of levelling up skills.
+        If the skill is tagged as 'Weapon', queries the character to find what weapon cost there is.
         If the current skill has no cost, looks in parent skills.
         """
         if self._costs:
             return self._costs
+        elif 'Weapon' in self.Options and self.char is not None:
+            return self.char.WeaponCost(self)
         for par in self.Parents:
             if isinstance(par,Skill):
                 res = par.Costs
@@ -440,7 +479,7 @@ class Skill(Value):
     @Costs.setter
     def Costs(self,val):
         self._costs = val
-        self.Changed(False)
+        self.Changed()
     def CostSaveString(self):
         return '' if self._costs is None else ','.join(str(i) for i in self._costs)
     def DPspent(self):

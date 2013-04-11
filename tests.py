@@ -2,13 +2,14 @@
 
 import unittest
 import os.path as path
+import sys
 
 import Character
 import DiceParse
 import TreeModelHelpers as TMH
 from MainWindow import MainWindow
 
-charfile = path.join(path.dirname(__file__),'TestChar.txt')
+charfile = path.join(path.dirname(sys.argv[0]),'TestChar.txt')
 
 class TestDiceParse(unittest.TestCase):
     def test_dice_parse(self):
@@ -23,7 +24,7 @@ class TestDiceParse(unittest.TestCase):
         self.assertEqual(DiceParse.DiceParse("10^V").Roll(4),10000)
         self.assertEqual(DiceParse.DiceParse("50/20").Roll(4),2)
     def test_table(self):
-        table = DiceParse.Table(path.join(path.dirname(__file__),
+        table = DiceParse.Table(path.join(path.dirname(sys.argv[0]),
                                           'tables','StatBonus.txt'))
         self.assertEqual(table(50),0)
 

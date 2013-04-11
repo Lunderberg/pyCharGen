@@ -101,38 +101,38 @@ Movement {Ag, Co, St} [Skill, NoBonus]
   Tightrope Walking {Movement} [Skill]: 0
 
 Combat Training [Skill, NoBonus]
-  Unarmed {Combat Training, Ag, St, St} [Skill, NoBonus]
+  Unarmed {Combat Training, Ag, St, St} [Skill, NoBonus, Weapon]
     Martial Arts Strikes {Unarmed} [Skill]: 0
     Martial Arts Sweeps {Unarmed} [Skill]: 0
     Grappling {Unarmed} [Skill]: 0
     Bites {Unarmed} [Skill]: 0
     Claws {Unarmed} [Skill]: 0
-  Melee {Combat Training, Ag, St, St} [Skill, NoBonus]
+  Melee {Combat Training, Ag, St, St} [Skill, NoBonus, Weapon]
     Broad Sword {Melee} [Skill]: 0
     Spear {Melee} [Skill]: 0
     War Hammer {Melee} [Skill]: 0
     Two-handed Sword {Melee} [Skill]: 0
-  Thrown {Combat Training, Ag, Ag, St} [Skill, NoBonus]
+  Thrown {Combat Training, Ag, Ag, St} [Skill, NoBonus, Weapon]
     Dagger {Thrown} [Skill]: 0
     Spear {Thrown} [Skill]: 0
     Bola {Thrown} [Skill]: 0
-  Missile {Combat Training, Ag, Ag, St} [Skill, NoBonus]
+  Missile {Combat Training, Ag, Ag, St} [Skill, NoBonus, Weapon]
     Long Bow {Missile} [Skill]: 0
     Sling {Missile} [Skill]: 0
     Light Crossbow {Missile} [Skill]: 0
-  Directed Spell {Combat Training, Ag, SD, Realm} [Skill, NoBonus]
+  Directed Spell {Combat Training, Ag, SD, Realm} [Skill, NoBonus, Weapon]
     Elemental Bolts {Directed Spell} [Skill]: 0
     Illusion Strikes {Directed Spell} [Skill]: 0
-  Siege Weapons {Combat Training, Re, SD, In} [Skill, NoBonus]
+  Siege Weapons {Combat Training, Re, SD, In} [Skill, NoBonus, Weapon]
     Catapult {Siege Weapons} [Skill]: 0
     Ballistae {Siege Weapons} [Skill]: 0
     Trebuchet {Siege Weapons} [Skill]: 0
-  Firearms {Combat Training, Ag, St, SD} [Skill, NoBonus]
+  Firearms {Combat Training, Ag, St, SD} [Skill, NoBonus, Weapon]
     Musket {Firearms} [Skill]: 0
     Rifle {Firearms} [Skill]: 0
     Blunderbuss {Firearms} [Skill]: 0
     Pistol {Firearms} [Skill]: 0
-  Energy Weapons {Combat Training, Ag, Ag, SD} [Skill, NoBonus]
+  Energy Weapons {Combat Training, Ag, Ag, SD} [Skill, NoBonus, Weapon]
     Laser Rifle {Energy Weapons} [Skill]: 0
     Plasma Pistol {Energy Weapons} [Skill]: 0
     Essence Lance {Energy Weapons} [Skill]: 0
