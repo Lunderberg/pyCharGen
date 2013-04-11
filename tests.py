@@ -116,6 +116,12 @@ class TestChar(unittest.TestCase):
         self.assertEqual(char['Channeling'].Bonus(),28)
         self.assertEqual(char['Essence'].Bonus(),32)
         self.assertEqual(char['Mentalism'].Bonus(),12)
+    def test_weaponlist(self):
+        char = Character.Character.Open(charfile)
+        self.assertEqual(len(char.WeaponCostList),3)
+        self.assertEqual(char.WeaponCostList[0],[1,3])
+        self.assertEqual(char.WeaponCostList[1],[2,4])
+        self.assertEqual(char.WeaponCostList[2],[5,7])
 
 class TestStatSkillStores(unittest.TestCase):
     def setUp(self):

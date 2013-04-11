@@ -147,7 +147,11 @@ class Character(object):
         self._WeaponList = val
         skChanged.extend(val)
         for sk in skChanged:
-            sk.Changed()
+            #Need a try-catch here, because sk can be either a skill or the name of a skill.
+            try:
+                sk.Changed()
+            except AttributeError:
+                pass
     @property
     def WeaponCostList(self):
         try:
@@ -160,8 +164,11 @@ class Character(object):
         for sk in self.WeaponList:
             sk.Changed()
     def WeaponCost(self,sk):
-        for weap,cost in zip(self.WeaponList,self.WeaponCostList):
+        for i,(weap,cost) in enumerate(zip(self.WeaponList,self.WeaponCostList)):
             if weap is sk:
+                return cost
+            elif any(weap==name for name in sk.Names):
+                self.WeaponList[i] = sk
                 return cost
         else:
             return []
@@ -179,6 +186,9 @@ class Character(object):
         return 50
     def SaveString(self):
         lines = ['{0}: {1}'.format(k,v) for k,v in self.MiscVals.items()]
+        lines += ['WeaponCosts: ' + ' '.join('<' + ','.join(str(i) for i in ilist) + '>'
+                                             for ilist in self.WeaponCostList)]
+        lines += ['WeaponOrder: ' + ', '.join((we if isinstance(we,str) else we.Name) for we in self.WeaponList)]
         lines += [val.SaveString() for val in self.LinkedVals]
         return '\n'.join(lines)
     @staticmethod
@@ -197,22 +207,26 @@ class Character(object):
             if not line:
                 continue
 
-            nameChars = r"[\w ,-/]"
-            res = re.match(r"\s*(?P<name>" +nameChars+ "+?)" #The key
-                           r"\s*:\s*" #The divider
-                           r"(?P<val>" +nameChars+ "+)" #The value
-                           r"\s*\Z", #End of line
-                           line)
-            if res:
-                name,val = res.group('name','val')
-                if name in ['Name','PlayerName','Profession','Race','Culture']:
-                    c.SetMisc(name,val)
-                elif name in ['Level','Experience']:
+            for key in ['Name','PlayerName','Profession','Race','Culture']:
+                if line.startswith(key+':'):
+                    c.SetMisc(key,line[len(key)+1:].strip())
+                    continue
+            for key in ['Level','Experience']:
+                if line.startswith(key+':'):
                     try:
-                        c.SetMisc(name,int(val))
+                        c.SetMisc(key,int(line[len(key)+1:]))
                     except ValueError:
                         pass
+                    continue
+            if line.startswith('WeaponCosts:'):
+                costs = []
+                for match in re.finditer(r'<([\+\d\s,]+)>',line):
+                    newcost = [int(s) for s in match.group(1).split(',')]
+                    costs.append(newcost)
+                c.WeaponCostList = costs
                 continue
+            elif line.startswith('WeaponOrder:'):
+                c.WeaponList = [s.strip() for s in line[12:].split(',')]
 
             c.AddVal(Value.FromLine(line))
         return c

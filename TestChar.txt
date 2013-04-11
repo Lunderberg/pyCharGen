@@ -12,6 +12,9 @@ Experience: 12345
 #	 "NoRanks" - For a skill, indicates that no ranks can be spent.
   #	             Used for skill categories that have no allowed specializations.
  #
+
+WeaponCosts: <1,3> <2,  4> <5,+7>
+
 #Stats
 #------------------------
 Agility	(Ag) [Stat]: 1
