@@ -210,6 +210,13 @@ class TestValueParse(unittest.TestCase):
             self.assertEqual(it.ChildValues[1][0],'SD')
             self.assertEqual(it.ChildValues[1][1],-2)
             self.assertEqual(it.SaveString(),r'ItemDescription (axe) {Axe+1, SD-2} [Item]')
+    def test_string_splitting(self):
+        f = Character._split_by_special
+        self.assertEqual(f('String with no special chars'),['String with no special chars'])
+        self.assertEqual(f('Single: split'),['Single',':','split'])
+        self.assertEqual(f('Escaped\: split'),['Escaped: split'])
+        self.assertEqual(f('Commented# rest of line: {}'),['Commented'])
+        self.assertEqual(f('Repeated specials {}:'),['Repeated specials','{','}',':'])
 
 class TestMainWindow(unittest.TestCase):
     def setUp(self):

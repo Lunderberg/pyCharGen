@@ -12,6 +12,61 @@ location = path.dirname(sys.argv[0])
 _statBonuses = DiceParse.Table(path.join(location,'tables','StatBonus.txt'))
 _skillBonuses = DiceParse.Table(path.join(location,'tables','SkillBonus.txt'))
 
+unescape = {'\\(':'(',
+            '\\)':')',
+            '\\[':'[',
+            '\\]':']',
+            '\\{':'{',
+            '\\}':'}',
+            '\\<':'<',
+            '\\>':'>',
+            '\\,':',',
+            '\\:':':',
+            '\\"':'"',
+            '\\\\':'\\',
+            '\\n':'\n',
+            '\\#':'#',}
+def _escape(unescaped):
+    escaped = unescaped
+    for k,v in unescape.items():
+        escaped = escaped.replace(v,k)
+    return escaped
+
+
+def _split_by_special(line):
+    """
+    Splits the input string according to the special characters used by the save file format.
+    Returns a list of strings,
+      with each string being either a break character or the characters between breaks.
+    Each string is stripped of leading and trailing whitespace.
+    """
+    breakchars = '()[]{}<>,:"'
+    escapechar = '\\'
+    commentchar = '#'
+
+    out = []
+    newString = []
+    for char in line:
+        if newString and newString[-1]==escapechar:
+            newString[-1] += char
+            try:
+                newString[-1] = unescape[newString[-1]]
+            except KeyError:
+                pass
+        elif char in breakchars:
+            if newString:
+                out.append(''.join(newString))
+            out.append(char)
+            newString = []
+        elif char==commentchar:
+            break
+        else:
+            newString.append(char)
+    if newString:
+        out.append(''.join(newString))
+    out = [s.strip() for s in out if s.strip()]
+    return out
+
 class Character(object):
     def __init__(self):
         self.LinkedVals = []
@@ -185,10 +240,13 @@ class Character(object):
     def DPallowed(self):
         return 50
     def SaveString(self):
-        lines = ['{0}: {1}'.format(k,v) for k,v in self.MiscVals.items()]
+        lines = ['{0}: {1}'.format(_escape(k),v) for k,v in self.MiscVals.items()]
         lines += ['WeaponCosts: ' + ' '.join('<' + ','.join(str(i) for i in ilist) + '>'
                                              for ilist in self.WeaponCostList)]
-        lines += ['WeaponOrder: ' + ', '.join((we if isinstance(we,str) else we.Name) for we in self.WeaponList)]
+        lines += ['WeaponOrder: ' + ', '.join(_escape(we if isinstance(we,str) else we.Name)
+                                              for we in self.WeaponList)]
+        #Escape all the character-based lines.
+        #The Value-based lines are escaped in Value.SaveString()
         lines += [val.SaveString() for val in self.LinkedVals]
         return '\n'.join(lines)
     @staticmethod
@@ -198,37 +256,41 @@ class Character(object):
             lines = [line.strip() for line in f]
         c = Character()
         for line in lines:
-            #Removes all comments, skips if line is empty.
-            res = re.search(r'(^|[^\\])#',line) #Finds a pound sign not preceded by a slash.
-            if res:
-                line = line[:res.end()-1]
-            line.replace(r'\#','#')
-            line = line.strip()
-            if not line:
+            linesplit = _split_by_special(line)
+            if not linesplit:
                 continue
 
-            for key in ['Name','PlayerName','Profession','Race','Culture']:
-                if line.startswith(key+':'):
-                    c.SetMisc(key,line[len(key)+1:].strip())
-                    continue
-            for key in ['Level','Experience']:
-                if line.startswith(key+':'):
-                    try:
-                        c.SetMisc(key,int(line[len(key)+1:]))
-                    except ValueError:
-                        pass
-                    continue
-            if line.startswith('WeaponCosts:'):
+            if len(linesplit)==3 and linesplit[1]==':':
+                for key in ['Name','PlayerName','Profession','Race','Culture']:
+                    if linesplit[0]==key:
+                        c.SetMisc(key,linesplit[2])
+                        continue
+                for key in ['Level','Experience']:
+                    if linesplit[0]==key:
+                        try:
+                            c.SetMisc(key,int(linesplit[2]))
+                        except ValueError:
+                            pass
+                        continue
+
+            if len(linesplit)>=3 and linesplit[0]=='WeaponCosts' and linesplit[1]==':':
                 costs = []
-                for match in re.finditer(r'<([\+\d\s,]+)>',line):
-                    newcost = [int(s) for s in match.group(1).split(',')]
-                    costs.append(newcost)
+                currCost = None
+                for item in linesplit[2:]:
+                    if item=='<':
+                        currCost = []
+                    elif item=='>':
+                        costs.append(currCost)
+                        currCost = None
+                    else:
+                        try:
+                            currCost.append(int(item))
+                        except (ValueError,AttributeError):
+                            pass
                 c.WeaponCostList = costs
                 continue
-            elif line.startswith('WeaponOrder:'):
-                c.WeaponList = [s.strip() for s in line[12:].split(',')]
 
-            c.AddVal(Value.FromLine(line))
+            c.AddVal(Value.FromLineSplit(linesplit))
         return c
 
 class Value(object):
@@ -322,13 +384,13 @@ class Value(object):
         return (sum(par.Bonus(self,levelled) for par in self.Parents if isinstance(par,Item))
                 +sum(par.Bonus(self,levelled) for par in self.Parents if par.NoBonus))
     def RelativeSaveString(self):
-        parnames = [par.ShortestName for par in self.Parents]
+        parnames = [_escape(par.ShortestName) for par in self.Parents]
         pars = ', '.join(parnames)
         return pars
     def CostSaveString(self):
         return ''
     def SaveString(self):
-        nicks = ('(' + ', '.join(self.Names[1:]) + ')'
+        nicks = ('(' + ', '.join(_escape(n) for n in self.Names[1:]) + ')'
                  if len(self.Names)>1 else '')
         relatives = self.RelativeSaveString()
         relatives = '{' + relatives + '}' if relatives else ''
@@ -338,17 +400,15 @@ class Value(object):
                 if self.Options else '')
         val = (': ' + str(self._value)
                if self._value is not None else '')
-        descript = self.Description if self.Description else ''
-        for unescaped,escaped in self._escape_chars:
-            descript = descript.replace(unescaped,escaped)
+        descript = _escape(self.Description) if self.Description else ''
         descript = ('"' + descript + '"') if descript else ''
-        out = ' '.join(s for s in [self.Name,nicks,relatives,opts,costs,val,descript] if s)
+        out = ' '.join(s for s in [_escape(self.Name),nicks,relatives,opts,costs,val,descript] if s)
         return out
     @classmethod
     def FromLine(cls,line):
-        elements = [t for t in
-                    [s.strip() for s in re.split(r'([(){}[\]<>:"])',line)]
-                    if t]
+        return cls.FromLineSplit(_split_by_special(line))
+    @classmethod
+    def FromLineSplit(cls,linesplit):
         names = []
         relatives = []
         opts = []
@@ -361,46 +421,52 @@ class Value(object):
                      '(':'nicknames',')':'main_name','<':'costs','>':'main_name',
                      ':':'value','"':'quote'}
                      
-        for ele in elements:
-            if current_type=='quote':
-                if ele=='"' and description[-1]!='\\':
-                    current_type='main_name'
-                else:
-                    description += ele
-            elif ele in type_dict:
-                current_type = type_dict[ele]
+        for item in linesplit:
+            #Changing to the appropriate mode.
+            if current_type=='quote' and item=='"':
+                current_type='main_name'
+            elif item in type_dict:
+                current_type = type_dict[item]
+            elif item==',':
+                pass
+            #Acting based on the current mode.
             elif current_type=='main_name':
-                names.append(ele)
+                names.append(item)
             elif current_type=='opt':
-                opts.extend(s.strip() for s in ele.split(','))
+                opts.append(item)
             elif current_type=='relative':
-                relatives.extend(s.strip() for s in ele.split(','))
+                relatives.append(item)
             elif current_type=='nicknames':
-                names.extend(s.strip() for s in ele.split(','))
+                names.append(item)
+            elif current_type=='quote':
+                description += item
             elif current_type=='costs':
                 try:
-                    costs.extend(int(s.strip()) for s in ele.split(','))
+                    costs.append(int(item))
                 except ValueError:
                     pass
             elif current_type=='value':
                 try:
-                    value = int(ele.strip())
+                    value = int(item)
                 except ValueError:
                     pass
 
-        for unescaped,escaped in cls._escape_chars:
-            description = description.replace(escaped,unescaped)
-
         if 'Skill' in opts:
-            return Skill(Costs=costs,Value=value,Names=names,Parents=relatives,Options=opts,Description=description)
+            return Skill(Costs=costs,Value=value,Names=names,Parents=relatives,
+                         Options=opts,Description=description)
         elif 'Stat' in opts:
-            return Stat(Value=value,Names=names,Parents=relatives,Options=opts,Description=description)
+            return Stat(Value=value,Names=names,Parents=relatives,
+                        Options=opts,Description=description)
         elif 'Resistance' in opts:
-            return Resistance(Value=value,Names=names,Parents=relatives,Options=opts,Description=description)
+            return Resistance(Value=value,Names=names,Parents=relatives,
+                              Options=opts,Description=description)
         elif 'Item' in opts:
-            return Item(Value=value,Names=names,Children=relatives,Options=opts,Description=description)
+            return Item(Value=value,Names=names,Children=relatives,
+                        Options=opts,Description=description)
         else:
-            return Value(Value=value,Names=names,Parents=relatives,Options=opts,Description=description)
+            return Value(Value=value,Names=names,Parents=relatives,
+                         Options=opts,Description=description)
+
 
 
 class Stat(Value):
@@ -536,7 +602,7 @@ class Item(Value):
             self.ChildValues.append((name,value))
     def RelativeSaveString(self):
         if self.ChildValues:
-            return ', '.join('{0}{1:+d}'.format(name,val) for name,val in self.ChildValues)
+            return ', '.join('{0}{1:+d}'.format(_escape(name),val) for name,val in self.ChildValues)
         else:
             return ''
     def SelfBonus(self,asker=None,levelled=False):
