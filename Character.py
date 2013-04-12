@@ -49,13 +49,9 @@ def _split_by_special(line):
     for char in line:
         if newString and newString[-1]==escapechar:
             newString[-1] += char
-            try:
-                newString[-1] = unescape[newString[-1]]
-            except KeyError:
-                pass
         elif char in breakchars:
             if newString:
-                out.append(''.join(newString))
+                out.append(''.join(unescape.get(c,c) for c in newString))
             out.append(char)
             newString = []
         elif char==commentchar:
@@ -63,7 +59,7 @@ def _split_by_special(line):
         else:
             newString.append(char)
     if newString:
-        out.append(''.join(newString))
+        out.append(''.join(unescape.get(c,c) for c in newString))
     out = [s.strip() for s in out if s.strip()]
     return out
 

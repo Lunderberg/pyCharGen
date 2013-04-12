@@ -217,6 +217,8 @@ class TestValueParse(unittest.TestCase):
         self.assertEqual(f('Escaped\: split'),['Escaped: split'])
         self.assertEqual(f('Commented# rest of line: {}'),['Commented'])
         self.assertEqual(f('Repeated specials {}:'),['Repeated specials','{','}',':'])
+        self.assertEqual(f('Double slash \\\\'),['Double slash \\'])
+        self.assertEqual(f('Triple slash \\\\\\'),['Triple slash \\\\'])
 
 class TestMainWindow(unittest.TestCase):
     def setUp(self):
