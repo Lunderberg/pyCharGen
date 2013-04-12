@@ -14,6 +14,7 @@ class EventHandler:
         self.EventDict = defaultdict(list)
         self.Enabled = True
         self.Call_Immediately = False
+        self.Prune_Redundant = True
         self._uncalled = []
     def __call__(self, key, *args, **kwargs):
         if self.Enabled:
@@ -30,6 +31,13 @@ class EventHandler:
         except ValueError:
             pass
     def Execute(self):
-        for func,args,kwargs in self._uncalled:
+        if self.Prune_Redundant:
+            toCall = []
+            for i in self._uncalled:
+                if all(i!=j for j in toCall):
+                    toCall.append(i)
+        else:
+            toCall = self._uncalled
+        for func,args,kwargs in toCall:
             func(*args,**kwargs)
         self._uncalled = []

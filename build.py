@@ -92,7 +92,7 @@ def upload_build():
     #subprocess.call(['scp','pyCharGen.tar.gz','eldritchcheese@frs.sourceforge.net:/home/frs/project/pychargen'])
 
 if __name__=='__main__':
-    #make_linux_exe()
-    #make_windows_exe()
-    #name_exes()
+    make_linux_exe()
+    make_windows_exe()
+    name_exes()
     upload_build()

@@ -268,6 +268,8 @@ class MainWindow(object):
         TMH.AddTextColumn(self.statView,'Temp',TMH.StatListStore.col('Temporary'),
                       editable=self.FromEditStatCell)
         TMH.AddTextColumn(self.statView,'Value Bonus',TMH.StatListStore.col('SelfBonus'))
+        TMH.AddTextColumn(self.statView,'Potential',TMH.StatListStore.col('Potential'))
+        TMH.AddTextColumn(self.statView,'Potential Bonus',TMH.StatListStore.col('PotentialBonus'))
         TMH.AddTextColumn(self.statView,'Bonus',TMH.StatListStore.col('Bonus'))
 
         TMH.RightClickToggle(self.statView)

@@ -61,7 +61,8 @@ class ValueListStore(gtk.ListStore,object):
 class StatListStore(ValueListStore):
     store_format = [
         ('obj',gobject.TYPE_PYOBJECT),
-        ('Name',str),('Temporary',int),('SelfBonus',int),('Bonus',int)
+        ('Name',str),('Temporary',int),('Potential',int),
+        ('SelfBonus',int),('PotentialBonus',int),('Bonus',int),
         ]
     names = {n:i for i,(n,t) in enumerate(store_format)}
     def getVals(self,char):
@@ -70,8 +71,10 @@ class StatListStore(ValueListStore):
         st = self.get(stIter,self.col('obj'))[0]
         self.set(stIter,
                  self.col('Name'),st.Name,
+                 self.col('Potential'),st.Max,
                  self.col('Temporary'),st.Value,
                  self.col('SelfBonus'),st.SelfBonus(),
+                 self.col('PotentialBonus'),st.SelfBonus(potl=True),
                  self.col('Bonus'),st.Bonus())
 
 
