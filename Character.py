@@ -32,7 +32,6 @@ def _escape(unescaped):
         escaped = escaped.replace(v,k)
     return escaped
 
-
 def _split_by_special(line):
     """
     Splits the input string according to the special characters used by the save file format.
@@ -289,6 +288,29 @@ class Character(object):
             c.AddVal(Value.FromLineSplit(linesplit))
         return c
 
+def _cached(fn):
+    """
+    Use between @property and the function declaration,
+      or right before a normal function.
+    Assumes the existence of self._timesChanged,
+      which is incremented whenever the cached values should be recalculated.
+    """
+    cache = []
+    lastCalled = [-1]
+    def output(self,*args,**kwargs):
+        if lastCalled[0]!=self._timesChanged:
+            del cache[:] #Clears the cache, keeping references
+            lastCalled[0] = self._timesChanged
+        for inp,out in cache: #Uses equals instead of a dict because arguments might not be hashable.
+            if inp==(args,kwargs):
+                return out
+        else:
+            ans = fn(self,*args,**kwargs)
+            cache.append( ((args,kwargs),ans) )
+            return ans
+    return output
+
+
 class Value(object):
     """
     Base class for Stats and Skills
@@ -300,6 +322,7 @@ class Value(object):
                      ('"','\\"'),]
     def __init__(self,Value=None,Names=None,Parents=None,Children=None,Options=None,Description=""):
         self.Events = lambda *args:None
+        self._timesChanged = 0 #needed for _cached
         self.char = None
         self.Names = [] if Names is None else Names
         self.requestedParents = [] if Parents is None else Parents
@@ -358,6 +381,7 @@ class Value(object):
     def NoBonus(self):
         return 'NoBonus' in self.Options
     def Changed(self,propagate=True):
+        self._timesChanged += 1
         self.Events('Value Changed',self)
         self.Events(self.Type+' Changed',self)
         if propagate:
@@ -369,13 +393,17 @@ class Value(object):
             self.Delta = 0
     def SelfBonus(self,asker=None,levelled=False):
         return 0
+    @_cached
     def Bonus(self,asker=None,levelled=False):
         return self.SelfBonus(asker,levelled) + sum(par.Bonus(self,levelled) for par in self.Parents)
+    @_cached
     def CategoryBonus(self,asker=None,levelled=False):
         return sum(par.Bonus(self,levelled) for par in self.Parents if isinstance(par,Skill) and not par.NoBonus)
+    @_cached
     def StatBonus(self,asker=None,levelled=False):
         return (sum(par.Bonus(self,levelled) for par in self.Parents if isinstance(par,Stat))
                + sum(par.StatBonus(self,levelled) for par in self.Parents if par.NoBonus))
+    @_cached
     def ItemBonus(self,asker=None,levelled=False):
         return (sum(par.Bonus(self,levelled) for par in self.Parents if isinstance(par,Item))
                 +sum(par.Bonus(self,levelled) for par in self.Parents if par.NoBonus))
@@ -536,6 +564,7 @@ class Skill(Value):
             self.Options.remove('CommonlyUsed')
         self.Changed(False)
     @property
+    @_cached
     def Costs(self):
         """
         Return a list of integers given the cost of levelling up skills.
@@ -558,6 +587,7 @@ class Skill(Value):
         self.Changed()
     def CostSaveString(self):
         return '' if self._costs is None else ','.join(str(i) for i in self._costs)
+    @_cached
     def DPspent(self):
         return sum(self.Costs[:self.Delta])
 
