@@ -1,0 +1,13 @@
+####################
+# v1.0, 2013-04-13 #
+####################
+Initial release.
+
+- Characters can be created with various stats, skills, 
+-- Starting character is defined in tables/BaseChar.txt
+- Can save/load characters into a human-readable format.
+- Calculates all stat/skill/resistance bonuses.
+-- Tables for calculating the bonuses are stored in tables/SkillBonus.txt and tables/StatBonus.txt
+- Can load professions from file.
+-- All professions are stored in tables/Professions.
+- Can add items to character, each contributing individual bonuses.

@@ -1,6 +1,5 @@
 *.pyc
 *~
-changelog.txt
 *.tar.gz
 *.zip
 *.log
