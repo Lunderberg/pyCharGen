@@ -46,8 +46,6 @@ Add a "Disabled" parameter to items,
   allowing for item-bonuses to be temporarily disabled.
   This could be used, for example, if an item is broken, but can be repaired.
 
-Adjust EventHandler's Execute function so it will not call the same function twice.
-
 Have explicit "Fudge-factor mode" and "Normal mode"
   In Normal mode, cannot adjust things that should not be adjustable.
     No changing of stat values other than through levelling up.
@@ -85,8 +83,5 @@ Add syntax to have runtime-specified skill bonus on a per-skill basis.
   Make Character have a defaultdict of str->Table.
   On unknown skill progression, attempt to load new table from file.
   This will allow for using RMFRP skill progressions.
-
-Better escaping characters for save format.
-  Right now, things would choke if () {} [] <> : # , are used in names, descriptions.
 
 Add "Unsaved, are you sure?" dialogs to "New" and "Open" menus.

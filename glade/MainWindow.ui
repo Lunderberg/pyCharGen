@@ -820,15 +820,6 @@
                     <property name="n_rows">2</property>
                     <property name="n_columns">2</property>
                     <child>
-                      <placeholder/>
-                    </child>
-                    <child>
-                      <placeholder/>
-                    </child>
-                    <child>
-                      <placeholder/>
-                    </child>
-                    <child>
                       <object class="GtkFrame" id="frame25">
                         <property name="visible">True</property>
                         <property name="label_xalign">0</property>
@@ -847,11 +838,20 @@
                         <child type="label">
                           <object class="GtkLabel" id="label26">
                             <property name="visible">True</property>
-                            <property name="label" translatable="yes">&lt;b&gt;Weapon Ordering&lt;/b&gt;</property>
+                            <property name="label" translatable="yes">&lt;b&gt;Weapon Ordering&lt;/b&gt; (Drag to re-order)</property>
                             <property name="use_markup">True</property>
                           </object>
                         </child>
                       </object>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
                     </child>
                   </object>
                   <packing>
@@ -1157,10 +1157,17 @@
                                         <property name="visible">True</property>
                                         <property name="left_padding">12</property>
                                         <child>
-                                          <object class="GtkTextView" id="statDescriptionBox">
+                                          <object class="GtkScrolledWindow" id="scrolledwindow3">
                                             <property name="visible">True</property>
                                             <property name="can_focus">True</property>
-                                            <property name="wrap_mode">word</property>
+                                            <property name="hscrollbar_policy">automatic</property>
+                                            <child>
+                                              <object class="GtkTextView" id="statDescriptionBox">
+                                                <property name="visible">True</property>
+                                                <property name="can_focus">True</property>
+                                                <property name="wrap_mode">word</property>
+                                              </object>
+                                            </child>
                                           </object>
                                         </child>
                                       </object>
@@ -1607,10 +1614,17 @@
                                         <property name="visible">True</property>
                                         <property name="left_padding">12</property>
                                         <child>
-                                          <object class="GtkTextView" id="skillDescriptionBox">
+                                          <object class="GtkScrolledWindow" id="scrolledwindow4">
                                             <property name="visible">True</property>
                                             <property name="can_focus">True</property>
-                                            <property name="wrap_mode">word</property>
+                                            <property name="hscrollbar_policy">automatic</property>
+                                            <child>
+                                              <object class="GtkTextView" id="skillDescriptionBox">
+                                                <property name="visible">True</property>
+                                                <property name="can_focus">True</property>
+                                                <property name="wrap_mode">word</property>
+                                              </object>
+                                            </child>
                                           </object>
                                         </child>
                                       </object>
@@ -1854,6 +1868,7 @@
                                         <property name="visible">True</property>
                                         <property name="can_focus">True</property>
                                         <property name="invisible_char">&#x25CF;</property>
+                                        <property name="text" translatable="yes">Right-click the "Items" area to add an item.</property>
                                         <property name="primary_icon_sensitive">True</property>
                                         <property name="secondary_icon_sensitive">True</property>
                                       </object>
@@ -1887,6 +1902,7 @@
                                         <property name="visible">True</property>
                                         <property name="can_focus">True</property>
                                         <property name="invisible_char">&#x25CF;</property>
+                                        <property name="text" translatable="yes">Ex: Dagger+5, Swimming-10</property>
                                         <property name="primary_icon_sensitive">True</property>
                                         <property name="secondary_icon_sensitive">True</property>
                                       </object>
@@ -1916,10 +1932,17 @@
                                     <property name="visible">True</property>
                                     <property name="left_padding">12</property>
                                     <child>
-                                      <object class="GtkTextView" id="itemDescriptionBox">
+                                      <object class="GtkScrolledWindow" id="scrolledwindow5">
                                         <property name="visible">True</property>
                                         <property name="can_focus">True</property>
-                                        <property name="wrap_mode">word</property>
+                                        <property name="hscrollbar_policy">automatic</property>
+                                        <child>
+                                          <object class="GtkTextView" id="itemDescriptionBox">
+                                            <property name="visible">True</property>
+                                            <property name="can_focus">True</property>
+                                            <property name="wrap_mode">word</property>
+                                          </object>
+                                        </child>
                                       </object>
                                     </child>
                                   </object>
