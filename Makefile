@@ -7,4 +7,4 @@ docs-made: *.py
 	touch $@
 
 clean:
-	rm -rf docs *.pyc build dist logdict*.log *.spec
+	rm -rf docs *.pyc build dist logdict*.log downloads include

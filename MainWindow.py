@@ -8,6 +8,15 @@ import Character
 import TreeModelHelpers as TMH
 from Professions import LoadProfessions
 
+#Load the gtk theme for windows.
+#Should this at some point no longer be the main script,
+#  move this to be in the main script.
+if (sys.platform=='win32') and hasattr(sys,'_MEIPASS'):
+    basedir = sys._MEIPASS
+    gtkrc = path.join(basedir,'gtkrc')
+    gtk.rc_set_default_files([gtkrc])
+    gtk.rc_reparse_all_for_settings(gtk.settings_get_default(),True)
+
 def better_set_text(buff,text):
     buffText = buff.get_text(buff.get_start_iter(),buff.get_end_iter())
     if buffText!=text:

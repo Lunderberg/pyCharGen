@@ -52,7 +52,7 @@ def make_linux_exe():
     except OSError:
         pass
     #Make the exe
-    subprocess.call(['python',pyinstaller,'MainWindow.py','--onefile','--name=pyCharGen'])
+    subprocess.call(['python',pyinstaller,'pyinst_linux.spec'])
     #Bundle everything together
     shutil.copy(join('dist','pyCharGen'),builddir)
     subprocess.call(['tar','-czf','pyCharGen.tar.gz',builddir])
@@ -68,8 +68,7 @@ def make_windows_exe():
         pass
     #Make the exe.
     subprocess.call(['tar','-xzf','wine-frozen.tar.gz'])
-    subprocess.call(['wine',r'C:\Python27\python.exe',pyinstaller,'MainWindow.py',
-                     '--onefile','--windowed','--name=pyCharGen'],env=env)
+    subprocess.call(['wine',r'C:\Python27\python.exe',pyinstaller,'pyinst_windows.spec'])
     shutil.rmtree(wineprefix)
     #Bundle everything together
     shutil.copy(join('dist','pyCharGen.exe'),builddir)
@@ -88,8 +87,6 @@ def name_exes():
 
 def upload_build():
     subprocess.call(['rsync -e ssh -r downloads/* eldritchcheese@frs.sourceforge.net:/home/frs/project/pychargen'],shell=True)
-    #subprocess.call(['scp','pyCharGen.zip','eldritchcheese@frs.sourceforge.net:/home/frs/project/pychargen'])
-    #subprocess.call(['scp','pyCharGen.tar.gz','eldritchcheese@frs.sourceforge.net:/home/frs/project/pychargen'])
 
 if __name__=='__main__':
     make_linux_exe()
