@@ -75,13 +75,14 @@ def make_windows_exe():
     subprocess.call(['zip','-9','-r','pyCharGen.zip',builddir])
     shutil.rmtree(builddir)
 
-def name_exes():
+def name_exes(name='unstable'):
+    outputdir = join('downloads','unstable' if name=='unstable' else 'release')
     try:
-        os.mkdir('downloads')
+        os.makedirs(outputdir)
     except OSError:
         pass
-    os.rename('pyCharGen.zip',join('downloads','pyCharGen.zip'))
-    os.rename('pyCharGen.tar.gz',join('downloads','pyCharGen.tar.gz'))
+    os.rename('pyCharGen.zip',join(outputdir,'pyCharGen-win-{0}.zip'.format(name)))
+    os.rename('pyCharGen.tar.gz',join(outputdir,'pyCharGen-linux-{0}.tar.gz'.format(name)))
 
     
 
@@ -91,5 +92,5 @@ def upload_build():
 if __name__=='__main__':
     make_linux_exe()
     make_windows_exe()
-    name_exes()
+    name_exes(sys.argv[1] if len(sys.argv)>=2 else 'unstable')
     upload_build()

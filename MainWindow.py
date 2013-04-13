@@ -43,7 +43,12 @@ class MainWindow(object):
         self.Connect(self.b.get_object('fileOpen'),'activate',self.Open)
         self.Connect(self.b.get_object('fileSave'),'activate',self.Save)
         self.Connect(self.b.get_object('fileSaveAs'),'activate',self.SaveAs)
+        self.Connect(self.b.get_object('fileQuit'),'activate',gtk.main_quit)
         self.Connect(self.b.get_object('actionLevelUp'),'activate',self.FromLevelUp)
+        #The About window.
+        self.Connect(self.b.get_object('helpAbout'),'activate',self.ShowAbout)
+        self.Connect(self.b.get_object('aboutWindow'),'delete_event',self.HideAbout)
+        self.Connect(self.b.get_object('aboutOkay'),'clicked',self.HideAbout)
         #Updating overview text boxes
         self.Connect(self.b.get_object('characterName'),'changed',self.FromNameChange)
         self.Connect(self.b.get_object('playerName'),'changed',self.FromPlayerNameChange)
@@ -103,6 +108,8 @@ class MainWindow(object):
         self.LoadFile(path.join(path.dirname(sys.argv[0]),
                                 'tables','BaseChar.txt'))
         self.filename = None
+
+
     def Connect(self,wid,sig,hand,*args):
         if not hasattr(self,'_handlers'):
             self._handlers = []
@@ -137,6 +144,11 @@ class MainWindow(object):
         self.ShowHideLevelling()
     def Hide(self):
         self.window.hide()
+    def ShowAbout(self,*args):
+        self.b.get_object('aboutWindow').show_all()
+    def HideAbout(self,*args):
+        self.b.get_object('aboutWindow').hide()
+        return True
     def New(self,*args):
         self.LoadFile(path.join(path.dirname(sys.argv[0]),
                                 'tables','BaseChar.txt'))
