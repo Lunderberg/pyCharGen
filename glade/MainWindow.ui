@@ -141,6 +141,8 @@
                                   <object class="GtkEntry" id="characterName">
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
+                                    <property name="has_tooltip">True</property>
+                                    <property name="tooltip_text" translatable="yes">The name of the character.  Ex: "Grognar the Axe-Swinger"</property>
                                     <property name="invisible_char">&#x25CF;</property>
                                     <property name="primary_icon_sensitive">True</property>
                                     <property name="secondary_icon_sensitive">True</property>
@@ -156,6 +158,8 @@
                                   <object class="GtkEntry" id="playerName">
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
+                                    <property name="has_tooltip">True</property>
+                                    <property name="tooltip_text" translatable="yes">The name of the player.  Ex. "John Doe"</property>
                                     <property name="invisible_char">&#x25CF;</property>
                                     <property name="primary_icon_sensitive">True</property>
                                     <property name="secondary_icon_sensitive">True</property>
@@ -189,6 +193,8 @@
                                   <object class="GtkEntry" id="experience">
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
+                                    <property name="has_tooltip">True</property>
+                                    <property name="tooltip_text" translatable="yes">The total experience gained by the character.  The experience determines the level at which the character should be.</property>
                                     <property name="invisible_char">&#x25CF;</property>
                                     <property name="primary_icon_sensitive">True</property>
                                     <property name="secondary_icon_sensitive">True</property>
@@ -341,6 +347,8 @@
                             <child>
                               <object class="GtkTable" id="statTable">
                                 <property name="visible">True</property>
+                                <property name="has_tooltip">True</property>
+                                <property name="tooltip_text" translatable="yes">The current stat values of the character, and the bonus.  These values can be changed on the "Stats" tab.</property>
                                 <property name="n_rows">15</property>
                                 <property name="n_columns">5</property>
                                 <child>
@@ -632,6 +640,8 @@
                             <child>
                               <object class="GtkTable" id="resistanceTable">
                                 <property name="visible">True</property>
+                                <property name="has_tooltip">True</property>
+                                <property name="tooltip_text" translatable="yes">The resistance bonuses of the character, to be used when performing a resistance roll.  Calculated from the stat bonuses.</property>
                                 <property name="n_rows">2</property>
                                 <property name="n_columns">2</property>
                                 <child>
@@ -688,6 +698,8 @@
                               <object class="GtkTreeView" id="commonSkillView">
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
+                                <property name="has_tooltip">True</property>
+                                <property name="tooltip_text" translatable="yes">Skills marked as "Commonly Used" on the "Skills" tab will show up here for quick reference.</property>
                               </object>
                             </child>
                           </object>
@@ -735,6 +747,7 @@
                             <child>
                               <object class="GtkComboBox" id="profBox">
                                 <property name="visible">True</property>
+                                <property name="tooltip_text" translatable="yes">The profession defines the cost to increase skill, the spells that can be learned, and extra bonuses to be given to certain skills.</property>
                               </object>
                             </child>
                           </object>
@@ -831,6 +844,8 @@
                               <object class="GtkTreeView" id="weaponOrderingView">
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
+                                <property name="has_tooltip">True</property>
+                                <property name="tooltip_text" translatable="yes">The order of weapon usage preference.  Skills that are dragged higher in the list will have a lower cost.</property>
                               </object>
                             </child>
                           </object>
@@ -1070,6 +1085,8 @@
                                               <object class="GtkEntry" id="statCurrentBox">
                                                 <property name="visible">True</property>
                                                 <property name="can_focus">True</property>
+                                                <property name="has_tooltip">True</property>
+                                                <property name="tooltip_text" translatable="yes">The Temporary value of the stat.  This describes your character as he/she currently is.</property>
                                                 <property name="invisible_char">&#x25CF;</property>
                                                 <property name="primary_icon_sensitive">True</property>
                                                 <property name="secondary_icon_sensitive">True</property>
@@ -1095,6 +1112,8 @@
                                               <object class="GtkEntry" id="statPotentialBox">
                                                 <property name="visible">True</property>
                                                 <property name="can_focus">True</property>
+                                                <property name="has_tooltip">True</property>
+                                                <property name="tooltip_text" translatable="yes">The Potential value of the stat.  This describes the best that your character can possibly achieve in this stat due to genetic/racial limitations.</property>
                                                 <property name="invisible_char">&#x2022;</property>
                                                 <property name="invisible_char_set">True</property>
                                                 <property name="primary_icon_sensitive">True</property>
@@ -1238,6 +1257,8 @@
                                   <object class="GtkSpinButton" id="spinbutton1">
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
+                                    <property name="has_tooltip">True</property>
+                                    <property name="tooltip_text" translatable="yes">The increase in the stat to be applied on levelling up.</property>
                                     <property name="invisible_char">&#x25CF;</property>
                                     <property name="invisible_char_set">True</property>
                                     <property name="primary_icon_sensitive">True</property>
@@ -1681,6 +1702,8 @@
                                           <object class="GtkHBox" id="skillRanksButtonBox">
                                             <property name="height_request">30</property>
                                             <property name="visible">True</property>
+                                            <property name="has_tooltip">True</property>
+                                            <property name="tooltip_text" translatable="yes">The number of ranks in each skill to buy.  The number on the button gives the cost of the skill rank, in DP.</property>
                                             <child>
                                               <placeholder/>
                                             </child>
@@ -1867,6 +1890,8 @@
                                       <object class="GtkEntry" id="itemNameBox">
                                         <property name="visible">True</property>
                                         <property name="can_focus">True</property>
+                                        <property name="has_tooltip">True</property>
+                                        <property name="tooltip_text" translatable="yes">The name of the item.</property>
                                         <property name="invisible_char">&#x25CF;</property>
                                         <property name="text" translatable="yes">Right-click the "Items" area to add an item.</property>
                                         <property name="primary_icon_sensitive">True</property>
@@ -1901,6 +1926,8 @@
                                       <object class="GtkEntry" id="itemBonusBox">
                                         <property name="visible">True</property>
                                         <property name="can_focus">True</property>
+                                        <property name="has_tooltip">True</property>
+                                        <property name="tooltip_text" translatable="yes">The bonus of the item.  Should look like "SkillName+Bonus" or "StatName+Bonus".  For example, "Strength+2, Swimming-10" would give +2 to Strength and -10 to Swimming.</property>
                                         <property name="invisible_char">&#x25CF;</property>
                                         <property name="text" translatable="yes">Ex: Dagger+5, Swimming-10</property>
                                         <property name="primary_icon_sensitive">True</property>
