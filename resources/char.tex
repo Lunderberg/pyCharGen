@@ -1,0 +1,77 @@
+\documentclass{article}
+\usepackage{fullpage}
+\usepackage{multicol}
+\usepackage{framed}
+\usepackage{etoolbox}
+\usepackage{longtable}
+
+\newcommand{\secTitle}[1]{
+  {\centering \large \bf #1} \\
+  \vspace{-1 mm}
+  \hrulefill
+  \vspace{3 mm}\\
+}
+
+\begin{document}
+
+{\LARGE \bf PYCHARGEN_CHARACTER_NAME} {\normalsize Level PYCHARGEN_LEVEL PYCHARGEN_PROFESSION}
+
+\hrulefill
+\\
+
+\newcounter{StatsAdded}
+\newcommand{\Stat}[3]{\ifnumequal{\theStatsAdded}{5}{\hline \setcounter{StatsAdded}{0}}{}
+                      #1 & #2 & #3 \stepcounter{StatsAdded}\\}
+
+\begin{multicols}{2}
+\begin{framed}
+\centering
+\secTitle{Stats}
+\begin{tabular}{r|c|c}
+& Value & Bonus \\
+\hline
+PYCHARGEN_STATS_OVERVIEW
+\end{tabular}
+\end{framed}
+
+\newcommand{\Resistance}[2]{#1 & #2 \\}
+
+\begin{framed}
+\centering
+\secTitle{Resistances}
+\begin{tabular}{r|c}
+  & Bonus \\
+\hline
+PYCHARGEN_RESISTANCES_OVERVIEW
+\end{tabular}
+\end{framed}
+
+\newcommand{\CommonSkill}[3]{#1 & #2 & #3 \\}
+
+\begin{framed}
+\centering
+\secTitle{Commonly Used Skills}
+\begin{tabular}{r|c|c}
+  & Ranks & Bonus \\
+\hline
+PYCHARGEN_COMMON_SKILLS_OVERVIEW
+\end{tabular}
+\end{framed}
+\end{multicols}
+
+\clearpage
+
+\newlength{\skIndent}
+\setlength{\skIndent}{0.4cm}
+\newcommand{\DetailSkill}[4]{\hspace{#4\skIndent} #1 & #2 & #3 \\}
+
+\begin{framed}
+\secTitle{All Skills}
+\begin{longtable}{lcc}
+Skill & Ranks & Bonus \\
+\hline
+PYCHARGEN_SKILL_FULLLIST
+\end{longtable}
+\end{framed}
+
+\end{document}

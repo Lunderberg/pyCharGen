@@ -1,19 +1,22 @@
 #!/usr/bin/env python
 
 import gtk
-import os.path as path
+import os.path
 import sys
 
 import Character
 import TreeModelHelpers as TMH
 from Professions import LoadProfessions
+from utils import resource
+
+import LatexOutput
 
 #Load the gtk theme for windows.
 #Should this at some point no longer be the main script,
 #  move this to be in the main script.
 if (sys.platform=='win32') and hasattr(sys,'_MEIPASS'):
     basedir = sys._MEIPASS
-    gtkrc = path.join(basedir,'gtkrc')
+    gtkrc = os.path.join(basedir,'gtkrc')
     gtk.rc_set_default_files([gtkrc])
     gtk.rc_reparse_all_for_settings(gtk.settings_get_default(),True)
 
@@ -29,8 +32,7 @@ class MainWindow(object):
     Individual tabs for stats, skills.
     """
     def __init__(self):
-        builderfile = path.join(path.dirname(sys.argv[0]),
-                              'glade','MainWindow.ui')
+        builderfile = resource('resources','MainWindow.ui')
         self.char = None
 
         self.b = gtk.Builder()
@@ -43,6 +45,7 @@ class MainWindow(object):
         self.Connect(self.b.get_object('fileOpen'),'activate',self.Open)
         self.Connect(self.b.get_object('fileSave'),'activate',self.Save)
         self.Connect(self.b.get_object('fileSaveAs'),'activate',self.SaveAs)
+        self.Connect(self.b.get_object('fileExport'),'activate',self.Export)
         self.Connect(self.b.get_object('fileQuit'),'activate',gtk.main_quit)
         self.Connect(self.b.get_object('actionLevelUp'),'activate',self.FromLevelUp)
         #The About window.
@@ -105,8 +108,7 @@ class MainWindow(object):
 
         #Set up a default character.
         self.registered = []
-        self.LoadFile(path.join(path.dirname(sys.argv[0]),
-                                'tables','BaseChar.txt'))
+        self.LoadFile(resource('tables','BaseChar.txt'))
         self.filename = None
 
 
@@ -150,8 +152,7 @@ class MainWindow(object):
         self.b.get_object('aboutWindow').hide()
         return True
     def New(self,*args):
-        self.LoadFile(path.join(path.dirname(sys.argv[0]),
-                                'tables','BaseChar.txt'))
+        self.LoadFile(resource('tables','BaseChar.txt'))
     def Open(self,*args):
         """
         Displays a dialog to choose a character file.
@@ -226,9 +227,25 @@ class MainWindow(object):
             with open(filename,'w') as f:
                 f.write(self.char.SaveString())
             self.filename = filename
+    def Export(self,*args):
+        """
+        Exports the character either to a pdf, or to a .tex file.
+        """
+        t = gtk.FileChooserDialog(title=None,action=gtk.FILE_CHOOSER_ACTION_SAVE,
+                                  buttons=(gtk.STOCK_CANCEL,gtk.RESPONSE_CANCEL,
+                                           gtk.STOCK_SAVE,gtk.RESPONSE_OK))
+        response = t.run()
+        filename = t.get_filename()
+        t.destroy()
+        if response==gtk.RESPONSE_OK:
+            if os.path.splitext(filename)[-1]=='.tex':
+                LatexOutput.SaveLatexFile(self.char,filename)
+            elif os.path.splitext(filename)[-1]=='.pdf':
+                LatexOutput.CompileLatex(self.char,filename)
+            else:
+                LatexOutput.CompileLatex(self.char,filename+'.pdf')
     def MakeProfessionList(self):
-        self._profdict = LoadProfessions(path.join(
-                path.dirname(sys.argv[0]),'tables','Professions.txt'))
+        self._profdict = LoadProfessions(resource('tables','Professions.txt'))
         profBox = self.b.get_object('profBox')
         model = gtk.ListStore(str)
         for key in self._profdict:

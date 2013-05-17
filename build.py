@@ -11,7 +11,7 @@ env = os.environ
 wineprefix = join(os.getcwd(),'wine-folder')
 env['WINEPREFIX'] = wineprefix
 builddir = 'pyCharGen'
-pyinstaller = os.path.expanduser('~/pylib/pyinstaller-2.0/pyinstaller.py')
+pyinstaller = os.path.expanduser('~/pymisc/pyinstaller-2.0/pyinstaller.py')
 
 def make_wine_tarball():
     #Install python

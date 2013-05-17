@@ -7,10 +7,10 @@ import sys
 
 import DiceParse
 from EventHandler import EventHandler
+from utils import resource
 
-location = path.dirname(sys.argv[0])
-_statBonuses = DiceParse.Table(path.join(location,'tables','StatBonus.txt'))
-_skillBonuses = DiceParse.Table(path.join(location,'tables','SkillBonus.txt'))
+_statBonuses = DiceParse.Table(resource('tables','StatBonus.txt'))
+_skillBonuses = DiceParse.Table(resource('tables','SkillBonus.txt'))
 
 unescape = {'\\(':'(',
             '\\)':')',
@@ -587,6 +587,13 @@ class Skill(Value):
         self.Changed()
     def CostSaveString(self):
         return '' if self._costs is None else ','.join(str(i) for i in self._costs)
+    @property
+    def Depth(self):
+        parSkills = [val for val in self.Parents if isinstance(val,Skill)]
+        if parSkills:
+            return parSkills[0].Depth+1
+        else:
+            return 0
     @_cached
     def DPspent(self):
         return sum(self.Costs[:self.Delta])

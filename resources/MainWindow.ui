@@ -56,6 +56,18 @@
                       </object>
                     </child>
                     <child>
+                      <object class="GtkMenuItem" id="fileExport">
+                        <property name="visible">True</property>
+                        <property name="label" translatable="yes">Export to PDF</property>
+                        <property name="use_underline">True</property>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkSeparatorMenuItem" id="separatormenuitem2">
+                        <property name="visible">True</property>
+                      </object>
+                    </child>
+                    <child>
                       <object class="GtkImageMenuItem" id="fileQuit">
                         <property name="label">gtk-quit</property>
                         <property name="visible">True</property>
