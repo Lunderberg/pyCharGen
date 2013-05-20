@@ -6,7 +6,11 @@ import sys
 
 def multiple_replace(changes,text):
     regex = re.compile("|".join(re.escape(key) for key in changes))
-    return regex.sub(lambda res:changes[res.group(0)],text)
+    try:
+        return regex.sub(lambda res:changes[res.group(0)],text)
+    except Exception as e:
+        print e,changes,text
+        raise e
 
 def resource(*args):
     paths = []

@@ -5,6 +5,7 @@ from utils import resource, multiple_replace
 import subprocess
 import os
 import os.path
+import shutil
 
 def LatexString(char):
     latexChar = open(resource('resources','char.tex')).read()
@@ -22,41 +23,85 @@ def SaveLatexFile(char,filename):
     with open(filename,'w') as f:
         f.write(LatexString(char))
 
-def CompileLatex(char,filename):
-    outputdir = os.path.dirname(filename)
-    jobname = os.path.splitext(os.path.basename(filename))[0]
-    latexChar = LatexString(char)
+def FindExecutable():
+    """Attempts to find the latex executable"""
     if sys.platform=='win32':
         executable = resource('resources','pdftex.exe')
+        if executable is None:
+            raise EnvironmentError("""Could not find resources\pdftex.exe""")
     else:
-        executable = 'pdflatex'
-        with open(os.devnull,'w') as shutup:
-            if subprocess.call(['which',executable],stdout=shutup,stdin=shutup):
+        executable = resource('resources','pdflatex')
+        executable = 'pdflatex' if executable is None else executable
+        with open(os.devnull,'w') as devnull:
+            if subprocess.call(['which',executable],stdout=devnull,stdin=devnull):
                 raise EnvironmentError("""Could not find pdflatex.  Please install using 'sudo apt-get texlive-latex-base'""")
-    args = [executable,
-            '-output-directory='+resource('resources'),
-            '-jobname='+jobname,
-            "'"+latexChar+"'"]
-    subprocess.call(args)
+    return executable
+
+def WorkingDir():
+    """
+    Finds the appropriate working directory for temporary files.
+    Makes it in the resources directory if not existing.
+    """
+    folderName = 'latex_temp'
+    workingDir = resource('resources',folderName)
+    if workingDir is not None:
+        return workingDir
+    workingDir = os.path.join(resource('resources'),
+                              folderName)
+    os.makedirs(workingDir)
+    return workingDir
+        
+def _escape(inString):
+    return multiple_replace({'_':'\\_',
+                             '^':'\\textasciicircum{}',
+                             '{':'\\{',
+                             '}':'\\}',
+                             '%':'\\%',
+                             '\\':'\\textbackslash{}',
+                             '&':'\\&',
+                             '~':'\\textasciitilde{}'},
+                            inString)
+
+def CompileLatex(char,filename):
+    outputdir = os.path.dirname(filename)
+    workingdir = WorkingDir()
+    jobname = os.path.splitext(os.path.basename(filename))[0]
+    SaveLatexFile(char,os.path.join(workingdir,jobname+'.tex'))
+    executable = FindExecutable()
+    #Two passes, since latex uses temporary files strangely.
+    for i in range(2):
+        args = [executable, jobname+'.tex',
+                '-include-directory='+resource('resources','latex_includes')]
+        subprocess.call(args,cwd=workingdir)
+    shutil.copy(os.path.join(workingdir,jobname+'.pdf'),
+                os.path.join(outputdir))
                      
 
 
 def _statsString(char):
     return '\n'.join('\\Stat{{{name}}}{{{value}}}{{{bonus}}}'.format(
-                            name=st.Name,value=st.Value,bonus=st.Bonus())
+                                  name=_escape(st.Name),
+                                  value=_escape(str(st.Value)),
+                                  bonus=_escape(str(st.Bonus())))
                      for st in char.Stats)
 
 def _skillOverviewString(char):
     return '\n'.join('\\CommonSkill{{{name}}}{{{ranks}}}{{{bonus}}}'.format(
-                            name=sk.Name,ranks=sk.Value,bonus=sk.Bonus())
+                                  name=_escape(sk.Name),
+                                  ranks=_escape(str(sk.Value)),
+                                  bonus=_escape(str(sk.Bonus())))
                      for sk in char.Skills if sk.CommonlyUsed)
 
 def _resistanceString(char):
     return '\n'.join('\\Resistance{{{name}}}{{{bonus}}}'.format(
-                            name=res.Name,bonus=res.Bonus())
+                                  name=_escape(res.Name),
+                                  bonus=_escape(str(res.Bonus())))
                      for res in char.Resistances)
 
 def _skillFullListString(char):
     return '\n'.join('\\DetailSkill{{{name}}}{{{ranks}}}{{{bonus}}}{{{depth}}}'.format(
-                           name=sk.Name,ranks=sk.Value,bonus=sk.Bonus(),depth=sk.Depth)
+                                  name=_escape(sk.Name),
+                                  ranks=_escape(str(sk.Value)),
+                                  bonus=_escape(str(sk.Bonus())),
+                                  depth=_escape(str(sk.Depth)))
                      for sk in char.Skills)

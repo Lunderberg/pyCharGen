@@ -234,16 +234,16 @@ class MainWindow(object):
         t = gtk.FileChooserDialog(title=None,action=gtk.FILE_CHOOSER_ACTION_SAVE,
                                   buttons=(gtk.STOCK_CANCEL,gtk.RESPONSE_CANCEL,
                                            gtk.STOCK_SAVE,gtk.RESPONSE_OK))
+        t.set_current_name(self.char.GetMisc('Name')+'.pdf'
+                           if self.char.GetMisc('Name')
+                           else 'char.pdf')
         response = t.run()
         filename = t.get_filename()
         t.destroy()
         if response==gtk.RESPONSE_OK:
-            if os.path.splitext(filename)[-1]=='.tex':
-                LatexOutput.SaveLatexFile(self.char,filename)
-            elif os.path.splitext(filename)[-1]=='.pdf':
-                LatexOutput.CompileLatex(self.char,filename)
-            else:
-                LatexOutput.CompileLatex(self.char,filename+'.pdf')
+            if filename[-4:]!='.pdf':
+                filename += '.pdf'
+            LatexOutput.CompileLatex(self.char,filename)
     def MakeProfessionList(self):
         self._profdict = LoadProfessions(resource('tables','Professions.txt'))
         profBox = self.b.get_object('profBox')
