@@ -3,8 +3,8 @@ This is a character generator designed for the Rolemaster Universal (RMU) role-p
 Features
 ----------------
 - Create and modify characters for use in RMU.
-- Add items, whcih contribute bonuses to stats and skills.
-- Save and load characters in a human-readable format.
+- Add items, which contribute bonuses to stats and skills.
+- Save and load characters in a human-readable text format.
 - Export characters to pdf format
 
 
