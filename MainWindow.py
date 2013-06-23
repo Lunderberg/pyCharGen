@@ -153,6 +153,7 @@ class MainWindow(object):
         return True
     def New(self,*args):
         self.LoadFile(resource('tables','BaseChar.txt'))
+        self.b.get_widget('mainTabs').set_current_page(1)
     def Open(self,*args):
         """
         Displays a dialog to choose a character file.
@@ -304,9 +305,10 @@ class MainWindow(object):
         TMH.AddTextColumn(self.statView,'Name',TMH.StatListStore.col('Name'),
                           editable=self.FromEditStatCell)
         TMH.AddTextColumn(self.statView,'Temp',TMH.StatListStore.col('Temporary'),
-                      editable=self.FromEditStatCell)
+                          editable=self.FromEditStatCell)
         TMH.AddTextColumn(self.statView,'Value Bonus',TMH.StatListStore.col('SelfBonus'))
-        TMH.AddTextColumn(self.statView,'Potential',TMH.StatListStore.col('Potential'))
+        TMH.AddTextColumn(self.statView,'Potential',TMH.StatListStore.col('Potential'),
+                          editable=self.FromEditStatCell)
         TMH.AddTextColumn(self.statView,'Potential Bonus',TMH.StatListStore.col('PotentialBonus'))
         TMH.AddTextColumn(self.statView,'Bonus',TMH.StatListStore.col('Bonus'))
 
@@ -493,6 +495,8 @@ class MainWindow(object):
             st.Name = text
         elif col==TMH.StatListStore.col('Temporary'):
             st.Value = int(text)
+        elif col==TMH.StatListStore.col('Potential'):
+            st.Max = int(text)
         self.Update()
     def FromEditSkillCell(self,cell,path,text,col):
         sk = self.skillStore[path][0]

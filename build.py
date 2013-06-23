@@ -5,6 +5,8 @@ from os.path import join
 import sys
 import subprocess
 import shutil
+import distutils.dir_util as dir_util
+from time import sleep
 
 
 env = os.environ
@@ -33,20 +35,20 @@ def make_wine_tarball():
     os.remove(pywin32_exe)
     #Make tarball
     subprocess.call(['tar','-czf','wine-frozen.tar.gz','wine-folder'])
-    shutil.rmtree(wineprefix)
+    dir_util.remove_tree(wineprefix)
 
 def make_base_folder():
     try:
-        shutil.rmtree(builddir)
+        dir_util.remove_tree(builddir)
     except OSError:
         pass
-    os.mkdir(builddir)
-    shutil.copytree('tables',join(builddir,'tables'))
-    os.mkdir(join(builddir,'glade'))
-    shutil.copy(join('glade','MainWindow.ui'),join(builddir,'glade'))
+    dir_util.copy_tree('tables',join(builddir,'tables'))
+    dir_util.copy_tree('resources',join(builddir,'resources'))
+
                     
 def make_linux_exe():
     make_base_folder()
+    dir_util.copy_tree('resources-linux',join(builddir,'resources'))
     try:
         os.remove('pyCharGen.tar.gz')
     except OSError:
@@ -56,12 +58,13 @@ def make_linux_exe():
     #Bundle everything together
     shutil.copy(join('dist','pyCharGen'),builddir)
     subprocess.call(['tar','-czf','pyCharGen.tar.gz',builddir])
-    shutil.rmtree(builddir)
+    dir_util.remove_tree(builddir)
 
 def make_windows_exe():
     if not os.path.exists('wine-frozen.tar.gz'):
         make_wine_tarball()
     make_base_folder()
+    dir_util.copy_tree('resources-windows',join(builddir,'resources'))
     try:
         os.remove('pyCharGen.zip')
     except OSError:
@@ -73,7 +76,7 @@ def make_windows_exe():
     #Bundle everything together
     shutil.copy(join('dist','pyCharGen.exe'),builddir)
     subprocess.call(['zip','-9','-r','pyCharGen.zip',builddir])
-    shutil.rmtree(builddir)
+    dir_util.remove_tree(builddir)
 
 def name_exes(name='unstable'):
     outputdir = join('downloads','unstable' if name=='unstable' else 'release')
@@ -90,7 +93,7 @@ def upload_build():
     subprocess.call(['rsync -e ssh -r downloads/* eldritchcheese@frs.sourceforge.net:/home/frs/project/pychargen'],shell=True)
 
 if __name__=='__main__':
-    make_linux_exe()
-    make_windows_exe()
-    name_exes(sys.argv[1] if len(sys.argv)>=2 else 'unstable')
+    #make_linux_exe()
+    #make_windows_exe()
+    #name_exes(sys.argv[1] if len(sys.argv)>=2 else 'unstable')
     upload_build()

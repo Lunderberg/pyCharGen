@@ -26,12 +26,13 @@ def SaveLatexFile(char,filename):
 def FindExecutable():
     """Attempts to find the latex executable"""
     if sys.platform=='win32':
-        executable = resource('resources','pdftex.exe')
+        #executable = resource('resources','pdflatex.exe')
+        executable = resource('resources','texlive-small','bin','win32','pdflatex.exe')
         if executable is None:
-            raise EnvironmentError("""Could not find resources\pdftex.exe""")
+            raise EnvironmentError("""Could not find resources\pdflatex.exe""")
     else:
-        executable = resource('resources','pdflatex')
-        executable = 'pdflatex' if executable is None else executable
+        executable = resource('resources','pdftex')
+        executable = 'pdftex' if executable is None else executable
         with open(os.devnull,'w') as devnull:
             if subprocess.call(['which',executable],stdout=devnull,stdin=devnull):
                 raise EnvironmentError("""Could not find pdflatex.  Please install using 'sudo apt-get texlive-latex-base'""")
@@ -42,7 +43,7 @@ def WorkingDir():
     Finds the appropriate working directory for temporary files.
     Makes it in the resources directory if not existing.
     """
-    folderName = 'latex_temp'
+    folderName = 'latex_workingdir'
     workingDir = resource('resources',folderName)
     if workingDir is not None:
         return workingDir
@@ -66,15 +67,18 @@ def CompileLatex(char,filename):
     outputdir = os.path.dirname(filename)
     workingdir = WorkingDir()
     jobname = os.path.splitext(os.path.basename(filename))[0]
+    outputfile = os.path.join(outputdir,jobname+'.pdf')
     SaveLatexFile(char,os.path.join(workingdir,jobname+'.tex'))
     executable = FindExecutable()
     #Two passes, since latex uses temporary files strangely.
     for i in range(2):
-        args = [executable, jobname+'.tex',
-                '-include-directory='+resource('resources','latex_includes')]
+        args = [executable,
+                '-interaction=nonstopmode', '-recorder',
+                jobname+'.tex']
         subprocess.call(args,cwd=workingdir)
-    shutil.copy(os.path.join(workingdir,jobname+'.pdf'),
+    shutil.move(os.path.join(workingdir,jobname+'.pdf'),
                 os.path.join(outputdir))
+        
                      
 
 

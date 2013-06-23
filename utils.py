@@ -14,7 +14,7 @@ def multiple_replace(changes,text):
 
 def resource(*args):
     paths = []
-    paths.append('.')
+    paths.append(os.getcwd())
     paths.append(os.path.dirname(sys.argv[0]))
     if hasattr(sys,'_MEIPASS'):
         paths.append(sys._MEIPASS)
