@@ -522,7 +522,7 @@ class MainWindow(object):
                 None,None,None,event.button,event.time)
     def FromAddChildSkill(self,*args):
         sk = self.skillStore[self.clicked_path][0]
-        newSkill = Character.Skill(0,Names=['New Skill'],Options=['Skill'],Parents=[sk.Name])
+        newSkill = Character.Skill(0,Names=['New Skill'],Options=['Skill'],Parents=[sk])
         self.char.AddVal(newSkill)
         self.Update()
     def FromAddSiblingSkill(self,*args):

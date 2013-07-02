@@ -23,3 +23,22 @@ def resource(*args):
         if os.path.exists(possible):
             return possible
     return None
+
+def listReplace(inputList, a, b, onlyOne = True):
+    """
+    From a list <inputList>,
+      replace a single instance of <a> with <b>.
+    Raises a ValueError if <a> is not found, or is found multiple times.
+    """
+    index = None
+    for i,item in enumerate(inputList):
+        if index is None and item==a:
+            index = i
+            if onlyOne:
+                break
+        elif index is not None and item==a:
+            raise ValueError("Multiple copies of {0} were found".format(str(a)))
+    if index is None:
+        raise ValueError("{0} was not found".format(str(a)))
+    inputList[index] = b
+

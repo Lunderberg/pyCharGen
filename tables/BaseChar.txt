@@ -39,14 +39,14 @@ Mentalism {Pr, Pr, SD} [Resistance, NoBonus]
 #Skills
 #------------------------
 Linguistics {Me, Me, Re} [Skill, NoBonus]
-  Language, Written {Linguistics} [Skill]: 0
-  Language, Spoken {Linguistics} [Skill]: 0
-  Language, Signed {Linguistics} [Skill]: 0
+  Language\, Written {Linguistics} [Skill]: 0
+  Language\, Spoken {Linguistics} [Skill]: 0
+  Language\, Signed {Linguistics} [Skill]: 0
   Flag Signaling {Linguistics} [Skill]: 0
 
 Lore {Me, Me, Re} [Skill, NoBonus]
-  Region, Own {Lore} [Skill]: 0
-  Region, Other {Lore} [Skill]: 0
+  Region\, Own {Lore} [Skill]: 0
+  Region\, Other {Lore} [Skill]: 0
   Artifact Lore {Lore} [Skill]: 0
   Demon Lore {Lore} [Skill]: 0
   Dragon Lore {Lore} [Skill]: 0
@@ -63,7 +63,7 @@ Lore {Me, Me, Re} [Skill, NoBonus]
   Symbol Lore {Lore} [Skill]: 0
   Wood Lore {Lore} [Skill]: 0
   Undead Lore {Lore} [Skill]: 0
-  Other, Specify {Lore} [Skill]: 0
+  Other\, Specify {Lore} [Skill]: 0
 
 Science {Me, Re, Re} [Skill, NoBonus]
   Research {Science} [Skill]: 0
@@ -175,12 +175,12 @@ Power Manipulation {Em, In, Pr} [Skill, NoBonus]
 Animal Handling {Re, Em, Pr} [Skill, NoBonus]
   Horse {Animal Handling} [Skill]: 0
   Cow {Animal Handling} [Skill]: 0
-  Other, Specify {Animal Handling} [Skill]: 0
+  Other\, Specify {Animal Handling} [Skill]: 0
 
 Riding {Ag, Em, Pr} [Skill, NoBonus]
   Horse {Riding} [Skill]: 0
   Dragon {Riding} [Skill]: 0
-  Other, Specify {Riding} [Skill]: 0
+  Other\, Specify {Riding} [Skill]: 0
 
 Driving/Pilot {Ag, SD, Qu} [Skill, NoBonus]
   Sailing Ship {Driving/Pilot} [Skill]: 0
@@ -189,6 +189,7 @@ Driving/Pilot {Ag, SD, Qu} [Skill, NoBonus]
   Blimp {Driving/Pilot} [Skill]: 0
 
 Survival {Re, Me, In} [Skill, NoBonus]
+  Region, Own {Survival} [Skill]: 0
   Artic {Survival} [Skill]: 0
   Desert {Survival} [Skill]: 0
   Ocean {Survival} [Skill]: 0
@@ -199,6 +200,7 @@ Survival {Re, Me, In} [Skill, NoBonus]
 
 Navigation {Me, Re, In} [Skill, NoBonus]
   Astral {Navigation} [Skill]: 0
+  Terrestrial {Navigation} [Skill]: 0
   Marine {Navigation} [Skill]: 0
   Planar {Navigation} [Skill]: 0
   Terrestrial {Navigation} [Skill]: 0
@@ -301,7 +303,7 @@ Mechanical {Ag, Re, In} [Skill, NoBonus]
   Locks {Mechanical} [Skill]: 0
   Traps {Mechanical} [Skill]: 0
   Gimmickry {Mechanical} [Skill]: 0
-  Other equipment, specify {Mechanical} [Skill]: 0
+  Other equipment\, specify {Mechanical} [Skill]: 0
 
 Medical {Me, Re, In} [Skill, NoBonus]
   Diagnostics {Medical} [Skill]: 0
@@ -317,7 +319,7 @@ Performance Art {Me, Em, Pr} [Skill, NoBonus]
   Acting {Performance Art} [Skill]: 0
   Divination {Performance Art} [Skill]: 0
   Mimery {Performance Art} [Skill]: 0
-  Instrument, Specify {Performance Art} [Skill]: 0
+  Instrument\, Specify {Performance Art} [Skill]: 0
   Poetic Improvisation {Performance Art} [Skill]: 0
   Singing {Performance Art} [Skill]: 0
   Tale Telling {Performance Art} [Skill]: 0

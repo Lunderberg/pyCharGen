@@ -9,6 +9,9 @@ import DiceParse
 import TreeModelHelpers as TMH
 from MainWindow import MainWindow
 
+
+from DAG_tests import *
+
 charfile = path.join(path.dirname(sys.argv[0]),'TestChar.txt')
 
 class TestDiceParse(unittest.TestCase):
@@ -83,31 +86,34 @@ class TestChar(unittest.TestCase):
         self.assertEqual(char.GetMisc('Experience'),12345)
     def test_linking(self):
         c = Character.Character()
+
         par1 = Character.Stat(100,Names=['name1'])
         c.AddVal(par1)
         par2 = Character.Skill(25,Names=['name2'])
         c.AddVal(par2)
         child = Character.Skill(1,Names=['child'],Parents=['name1','name2'])
         c.AddVal(child)
-        self.assertEqual(child.Bonus(),child.SelfBonus()+par1.SelfBonus()+par2.SelfBonus())
+
         pars = child.Parents
-        self.assertIs(par1,pars.next())
-        self.assertIs(par2,pars.next())
-        self.assertRaises(StopIteration,lambda :pars.next())
+        self.assertIs(par1,pars[0])
+        self.assertIs(par2,pars[1])
+        self.assertEqual(len(pars),2)
+        self.assertEqual(child.Bonus(),child.SelfBonus()+par1.SelfBonus()+par2.SelfBonus())
+
         item1 = Character.Item(None,Children=['child+5'])
         c.AddVal(item1)
-        self.assertEqual(child.Bonus(),child.SelfBonus()+par1.SelfBonus()+par2.SelfBonus()+5)
+        self.assertEqual(len(child.Parents),3)
         pars = child.Parents
-        self.assertEqual(len(list(child.Parents)),3)
-        self.assertIs(par1,pars.next())
-        self.assertIs(par2,pars.next())
-        self.assertIs(item1,pars.next())
-        self.assertRaises(StopIteration,lambda :pars.next())
-        c.UnlinkVal(par2)
+        self.assertIs(par1,pars[0])
+        self.assertIs(par2,pars[1])
+        self.assertIs(item1,pars[2])
+
+        self.assertEqual(child.Bonus(verbose=True),child.SelfBonus()+par1.SelfBonus()+par2.SelfBonus()+5)
+        c.RemoveVal(par2)
         pars = child.Parents
-        self.assertIs(par1,pars.next())
-        self.assertIs(item1,pars.next())
-        self.assertRaises(StopIteration,lambda :pars.next())
+        self.assertIs(par1,pars[0])
+        self.assertIs(item1,pars[1])
+        self.assertEqual(len(pars),2)
     def test_resistances(self):
         char = Character.Character.Open(charfile)
         self.assertEqual(char['Poison'].Bonus(),42)

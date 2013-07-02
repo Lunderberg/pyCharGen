@@ -8,6 +8,7 @@ import sys
 import DiceParse
 from EventHandler import EventHandler
 from utils import resource
+import DAG
 
 _statBonuses = DiceParse.Table(resource('tables','StatBonus.txt'))
 _skillBonuses = DiceParse.Table(resource('tables','SkillBonus.txt'))
@@ -64,9 +65,7 @@ def _split_by_special(line):
 
 class Character(object):
     def __init__(self):
-        self.LinkedVals = []
-        self.Links = []
-        self._lookup = {}
+        self.graph = DAG.DAG()
         self.MiscVals = {
             'Name':'',
             'PlayerName':'',
@@ -77,8 +76,6 @@ class Character(object):
             'Experience':0
             }
         self.Events = EventHandler()
-    def __getitem__(self,key):
-        return self._lookup[key]
     def SetMisc(self,key,val):
         if key in self.MiscVals:
             self.MiscVals[key] = val
@@ -89,21 +86,23 @@ class Character(object):
         return self.MiscVals[key]
     def Update(self):
         self.Events.Execute()
+    def __getitem__(self,key):
+        return self.graph[key]
     @property
     def Values(self):
-        return iter(self.LinkedVals)
+        return iter(self.graph)
     @property
     def Skills(self):
-        return (val for val in self.LinkedVals if isinstance(val,Skill))
+        return (val for val in self.graph if isinstance(val,Skill))
     @property
     def Stats(self):
-        return (val for val in self.LinkedVals if isinstance(val,Stat))
+        return (val for val in self.graph if isinstance(val,Stat))
     @property
     def Resistances(self):
-        return (val for val in self.LinkedVals if isinstance(val,Resistance))
+        return (val for val in self.graph if isinstance(val,Resistance))
     @property
     def Items(self):
-        return (val for val in self.LinkedVals if isinstance(val,Item))
+        return (val for val in self.graph if isinstance(val,Item))
     def AddVal(self,newVal):
         """
         Adds the value to the list of values.
@@ -111,52 +110,17 @@ class Character(object):
         Raises the 'Skill Added','Stat Added', or 'Resistance Added' event.
         """
         newVal.char = self
-        self.LinkVal(newVal)
-        self.LinkedVals.append(newVal)
+        self.graph.Add(newVal)
 
         self.Events('{0} Added'.format(newVal.Type),newVal)
         newVal.Events = self.Events
-    def RelinkAllVals(self):
-        """
-        Clears, then remakes all parent-child links based on the
-        requested link from each Value.
-        """
-        self._lookup.clear()
-        self.Links.clear()
-        for val in self.LinkedVals:
-            self.LinkVal(val)
-    def LinkVal(self,val):
-        """
-        Looks up the requested parents and requested children.
-        If found, adds them to the list of Links as (parent,child) tuples.
-        """
-        for reqPar in val.requestedParents:
-            if reqPar in self._lookup:
-                self.Links.append( (self._lookup[reqPar],val) )
-        for reqCh in val.requestedChildren:
-            if reqCh in self._lookup:
-                self.Links.append( (val,self._lookup[reqCh]) )
-                self._lookup[reqCh].Changed()
-        for n in val.Names:
-            self._lookup[n] = val
-    def UnlinkVal(self,val):
-        """
-        Removes all instances of a value from self.Links.
-        Possible future modification: Removing only links caused by one's own requests.
-        """
-        toRemove = []
-        for i,(par,ch) in enumerate(self.Links):
-            if (par is val) or (ch is val):
-                toRemove.append(i)
-        for i in reversed(toRemove):
-            del self.Links[i]
     def RemoveVal(self,val):
         """
         Removes the value given.
         Also, removes all children of the given value.
         Raises the 'Value Removed' event, first of the children, then of itself.
         """
-        self.LinkedVals.remove(val)
+        self.graph.Remove(val)
         for ch in val.Children:
             self.RemoveVal(ch)
         self.Events('{0} Removed'.format(val.Type),val)
@@ -165,7 +129,7 @@ class Character(object):
         Applies the increase in level as given by the Delta of each Value.
         Increments the Level by 1.
         """
-        for val in self.LinkedVals:
+        for val in self.graph:
             val.ApplyLevelUp()
         self.SetMisc('Level',self.GetMisc('Level')+1)
     def LoadProfession(self,profname,profdict):
@@ -242,7 +206,7 @@ class Character(object):
                                               for we in self.WeaponList)]
         #Escape all the character-based lines.
         #The Value-based lines are escaped in Value.SaveString()
-        lines += [val.SaveString() for val in self.LinkedVals]
+        lines += [val.SaveString() for val in self.graph]
         return '\n'.join(lines)
     @staticmethod
     def Open(filename):
@@ -313,7 +277,7 @@ def _cached(fn):
 
 class Value(object):
     """
-    Base class for Stats and Skills
+    Base class for Stats, Skills, Resistances, Items, etc.
     Can have an EventHandler to give notification when the value is changed.
     Subclasses change eventKey to change the key passed to the EventHandler
     """
@@ -323,7 +287,7 @@ class Value(object):
     def __init__(self,Value=None,Names=None,Parents=None,Children=None,Options=None,Description=""):
         self.Events = lambda *args:None
         self._timesChanged = 0 #needed for _cached
-        self.char = None
+        self.graph = None
         self.Names = [] if Names is None else Names
         self.requestedParents = [] if Parents is None else Parents
         self.requestedChildren = [] if Children is None else Children
@@ -333,7 +297,7 @@ class Value(object):
         self.Delta = 0
     @property
     def Name(self):
-        return self.Names[0]
+        return self.Names[0] if self.Names else None
     @Name.setter
     def Name(self,val):
         self.Names[0] = val
@@ -343,16 +307,16 @@ class Value(object):
         return min(self.Names,key=len)
     @property
     def Parents(self):
-        if self.char is not None:
-            for par,ch in self.char.Links:
-                if self is ch:
-                    yield par
+        if self.graph is not None:
+            return self.graph.Parents(self)
+        else:
+            return []
     @property
     def Children(self):
-        if self.char is not None:
-            for par,ch in self.char.Links:
-                if self is par:
-                    yield ch
+        if self.graph is not None:
+            return self.graph.Children(self)
+        else:
+            return []
     @property
     def Value(self):
         return 0 if self._value is None else self._value
@@ -393,17 +357,17 @@ class Value(object):
             self.Delta = 0
     def SelfBonus(self,asker=None,levelled=False):
         return 0
-    @_cached
-    def Bonus(self,asker=None,levelled=False):
-        return self.SelfBonus(asker,levelled) + sum(par.Bonus(self,levelled) for par in self.Parents)
-    @_cached
+    #@_cached
+    def Bonus(self,asker=None,levelled=False,verbose=False):
+        return self.SelfBonus(asker,levelled) + sum(par.Bonus(self,levelled) for par in self.Parents) 
+    #@_cached
     def CategoryBonus(self,asker=None,levelled=False):
         return sum(par.Bonus(self,levelled) for par in self.Parents if isinstance(par,Skill) and not par.NoBonus)
-    @_cached
+    #@_cached
     def StatBonus(self,asker=None,levelled=False):
         return (sum(par.Bonus(self,levelled) for par in self.Parents if isinstance(par,Stat))
                + sum(par.StatBonus(self,levelled) for par in self.Parents if par.NoBonus))
-    @_cached
+    #@_cached
     def ItemBonus(self,asker=None,levelled=False):
         return (sum(par.Bonus(self,levelled) for par in self.Parents if isinstance(par,Item))
                 +sum(par.Bonus(self,levelled) for par in self.Parents if par.NoBonus))
@@ -475,18 +439,20 @@ class Value(object):
                 except ValueError:
                     pass
 
+        stdarg = {'Value':value,'Names':names,
+                  'Options':opts,'Description':description}
         if 'Skill' in opts:
-            return Skill(Costs=costs,Value=value,Names=names,Parents=relatives,
-                         Options=opts,Description=description)
+            return Skill(Costs=costs,Parents=relatives,**stdarg)
         elif 'Stat' in opts:
-            return Stat(Value=value,Names=names,Parents=relatives,
-                        Options=opts,Description=description)
+            return Stat(Parents=relatives,**stdarg)
         elif 'Resistance' in opts:
-            return Resistance(Value=value,Names=names,Parents=relatives,
-                              Options=opts,Description=description)
+            return Resistance(Parents=relatives,**stdarg)
         elif 'Item' in opts:
-            return Item(Value=value,Names=names,Children=relatives,
-                        Options=opts,Description=description)
+            return Item(Children=relatives,**stdarg)
+        elif 'Race' in opts:
+            return Race(Children=relatives,**stdarg)
+        elif 'Culture' in opts:
+            return Culture(Children=relatives,**stdarg)
         else:
             return Value(Value=value,Names=names,Parents=relatives,
                          Options=opts,Description=description)
@@ -564,7 +530,7 @@ class Skill(Value):
             self.Options.remove('CommonlyUsed')
         self.Changed(False)
     @property
-    @_cached
+    #@_cached
     def Costs(self):
         """
         Return a list of integers given the cost of levelling up skills.
@@ -594,25 +560,25 @@ class Skill(Value):
             return parSkills[0].Depth+1
         else:
             return 0
-    @_cached
+    #@_cached
     def DPspent(self):
         return sum(self.Costs[:self.Delta])
 
-class Item(Value):
-    Type = 'Item'
+class MultiValue(Value):
+    Type = 'MultiValue'
     BonusOps = '+-'
     def __init__(self,*args,**kwargs):
-        super(Item,self).__init__(*args,**kwargs)
+        super(MultiValue,self).__init__(*args,**kwargs)
         self.MakeList(self.requestedChildren)
     def ChangeBonuses(self,bonusStr):
         newList = [s.strip() for s in bonusStr.split(',')]
         oldChList = self.ChildValues
         self.MakeList(newList)
         newChList = self.ChildValues
-        if self.char is not None:
-            self.char.UnlinkVal(self)
-            self.char.LinkVal(self)
-        if oldChList!=newChList:
+        if self.graph is not None:
+            self.graph.Remove(self)
+            self.graph.Add(self)
+        if newChList != oldChList:
             self.Changed()
     def MakeList(self,chList):
         """
@@ -646,3 +612,12 @@ class Item(Value):
                 return bonus
         else:
             return 0
+
+class Item(MultiValue):
+    Type = 'Item'
+
+class Race(MultiValue):
+    Type = 'Race'
+
+class Culture(MultiValue):
+    Type = 'Culture'
