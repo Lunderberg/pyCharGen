@@ -62,7 +62,7 @@ class StatListStore(ValueListStore):
     store_format = [
         ('obj',gobject.TYPE_PYOBJECT),
         ('Name',str),('Temporary',int),('Potential',int),
-        ('SelfBonus',int),('PotentialBonus',int),('Bonus',int),
+        ('ValueBonus',int),('PotentialBonus',int),('Bonus',int),
         ]
     names = {n:i for i,(n,t) in enumerate(store_format)}
     def getVals(self,char):
@@ -73,8 +73,8 @@ class StatListStore(ValueListStore):
                  self.col('Name'),st.Name,
                  self.col('Potential'),st.Max,
                  self.col('Temporary'),st.Value,
-                 self.col('SelfBonus'),st.SelfBonus(),
-                 self.col('PotentialBonus'),st.SelfBonus(potl=True),
+                 self.col('ValueBonus'),st.ValueBonus(),
+                 self.col('PotentialBonus'),st.ValueBonus(potl=True),
                  self.col('Bonus'),st.Bonus())
 
 
@@ -101,9 +101,9 @@ class ItemListStore(ValueListStore):
 class SkillTreeStore(gtk.TreeStore,object):
     store_format = [
         ('obj',gobject.TYPE_PYOBJECT),
-        ('Name',str),('Ranks',int),('SelfBonus',int),('Bonus',int),
+        ('Name',str),('Ranks',int),('ValueBonus',int),('Bonus',int),
         ('Parents',str),('CommonlyUsed',bool),('HasBonus',bool),
-        ('Delta',int),('NewRanks',int),('NewSelfBonus',int),('NewBonus',int),
+        ('Delta',int),('NewRanks',int),('NewValueBonus',int),('NewBonus',int),
         ]
     names = {n:i for i,(n,t) in enumerate(store_format)}
     types = [t for n,t in store_format]
@@ -147,13 +147,13 @@ class SkillTreeStore(gtk.TreeStore,object):
         self.set(skIter,
                  self.col('Name'),sk.Name,
                  self.col('Ranks'),sk.Value,
-                 self.col('SelfBonus'),sk.SelfBonus(),
+                 self.col('ValueBonus'),sk.ValueBonus(),
                  self.col('Bonus'),sk.Bonus(),
                  self.col('CommonlyUsed'),sk.CommonlyUsed,
                  self.col('HasBonus'),not sk.NoBonus,
                  self.col('Delta'),sk.Delta,
                  self.col('NewRanks'),sk.Value+sk.Delta,
-                 self.col('NewSelfBonus'),sk.SelfBonus(levelled=True),
+                 self.col('NewValueBonus'),sk.ValueBonus(levelled=True),
                  self.col('NewBonus'),sk.Bonus(levelled=True),
                  )
     def OnValueAdd(self,skill):

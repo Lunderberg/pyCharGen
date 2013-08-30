@@ -1,7 +1,7 @@
-Dwarf {Swimming-25, Ag-1, Co+4, Em-4, Pr-2, Qu-2, St+1, Essence+20, Mentalism+20, Poison+10, Disease+5}
-Elf {Ag+2, Em+2, Me+2, Pr+2, Qu+2, SD-4, St-2, Channeling-5, Essence-5, Mentalism-5, Poison+10}
-Goblin {Ag+3, Co+2, Em-2, Pr-2, Qu+1, SD-2, St-4, Essense+25, Mentalism+20, Poison+15, Disease+5}
-Halfling {Ag+4, Co+3, Em-2, Pr-4, Qu+4, SD-4, St-4, Essense+25, Mentalism+20, Poison+15, Disease+5}
-Human
-Orc {Co+4, Em-2, Me-2, Pr-2, Re-2, SD-4, St+2, Poison+5, Disease+10}
-Troll {Em-4, Me-2, Re-2, SD-2, St+4, Channeling-10, Essence-10, Mentalism-10, Poison+15, Disease+15}
+Race: Dwarf {Swimming-25, Ag-1, Co+4, Em-4, Pr-2, Qu-2, St+1, Essence+20, Mentalism+20, Poison+10, Disease+5}
+Race: Elf {Ag+2, Em+2, Me+2, Pr+2, Qu+2, SD-4, St-2, Channeling-5, Essence-5, Mentalism-5, Poison+10}
+Race: Goblin {Ag+3, Co+2, Em-2, Pr-2, Qu+1, SD-2, St-4, Essense+25, Mentalism+20, Poison+15, Disease+5}
+Race: Halfling {Ag+4, Co+3, Em-2, Pr-4, Qu+4, SD-4, St-4, Essense+25, Mentalism+20, Poison+15, Disease+5}
+Race: Human
+Race: Orc {Co+4, Em-2, Me-2, Pr-2, Re-2, SD-4, St+2, Poison+5, Disease+10}
+Race: Troll {Em-4, Me-2, Re-2, SD-2, St+4, Channeling-10, Essence-10, Mentalism-10, Poison+15, Disease+15}

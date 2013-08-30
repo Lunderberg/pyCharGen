@@ -6,7 +6,7 @@ import sys
 
 import Character
 import TreeModelHelpers as TMH
-from Professions import LoadProfessions
+from parser import LoadProfessions
 from utils import resource
 
 import LatexOutput
@@ -200,7 +200,7 @@ class MainWindow(object):
             ('Skill Removed',self.weaponSkillStore.OnValueRemove),
             ('Resistance Changed',self.OnResistanceChange),
             ('Item Added',self.itemStore.OnValueAdd),
-            ('Item Changed',self.OnItemChange),
+            #('Item Changed',self.OnItemChange),
             ('Item Changed',self.itemStore.OnValueChange),
             ('Item Removed',self.itemStore.OnValueRemove),
             ('Item Removed',self.OnItemRemove),
@@ -255,6 +255,8 @@ class MainWindow(object):
         cell = gtk.CellRendererText()
         profBox.pack_start(cell,True)
         profBox.add_attribute(cell,'text',0)
+    def MakeRaceList(self):
+        self._racedict = LoadRaces(resource('tables','Races.txt'))
     def FromProfessionChange(self,wid):
         profname = wid.get_active_text()
         self.char.LoadProfession(profname,self._profdict[profname])
@@ -306,7 +308,7 @@ class MainWindow(object):
                           editable=self.FromEditStatCell)
         TMH.AddTextColumn(self.statView,'Temp',TMH.StatListStore.col('Temporary'),
                           editable=self.FromEditStatCell)
-        TMH.AddTextColumn(self.statView,'Value Bonus',TMH.StatListStore.col('SelfBonus'))
+        TMH.AddTextColumn(self.statView,'Value Bonus',TMH.StatListStore.col('ValueBonus'))
         TMH.AddTextColumn(self.statView,'Potential',TMH.StatListStore.col('Potential'),
                           editable=self.FromEditStatCell)
         TMH.AddTextColumn(self.statView,'Potential Bonus',TMH.StatListStore.col('PotentialBonus'))
@@ -323,7 +325,7 @@ class MainWindow(object):
                             editable=self.FromEditSkillCell)
         TMH.AddTextColumn(self.skillView,'Ranks',TMH.SkillTreeStore.col('Ranks'),
                             editable=self.FromEditSkillCell,viscol=TMH.SkillTreeStore.col('HasBonus'))
-        TMH.AddTextColumn(self.skillView,'Rank Bonus',TMH.SkillTreeStore.col('SelfBonus'),
+        TMH.AddTextColumn(self.skillView,'Rank Bonus',TMH.SkillTreeStore.col('ValueBonus'),
                           viscol=TMH.SkillTreeStore.col('HasBonus'))
         TMH.AddTextColumn(self.skillView,'Bonus',TMH.SkillTreeStore.col('Bonus'))
         TMH.AddCheckboxColumn(self.skillView,'Commonly Used',TMH.SkillTreeStore.col('CommonlyUsed'),
@@ -442,7 +444,7 @@ class MainWindow(object):
     def UpdateActiveStat(self,stat):
         self.b.get_object('statNameBox').set_text(stat.Name)
         self.b.get_object('statCurrentBox').set_text(str(stat.Value))
-        self.b.get_object('statSelfBonusLabel').set_text(str(stat.SelfBonus()))
+        self.b.get_object('statValueBonusLabel').set_text(str(stat.ValueBonus()))
         self.b.get_object('statBonusLabel').set_text(str(stat.Bonus()))
         self.b.get_object('statPotentialBox').set_text(str(stat.Max))
         better_set_text(self.b.get_object('statDescriptionBox').get_buffer(),stat.Description)
@@ -450,11 +452,11 @@ class MainWindow(object):
         adj.set_lower(0)
         adj.set_upper(100-stat.Value)
         adj.set_value(stat.Delta)
-        self.b.get_object('postLevelStatBonus').set_text(str(stat.SelfBonus(levelled=True)))
+        self.b.get_object('postLevelStatBonus').set_text(str(stat.ValueBonus(levelled=True)))
     def UpdateActiveSkill(self,skill):
         self.b.get_object('skillNameBox').set_text(skill.Name)
         self.b.get_object('skillRankBox').set_text(str(skill.Value))
-        self.b.get_object('skillRankBonusLabel').set_text(str(skill.SelfBonus()))
+        self.b.get_object('skillRankBonusLabel').set_text(str(skill.ValueBonus()))
         self.b.get_object('skillCategoryBonusLabel').set_text(str(skill.CategoryBonus()))
         self.b.get_object('skillStatBonusLabel').set_text(str(skill.StatBonus()))
         self.b.get_object('skillItemBonusLabel').set_text(str(skill.ItemBonus()))
@@ -462,7 +464,7 @@ class MainWindow(object):
         better_set_text(self.b.get_object('skillDescriptionBox').get_buffer(),skill.Description)
         self.BuildRanksButtons(skill)
         self.b.get_object('postLevelSkillRanks').set_text(str(skill.Value+skill.Delta))
-        self.b.get_object('postLevelSkillBonus').set_text(str(skill.SelfBonus(levelled=True)))
+        self.b.get_object('postLevelSkillBonus').set_text(str(skill.ValueBonus(levelled=True)))
     def BuildRanksButtons(self,skill):
         """
         Builds the buttons to be pressed to select the skill ranks to be bought.
