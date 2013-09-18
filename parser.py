@@ -11,6 +11,9 @@ from Character import Stat, Skill, Resistance, Item, Race, Culture
 ###################################
 ### Here are the older parsing things that I currently have
 ###################################
+def stripComments(text):
+    return re.sub(r'(^|[^\\])#.*',r'\1',text)
+
 def LoadProfessions(filename):
     """
     Loads a file, then parses the professions from it.
@@ -20,8 +23,7 @@ def LoadProfessions(filename):
     with open(filename) as f:
         text = f.read()
     profs = OrderedDict()
-    #Strip out comments.
-    text = re.sub(r'(^|[^\\])#.*',r'',text)
+    text = stripComments(text)
     for profMatch in re.finditer(r'(\S[^{}]*?)\s*'
                                  r'((\s*\{.*?\})+)',text):
         profname = profMatch.group(1)
@@ -58,47 +60,87 @@ def mergeLists(inputList):
     output = defaultdict(list)
     for key,item in inputList:
         output[key].append(item)
-    return output
+    return [output]
 def itemOptions(*args):
     options = zip(args[0::2],args[1::2])
     fullList = [itemList(item,sep) for item,sep in options]
     fullList = reduce(lambda a,b:a^b,fullList[1:],fullList[0])
-    fullList = ZeroOrMore(fullList)
+    fullList = ungroup(ZeroOrMore(fullList))
     fullList.setParseAction(mergeLists)
     return fullList
         
 
-nameCharList = alphanums + """_'"""
-namechar = (Word(nameCharList) ^
+IDCharList = alphanums + """_'"""
+IDchar = (Word(IDCharList) ^
             (litSup('\\')+Word(printables,exact=1)))
-name = Combine(OneOrMore(namechar) +
-               ZeroOrMore(White() + OneOrMore(namechar)))
+ID = Combine(OneOrMore(IDchar) +
+             ZeroOrMore(White() + OneOrMore(IDchar)))
 number = Combine(Optional(Literal('-') ^ Literal('+'))
                  +Word(nums)).setParseAction(lambda t:int(t[0]))
-namebonus = (name + number).setParseAction(lambda t:(t[0],t[1]) )
+IDbonus = (ID + number).setParseAction(lambda t:(t[0],t[1]) )
 
+def makeStat(m):
+    return Stat(Names=[m['name']],Value=m['value'],
+                Options=m['options']['[]'],Parents=m['options']['{}'])
 stat = (litSup('Stat') + litSup(':')
-        + name + itemOptions(name,'[]')
-        + litSup(':') + number.setResultsName('value')
-        )
+        + ID('name')
+        + itemOptions(ID,'[]')('options')
+        + litSup(':') + number('value')
+        ).setParseAction(makeStat)
+
+def makeSkill(m):
+    return Skill(Names=[m['name']],Value=m['value'] if 'value' in m else None,
+                 Options=m['options']['[]'],Parents=m['options']['{}'],Costs=m['options']['<>'])
 skill = (litSup('Skill') + litSup(':')
-         + name + itemOptions(name,'{}',
-                              name,'[]')
-         + Optional(litSup(':') + number)
-         )
+         + ID('name')
+         + itemOptions(ID,'{}',
+                       ID,'[]',
+                       number,'<>')('options')
+         + Optional(litSup(':') + number('value'))
+         ).setParseAction(makeSkill)
+
+def makeResistance(m):
+    return Resistance(Names=[m['name']],
+                      Parents=m['options']['{}'])
 resistance = (litSup('Resistance') + litSup(':')
-              + name + itemOptions(name,'{}')
-              )
+              + ID('name')
+              + itemOptions(ID,'{}')('options')
+              ).setParseAction(makeResistance)
+
+def makeItem(m):
+    return Item(Names=[m['name']],
+                Children=['{0}{1:+d}'.format(i,j) for i,j in m['options']['{}']],
+                Options=m['options']['[]'])
 item = (litSup('Item') + litSup(':')
-        + name + itemOptions(namebonus,'{}',
-                             name,'[]')
-        )
+        + ID('name')
+        + itemOptions(IDbonus,'{}',
+                      ID,'[]')('options')
+        ).setParseAction(makeItem)
+
+
+def makeRace(m):
+    return Race(Names=[m['name']],
+                Children=['{0}{1:+d}'.format(i,j) for i,j in m['options']['{}']],
+                Options=m['options']['[]'])
 race = (litSup('Race') + litSup(':')
-        + name + itemOptions(namebonus,'{}')
-        )
+        + ID('name') + itemOptions(IDbonus,'{}')('options')
+        ).setParseAction(makeRace)
+
+def makeCulture(m):
+    return Culture(Names=[m['name']],
+                   Children=['{0}{1:+d}'.format(i,j) for i,j in m['options']['{}']],
+                   Options=m['options']['[]'])
+culture = (litSup('Culture') + litSup(':')
+           + ID('name') + itemOptions(IDbonus,'{}')('options')
+           ).setParseAction(makeCulture)
+    
+
+value = stat | skill | resistance | item | race | culture
 
 if __name__=='__main__':
-    print namebonus.parseString('Swimming-10')
-    print itemOptions(namebonus,'{}').parseString('{Swimming-10}')
-    
-    print LoadRaces('/home/eric/pyCharGen/tables/Races.txt')
+    lines = open('TestChar_newFormat.txt').readlines()
+    for linenum in [24,35,43,50]:
+        try:
+            print value.parseString(lines[linenum])[0]
+        except ParseException:
+            print "Couldn't parse",lines[linenum][:-1]

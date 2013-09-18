@@ -272,6 +272,9 @@ class Value(object):
         self.Value = Value
         self.Description = Description
         self.Delta = 0
+    def __repr__(self):
+        return '{0}(Value={4}, Name="{1}", Options={2}, Parents={3})'.format(
+            self.Type,self.Name,self.Options,self.requestedParents,self.Value)
     @property
     def Name(self):
         return self.Names[0] if self.Names else None
@@ -493,6 +496,9 @@ class Skill(Value):
     def __init__(self,Costs=None,*args,**kwargs):
         super(Skill,self).__init__(*args,**kwargs)
         self.Costs = None if Costs is None else Costs
+    def __repr__(self):
+        return '{0}(Value={4}, Name="{1}", Options={2}, Parents={3}, Costs={5})'.format(
+            self.Type,self.Name,self.Options,self.requestedParents,self.Value,self.Costs)
     def ValueBonus(self,asker=None,levelled=False):
         return 0 if self.NoBonus else _skillBonuses(self._valueAndExtra + (self.Delta if levelled else 0))
     @property
@@ -545,6 +551,9 @@ class MultiValue(Value):
     def __init__(self,*args,**kwargs):
         super(MultiValue,self).__init__(*args,**kwargs)
         self.MakeList(self.requestedChildren)
+    def __repr__(self):
+        return '{0}(Name="{1}", Options={2}, ChildValues={3})'.format(
+            self.Type,self.Name,self.Options,self.ChildValues)
     def ChangeBonuses(self,bonusStr):
         newList = [s.strip() for s in bonusStr.split(',')]
         oldChList = self.ChildValues
