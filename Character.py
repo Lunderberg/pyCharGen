@@ -273,8 +273,8 @@ class Value(object):
         self.Description = Description
         self.Delta = 0
     def __repr__(self):
-        return '{0}(Value={4}, Name="{1}", Options={2}, Parents={3})'.format(
-            self.Type,self.Name,self.Options,self.requestedParents,self.Value)
+        return '{0}(Value={4}, Name="{1}", Options={2}, Parents={3}, Description="{5}")'.format(
+            self.Type,self.Name,self.Options,self.requestedParents,self.Value,self.Description)
     @property
     def Name(self):
         return self.Names[0] if self.Names else None
@@ -497,8 +497,8 @@ class Skill(Value):
         super(Skill,self).__init__(*args,**kwargs)
         self.Costs = None if Costs is None else Costs
     def __repr__(self):
-        return '{0}(Value={4}, Name="{1}", Options={2}, Parents={3}, Costs={5})'.format(
-            self.Type,self.Name,self.Options,self.requestedParents,self.Value,self.Costs)
+        return '{0}(Value={4}, Name="{1}", Options={2}, Parents={3}, Costs={5},Description="{6}")'.format(
+            self.Type,self.Name,self.Options,self.requestedParents,self.Value,self.Costs,self.Description)
     def ValueBonus(self,asker=None,levelled=False):
         return 0 if self.NoBonus else _skillBonuses(self._valueAndExtra + (self.Delta if levelled else 0))
     @property
@@ -562,7 +562,7 @@ class MultiValue(Value):
         if self.graph is not None:
             self.graph.Remove(self)
             self.graph.Add(self)
-        if newChList != oldChList:
+        if lnewChList != oldChList:
             self.Changed()
     def MakeList(self,chList):
         """
@@ -570,8 +570,7 @@ class MultiValue(Value):
         Expects input as an iterable of strings, each in the form 'NameBonus'.
                    e.g. "Axe+3", "Religious Lore-5"
         """
-        self.requestedChildren = []
-        self.ChildValues = []
+        childvalues = []
         for ch in chList:
             if sum(ch.count(c) for c in self.BonusOps)!=1:
                 continue
@@ -584,8 +583,11 @@ class MultiValue(Value):
                 value = int(value)
             except ValueError:
                 continue
-            self.requestedChildren.append(name)
-            self.ChildValues.append((name,value,ranks))
+            childvalues.append((name,value,ranks))
+        self.SetChildValues(childvalues)
+    def SetChildValues(self,childvalues):
+        self.ChildValues = childvalues
+        self.requestedChildren = [name for name,bonus,ranks in childvalues]
     def RelativeSaveString(self):
         if self.ChildValues:
             return ', '.join('{0}{1:+d}'.format(_escape(name),val)

@@ -5,7 +5,7 @@ from collections import defaultdict
 import re
 from collections import OrderedDict
 
-from Character import Stat, Skill, Resistance, Item, Race, Culture
+from Character import Character, Stat, Skill, Resistance, Item, Race, Culture
 
 
 ###################################
@@ -49,6 +49,9 @@ def LoadRaces(filename):
 ##################################
 def litSup(literal):
     return Literal(literal).suppress()
+def pyparsingAny(inputList):
+    inputList = list(inputList)
+    return reduce(lambda a,b:a^b,  inputList[1:], inputList[0])
 def itemList(item,sep):
     itemSep = item.copy()
     itemSep = itemSep.addParseAction(lambda t:(sep,t[0]))
@@ -63,8 +66,7 @@ def mergeLists(inputList):
     return [output]
 def itemOptions(*args):
     options = zip(args[0::2],args[1::2])
-    fullList = [itemList(item,sep) for item,sep in options]
-    fullList = reduce(lambda a,b:a^b,fullList[1:],fullList[0])
+    fullList = pyparsingAny(itemList(item,sep) for item,sep in options)
     fullList = ungroup(ZeroOrMore(fullList))
     fullList.setParseAction(mergeLists)
     return fullList
@@ -74,73 +76,122 @@ IDCharList = alphanums + """_'"""
 IDchar = (Word(IDCharList) ^
             (litSup('\\')+Word(printables,exact=1)))
 ID = Combine(OneOrMore(IDchar) +
-             ZeroOrMore(White() + OneOrMore(IDchar)))
+             ZeroOrMore(White(' \t') + OneOrMore(IDchar)))
 number = Combine(Optional(Literal('-') ^ Literal('+'))
                  +Word(nums)).setParseAction(lambda t:int(t[0]))
-IDbonus = (ID + number).setParseAction(lambda t:(t[0],t[1]) )
+IDbonus = (ID + number + Optional(Literal('r'))('ranks')
+           ).setParseAction(lambda t:(t[0],t[1],'ranks' in t) )
+
+description = (litSup('"') + ID('desc') + litSup('"'))                
+
+def makeKeyword(m):
+    return (m['keyword'],m['value'])
+keywordList = ['Name','PlayerName','Profession']
+keyword = (pyparsingAny(Literal(key) for key in keywordList)('keyword')
+           + litSup(':') + ID('value')).setParseAction(makeKeyword)
+keywordIntList = ['Level','Experience']
+keywordInt = (pyparsingAny(Literal(key) for key in keywordIntList)('keyword')
+           + litSup(':') + number('value')).setParseAction(makeKeyword)
+
+def makeWeaponCosts(m):
+    return ('WeaponCosts',[i[0] for i in m])
+weaponcosts = (litSup('WeaponCosts') + litSup(':')
+               + OneOrMore(litSup('<')
+                           + delimitedList(number).setParseAction(lambda t:(list(t),))
+                           + litSup('>'))
+               ).setParseAction(makeWeaponCosts)
 
 def makeStat(m):
-    return Stat(Names=[m['name']],Value=m['value'],
-                Options=m['options']['[]'],Parents=m['options']['{}'])
+    return ('Stat',Stat(Names=[m['name']],Value=m['value'],
+                        Options=m['options']['[]'],
+                        Parents=m['options']['{}'],
+                        Description=m['desc'][0]))
 stat = (litSup('Stat') + litSup(':')
         + ID('name')
         + itemOptions(ID,'[]')('options')
         + litSup(':') + number('value')
+        + Optional(description,'')('desc')
         ).setParseAction(makeStat)
 
 def makeSkill(m):
-    return Skill(Names=[m['name']],Value=m['value'] if 'value' in m else None,
-                 Options=m['options']['[]'],Parents=m['options']['{}'],Costs=m['options']['<>'])
+    return ('Skill',
+            Skill(Names=[m['name']],Value=m['value'] if 'value' in m else None,
+                  Options=m['options']['[]'],Parents=m['options']['{}'],
+                  Costs=m['options']['<>'],
+                  Description=m['desc'][0]))
 skill = (litSup('Skill') + litSup(':')
          + ID('name')
          + itemOptions(ID,'{}',
                        ID,'[]',
                        number,'<>')('options')
          + Optional(litSup(':') + number('value'))
+         + Optional(description,'')('desc')
          ).setParseAction(makeSkill)
 
 def makeResistance(m):
-    return Resistance(Names=[m['name']],
-                      Parents=m['options']['{}'])
+    return ('Resistance',
+            Resistance(Names=[m['name']],
+                       Parents=m['options']['{}'],
+                       Description=m['desc'][0]))
 resistance = (litSup('Resistance') + litSup(':')
               + ID('name')
               + itemOptions(ID,'{}')('options')
+              + Optional(description,'')('desc')
               ).setParseAction(makeResistance)
 
 def makeItem(m):
-    return Item(Names=[m['name']],
-                Children=['{0}{1:+d}'.format(i,j) for i,j in m['options']['{}']],
-                Options=m['options']['[]'])
+    output = Item(Names=[m['name']],
+                  Options=m['options']['[]'],
+                  Description=m['desc'][0])
+    output.SetChildValues(m['options']['{}'])
+    return ('Item',output)
 item = (litSup('Item') + litSup(':')
         + ID('name')
         + itemOptions(IDbonus,'{}',
                       ID,'[]')('options')
+        + Optional(description,'')('desc')
         ).setParseAction(makeItem)
 
 
 def makeRace(m):
-    return Race(Names=[m['name']],
-                Children=['{0}{1:+d}'.format(i,j) for i,j in m['options']['{}']],
-                Options=m['options']['[]'])
+    output = Race(Names=[m['name']],
+                  Options=m['options']['[]'],
+                  Description=m['desc'][0])
+    output.SetChildValues(m['options']['{}'])
+    return ('Race',output)
 race = (litSup('Race') + litSup(':')
         + ID('name') + itemOptions(IDbonus,'{}')('options')
+        + Optional(description,'')('desc')
         ).setParseAction(makeRace)
 
 def makeCulture(m):
-    return Culture(Names=[m['name']],
-                   Children=['{0}{1:+d}'.format(i,j) for i,j in m['options']['{}']],
-                   Options=m['options']['[]'])
+    output = Culture(Names=[m['name']],
+                    Options=m['options']['[]'],
+                     Description=m['desc'][0])
+    output.SetChildValues(m['options']['{}'])
+    return ('Culture',output)
 culture = (litSup('Culture') + litSup(':')
            + ID('name') + itemOptions(IDbonus,'{}')('options')
+           + Optional(description,'')('desc')
            ).setParseAction(makeCulture)
     
 
-value = stat | skill | resistance | item | race | culture
+value = keyword | keywordInt | weaponcosts | stat | skill | resistance | item | race | culture
+
+def makeCharacter(m):
+    output = Character()
+    for tag,item in m:
+        if tag in ['Name','PlayerName','Profession','Level','Experience']:
+            output.SetMisc(tag,item)
+        elif tag in ['Stat','Skill','Resistance','Item','Race','Culture']:
+            output.AddVal(item)
+    return output
+character = OneOrMore(value).setParseAction(makeCharacter)
+character.ignore(pythonStyleComment)
+            
 
 if __name__=='__main__':
     lines = open('TestChar_newFormat.txt').readlines()
-    for linenum in [24,35,43,50]:
-        try:
-            print value.parseString(lines[linenum])[0]
-        except ParseException:
-            print "Couldn't parse",lines[linenum][:-1]
+    text = '\n'.join(lines)
+    c = character.parseString(text,parseAll=True)[0]
+    import code; code.interact(local=locals())
