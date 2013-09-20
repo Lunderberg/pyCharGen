@@ -186,9 +186,7 @@ def makeCharacter(m):
         elif tag in ['Stat','Skill','Resistance','Item','Race','Culture']:
             output.AddVal(item)
     return output
-character = OneOrMore(value).setParseAction(makeCharacter)
-character.ignore(pythonStyleComment)
-            
+character = OneOrMore(value).ignore(pythonStyleComment).setParseAction(makeCharacter)            
 
 if __name__=='__main__':
     lines = open('TestChar_newFormat.txt').readlines()
