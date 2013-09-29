@@ -5,8 +5,7 @@ Level: 3
 Experience: 12345
 
 Race: Dwarf {Swimming-25, Ag-1, Co+4, Em-4, Pr-2, Qu-2, St+1, Essence+20, Mentalism+20, Poison+10, Disease+5}
-Culture: Cosmopolitan {Linguistics+10, Region\, Own+3, Mathematics+1, Body Development+1, Running+1r,
-                       Survival\: Region\, Own+1, Social Awareness+1}
+Culture: Cosmopolitan {Linguistics+10, Region\, Own+3, Mathematics+1, Body Development+1, Running+1r, Survival\: Region\, Own+1, Social Awareness+1}
 
 #Format:  "Name (Nickname1, Nickname2, ...) {Parent1, Parent2, ...} [Opt1, Opt2, ...]: Value
 #Options: "Stat"    - Indicates that the value is a stat.

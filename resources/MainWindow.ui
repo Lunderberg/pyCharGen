@@ -1083,7 +1083,7 @@
                                               </packing>
                                             </child>
                                             <child>
-                                              <object class="GtkLabel" id="statSelfBonusLabel">
+                                              <object class="GtkLabel" id="statValueBonusLabel">
                                                 <property name="visible">True</property>
                                               </object>
                                               <packing>

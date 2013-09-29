@@ -6,7 +6,7 @@ import sys
 
 import Character
 import TreeModelHelpers as TMH
-from parser import LoadProfessions
+from Parser import LoadProfessions
 from utils import resource
 
 import LatexOutput
@@ -39,7 +39,7 @@ class MainWindow(object):
         self.b.add_from_file(builderfile)
         self.window = self.b.get_object('mainWindow')
         self.window.connect('delete_event',gtk.main_quit)
-        
+
         #Menu commands
         self.Connect(self.b.get_object('fileNew'),'activate',self.New)
         self.Connect(self.b.get_object('fileOpen'),'activate',self.Open)
@@ -89,7 +89,7 @@ class MainWindow(object):
         self.Connect(self.b.get_object('skillRankBox'),'changed',self.FromActiveSkillRankChange)
         self.Connect(self.b.get_object('skillDescriptionBox').get_buffer(),
                      'changed',self.FromActiveSkillDescriptionChange)
-        
+
         #Weapon reorderings
         self.SetUpWeaponSkillView()
 
@@ -108,7 +108,7 @@ class MainWindow(object):
 
         #Set up a default character.
         self.registered = []
-        self.LoadFile(resource('tables','BaseChar.txt'))
+        self.LoadFile(resource('tables','BaseChar_newFormat.txt'))
         self.filename = None
 
 
@@ -295,8 +295,8 @@ class MainWindow(object):
         self.b.get_object('playerName').set_text(self.char.GetMisc('PlayerName'))
         self.b.get_object('characterName').set_text(self.char.GetMisc('Name'))
         self.b.get_object('profName').set_text(self.char.GetMisc('Profession'))
-        self.b.get_object('raceName').set_text(self.char.GetMisc('Race'))
-        self.b.get_object('cultureName').set_text(self.char.GetMisc('Culture'))
+        #self.b.get_object('raceName').set_text(self.char.GetMisc('Race'))
+        #self.b.get_object('cultureName').set_text(self.char.GetMisc('Culture'))
         self.b.get_object('charLevel').set_text(str(self.char.GetMisc('Level')))
         self.b.get_object('experience').set_text(str(self.char.GetMisc('Experience')))
     def SetUpStatView(self):
@@ -363,7 +363,7 @@ class MainWindow(object):
         stTable = self.b.get_object('statTable')
         for ch in stTable.get_children():
             stTable.remove(ch)
-            
+
         #Set up the overall structure.
         length = sum(1 for _ in char.Stats)
         linesPerDivide = 5
@@ -375,7 +375,7 @@ class MainWindow(object):
         stTable.attach(gtk.VSeparator(),1,2,0,tableSize)
         stTable.attach(gtk.VSeparator(),3,4,0,tableSize)
         offset = 2
-        
+
         #import code; code.interact(local=locals())
 
         #Add stat information
@@ -403,6 +403,8 @@ class MainWindow(object):
         for ch in resTable.get_children():
             resTable.remove(ch)
         resList = list(char.Resistances)
+        if not resList:
+            return
         resTable.resize(len(resList),2)
         for i,res in enumerate(resList):
             label = gtk.Label(res.Name + ':')
@@ -555,7 +557,7 @@ class MainWindow(object):
         try:
             self.char.SetMisc('Experience',int(widget.get_text()))
         except ValueError:
-            pass 
+            pass
         self.Update()
     def FromStatSelected(self,*args):
         selection = self.statView.get_selection()
@@ -727,8 +729,8 @@ class MainWindow(object):
         self.char.ApplyLevelUp()
         self.ShowHideLevelling()
         self.Update()
-                
-        
+
+
 
 if __name__=='__main__':
     gui = MainWindow()

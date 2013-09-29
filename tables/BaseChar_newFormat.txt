@@ -1,8 +1,6 @@
-Name: 
+Name:
 PlayerName:
 Profession:
-Race:
-Culture:
 Level:
 Experience:
 
@@ -25,7 +23,7 @@ Stat: Quickness: 50
 Stat: Reasoning: 50
 Stat: Self Discipline: 50
 Stat: Strength: 50
-Stat: Realm [NoBonus]: 0
+#Stat: Realm [NoBonus]: 0
 
 #Resistances
 #------------------------
@@ -85,8 +83,8 @@ Skill:   Contortions {Gymnastic} : 0
 Skill:   Dance {Gymnastic} : 0
 Skill:   Diving {Gymnastic} : 0
 Skill:   Downhill Skiing {Gymnastic} : 0
-Skill:   Gymnastic-based Sports {Gymnastic} : 0
-Skill:   Pole-Vaulting {Gymnastic} : 0
+Skill:   Gymnastic\-based Sports {Gymnastic} : 0
+Skill:   Pole\-Vaulting {Gymnastic} : 0
 Skill:   Surfing {Gymnastic} : 0
 
 Skill: Movement {Agility, Constitution, Strength} [NoBonus]
@@ -182,14 +180,14 @@ Skill:   Horse {Riding} : 0
 Skill:   Dragon {Riding} : 0
 Skill:   Other\, Specify {Riding} : 0
 
-Skill: Driving/Pilot {Agility, Self Discipline, Quickness} [NoBonus]
-Skill:   Sailing Ship {Driving/Pilot} : 0
-Skill:   Car {Driving/Pilot} : 0
-Skill:   Glider {Driving/Pilot} : 0
-Skill:   Blimp {Driving/Pilot} : 0
+Skill: Driving\/Pilot {Agility, Self Discipline, Quickness} [NoBonus]
+Skill:   Sailing Ship {Driving\/Pilot} : 0
+Skill:   Car {Driving\/Pilot} : 0
+Skill:   Glider {Driving\/Pilot} : 0
+Skill:   Blimp {Driving\/Pilot} : 0
 
 Skill: Survival {Reasoning, Memory, Intuition} [NoBonus]
-Skill:   Region, Own {Survival} : 0
+Skill:   Region\, Own {Survival} : 0
 Skill:   Artic {Survival} : 0
 Skill:   Desert {Survival} : 0
 Skill:   Ocean {Survival} : 0
@@ -229,14 +227,14 @@ Skill:   Destruction {Magic Ritual} : 0
 Skill:   Elemental {Magic Ritual} : 0
 Skill:   Healing {Magic Ritual} : 0
 Skill:   Informational {Magic Ritual} : 0
-Skill:   Summoning/Transportation {Magic Ritual} : 0
+Skill:   Summoning\/Transportation {Magic Ritual} : 0
 
 Skill: Power Development {Realm, Realm, Constitution} : 0
 
 Skill: Base\/Open Spells {Realm, Realm, Memory} [NoBonus]
-Skill:   Base\/Open List A {Base/Open Spells} : 0
-Skill:   Base\/Open List B {Base/Open Spells} : 0
-Skill:   Base\/Open List C {Base/Open Spells} : 0
+Skill:   Base\/Open List A {Base\/Open Spells} : 0
+Skill:   Base\/Open List B {Base\/Open Spells} : 0
+Skill:   Base\/Open List C {Base\/Open Spells} : 0
 
 Skill: Closed Spells {Realm, Realm, Memory} [NoBonus]
 Skill:   Closed List A {Closed Spells} : 0
@@ -259,7 +257,7 @@ Skill:   Ranged {Ambush} : 0
 Skill:   Thrown {Ambush} : 0
 Skill:   Unarmed {Ambush} : 0
 
-Skill: Stalk/Hide {Agility, Self Discipline, Intuition} : 0
+Skill: Stalk\/Hide {Agility, Self Discipline, Intuition} : 0
 
 Skill: Trickery {Agility, Intuition, Presence} [NoBonus]
 Skill:   Pick Pockets {Trickery} : 0
@@ -281,7 +279,7 @@ Skill:   Carpentry {Crafting} : 0
 Skill:   Ceramics {Crafting} : 0
 Skill:   Cooking {Crafting} : 0
 Skill:   Copper\-smith {Crafting} : 0
-Skill:   Disguise/Costumes {Crafting} : 0
+Skill:   Disguise\/Costumes {Crafting} : 0
 Skill:   Drafting {Crafting} : 0
 Skill:   Drawing {Crafting} : 0
 Skill:   Falsification {Crafting} : 0

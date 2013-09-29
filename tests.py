@@ -12,7 +12,7 @@ from MainWindow import MainWindow
 
 from DAG_tests import *
 
-charfile = path.join(path.dirname(sys.argv[0]),'TestChar.txt')
+charfile = path.join(path.dirname(sys.argv[0]),'TestChar_newFormat.txt')
 
 class TestDiceParse(unittest.TestCase):
     def test_dice_parse(self):
@@ -72,7 +72,6 @@ class TestChar(unittest.TestCase):
     def test_char_building(self):
         char = Character.Character.Open(charfile)
         self.assertEqual(char['Agility'].Value,1)
-        self.assertEqual(char['Ag'].Value,1)
         self.assertEqual(char['Constitution'].Value,100)
         self.assertEqual(char['Linguistics'].Value,0)
         self.assertEqual(char['Lore'].Bonus(),17)
@@ -81,7 +80,6 @@ class TestChar(unittest.TestCase):
         self.assertEqual(char.GetMisc('Name'),'Grognar')
         self.assertEqual(char.GetMisc('PlayerName'),'Grog')
         self.assertEqual(char.GetMisc('Profession'),'Fighter')
-        self.assertEqual(char.GetMisc('Race'),'Troll')
         self.assertEqual(char.GetMisc('Level'),3)
         self.assertEqual(char.GetMisc('Experience'),12345)
     def test_linking(self):
@@ -116,12 +114,12 @@ class TestChar(unittest.TestCase):
         self.assertEqual(len(pars),2)
     def test_resistances(self):
         char = Character.Character.Open(charfile)
-        self.assertEqual(char['Poison'].Bonus(),42)
-        self.assertEqual(char['Disease'].Bonus(),42)
+        self.assertEqual(char['Poison'].Bonus(),52)
+        self.assertEqual(char['Disease'].Bonus(),47)
         self.assertEqual(char['Fear'].Bonus(),39)
         self.assertEqual(char['Channeling'].Bonus(),28)
-        self.assertEqual(char['Essence'].Bonus(),32)
-        self.assertEqual(char['Mentalism'].Bonus(),12)
+        self.assertEqual(char['Essence'].Bonus(),52)
+        self.assertEqual(char['Mentalism'].Bonus(),32)
     def test_weaponlist(self):
         char = Character.Character.Open(charfile)
         self.assertEqual(len(char.WeaponCostList),3)
@@ -173,58 +171,47 @@ class TestStringOut(unittest.TestCase):
         par2 = Character.Value(0,['SD','Self Discipline'])
         char.AddVal(par2)
         v = Character.Value(5,['test'])
-        self.assertEqual(v.SaveString(),'test : 5')
+        self.assertEqual(v.SaveString(),'Value: test : 5')
         v.requestedParents = ['L O N G  N A M E','SD']
         char.AddVal(v)
-        self.assertEqual(v.SaveString(),'test {short, SD} : 5')
+        self.assertEqual(v.SaveString(),'Value: test {short, SD} : 5')
         v.Options = ['NoBonus']
         v.Value = None
-        self.assertEqual(v.SaveString(),'test {short, SD} [NoBonus]')
+        self.assertEqual(v.SaveString(),'Value: test {short, SD} [NoBonus]')
         v.Names = ['new Test','nT','TNT']
-        self.assertEqual(v.SaveString(),'new Test (nT, TNT) {short, SD} [NoBonus]')
+        self.assertEqual(v.SaveString(),'Value: new Test {short, SD} [NoBonus]')
     def test_char_string(self):
         self.char.SaveString()
 
 class TestValueParse(unittest.TestCase):
     def test_value_building(self):
-        sk = Character.Value.FromLine(r'    Test Name (nick1,nick2)<2,4> {par1}[] [Skill]: 5 "Descript \"hi\""')
+        sk = Character.Value.FromLine(r'    Skill: Test Name <2,4> {par1} : 5 "Descript \"hi\""')
         self.assertEqual(type(sk),Character.Skill)
         self.assertEqual(sk.Name,'Test Name')
-        self.assertEqual(sk.Names[1],'nick1')
-        self.assertEqual(sk.Names[2],'nick2')
         self.assertEqual(sk.requestedParents[0],'par1')
         self.assertEqual(sk.Value,5)
         self.assertEqual(sk.Description,'Descript "hi"')
         self.assertEqual(sk.Costs[0],2)
         self.assertEqual(sk.Costs[1],4)
         self.assertEqual(sk.SaveString(),
-                         r'Test Name (nick1, nick2) [Skill] <2,4> : 5 "Descript \"hi\""')
+                         r'Skill: Test Name <2,4> : 5 "Descript \"hi\""')
     def test_item_parse(self):
-        descList = [r'ItemDescription(axe){Axe+1,SD-2}[Item]',
-                    r'ItemDescription(axe){ Axe +1, SD-2}[Item]',
-                    r'ItemDescription (axe){ Axe+1,SD- 2}[Item]',
-                    r'ItemDescription(axe) {Axe + 1,  SD-2}[Item]']
+        descList = [r'Item: ItemDescription  {Axe+1,SD-2} [Weapon]',
+                    r'Item: ItemDescription { Axe +1, SD-2} [ Weapon]',
+                    r'Item: ItemDescription [Weapon] { Axe+1,SD-2}',
+                    r'Item: ItemDescription [ Weapon ]{Axe +1,  SD-2}']
         for description in descList:
             it = Character.Value.FromLine(description)
             self.assertEqual(type(it),Character.Item)
             self.assertEqual(it.Name,'ItemDescription')
-            self.assertEqual(it.Names[1],'axe')
             self.assertEqual(it.requestedChildren[0],'Axe')
             self.assertEqual(it.requestedChildren[1],'SD')
             self.assertEqual(it.ChildValues[0][0],'Axe')
             self.assertEqual(it.ChildValues[0][1],1)
             self.assertEqual(it.ChildValues[1][0],'SD')
             self.assertEqual(it.ChildValues[1][1],-2)
-            self.assertEqual(it.SaveString(),r'ItemDescription (axe) {Axe+1, SD-2} [Item]')
-    def test_string_splitting(self):
-        f = Character._split_by_special
-        self.assertEqual(f('String with no special chars'),['String with no special chars'])
-        self.assertEqual(f('Single: split'),['Single',':','split'])
-        self.assertEqual(f('Escaped\: split'),['Escaped: split'])
-        self.assertEqual(f('Commented# rest of line: {}'),['Commented'])
-        self.assertEqual(f('Repeated specials {}:'),['Repeated specials','{','}',':'])
-        self.assertEqual(f('Double slash \\\\'),['Double slash \\'])
-        self.assertEqual(f('Triple slash \\\\\\'),['Triple slash \\\\'])
+            self.assertEqual(it.Options,['Weapon'])
+            self.assertEqual(it.SaveString(),r'Item: ItemDescription {Axe+1, SD-2} [Weapon]')
 
 class TestMainWindow(unittest.TestCase):
     def setUp(self):
@@ -235,9 +222,7 @@ class TestMainWindow(unittest.TestCase):
         self.assertEqual(self.gui.b.get_object('characterName').get_text(),'Grognar')
         self.assertEqual(self.gui.b.get_object('playerName').get_text(),'Grog')
         self.assertEqual(self.gui.b.get_object('profName').get_text(),'Fighter')
-        self.assertEqual(self.gui.b.get_object('raceName').get_text(),'Troll')
         self.assertEqual(self.gui.b.get_object('charLevel').get_text(),'3')
-        self.assertEqual(self.gui.b.get_object('cultureName').get_text(),'Hobbit')
         self.assertEqual(self.gui.b.get_object('experience').get_text(),'12345')
     def test_load_stats(self):
         self.gui.LoadChar(self.char)
@@ -273,7 +258,7 @@ class TestMainWindow(unittest.TestCase):
                                                         TMH.SkillTreeStore.col('Bonus'))
             if skill.Name=='Elvish':
                 self.assertEqual(ranks,1)
-                self.assertEqual(bonus,9020)
+                self.assertEqual(bonus,9030)
                 skill.Value = 15
                 self.gui.Update()
                 skill,ranks,bonus = self.gui.skillStore.get(skIter,
@@ -281,7 +266,7 @@ class TestMainWindow(unittest.TestCase):
                                                             TMH.SkillTreeStore.col('Ranks'),
                                                             TMH.SkillTreeStore.col('Bonus'))
                 self.assertEqual(ranks,15)
-                self.assertEqual(bonus,9080)
+                self.assertEqual(bonus,9090)
     def test_load_items(self):
         self.gui.LoadChar(self.char)
         bookIter,earIter = list(self.gui.itemStore.IterAll)
