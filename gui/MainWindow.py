@@ -4,12 +4,12 @@ import gtk
 import os.path
 import sys
 
-import Character
-import TreeModelHelpers as TMH
-from Parser import LoadProfessions
-from utils import resource
+from backend import Character
+from backend.Parser import LoadProfessions
+from backend.utils import resource
 
-import LatexOutput
+from gui import TreeModelHelpers as TMH
+from gui import LatexOutput
 
 #Load the gtk theme for windows.
 #Should this at some point no longer be the main script,
@@ -732,7 +732,7 @@ class MainWindow(object):
 
 
 
-if __name__=='__main__':
+def Run():
     gui = MainWindow()
     gui.Show()
     if len(sys.argv)>=2:

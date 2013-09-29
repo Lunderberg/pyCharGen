@@ -8,7 +8,7 @@ extra_datas = [ ('gtkrc',os.path.join(gtkdir,gtkrc_dir,'gtkrc'),'DATA') ]
 extra_binaries = [ (os.path.join(engines_dir,'libwimp.dll'),
                     os.path.join(gtkdir,engines_dir,'libwimp.dll'),'BINARY') ]
 
-a = Analysis(['MainWindow.py'],
+a = Analysis(['pyCharGen.py'],
              pathex=['Z:\\home\\eric\\pyCharGen'],
              hiddenimports=[],
              hookspath=None)

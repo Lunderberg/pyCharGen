@@ -3,6 +3,7 @@
 #####################
 
 - Added pdf output of character sheets.
+- Changed format of saved files slightly to accomodate formal parsing.
 
 
 ####################
@@ -10,7 +11,7 @@
 ####################
 Initial release.
 
-- Characters can be created with various stats, skills, 
+- Characters can be created with various stats, skills,
 -- Starting character is defined in tables/BaseChar.txt
 - Can save/load characters into a human-readable format.
 - Calculates all stat/skill/resistance bonuses.

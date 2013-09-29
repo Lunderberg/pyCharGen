@@ -1,11 +1,12 @@
 #!/usr/bin/env python
 
 import sys
-from utils import resource, multiple_replace
 import subprocess
 import os
 import os.path
 import shutil
+
+from backend.utils import resource, multiple_replace
 
 def LatexString(char):
     latexChar = open(resource('resources','char.tex')).read()
@@ -51,7 +52,7 @@ def WorkingDir():
                               folderName)
     os.makedirs(workingDir)
     return workingDir
-        
+
 def _escape(inString):
     return multiple_replace({'_':'\\_',
                              '^':'\\textasciicircum{}',
@@ -78,8 +79,8 @@ def CompileLatex(char,filename):
         subprocess.call(args,cwd=workingdir)
     shutil.move(os.path.join(workingdir,jobname+'.pdf'),
                 os.path.join(outputdir))
-        
-                     
+
+
 
 
 def _statsString(char):

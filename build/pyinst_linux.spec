@@ -1,5 +1,5 @@
 # -*- mode: python -*-
-a = Analysis(['MainWindow.py'],
+a = Analysis(['pyCharGen.py'],
              pathex=['/home/eric/pyCharGen'],
              hiddenimports=[],
              hookspath=None)

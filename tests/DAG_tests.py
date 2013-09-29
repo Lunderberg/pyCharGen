@@ -2,7 +2,7 @@
 
 import unittest
 
-import DAG
+from backend import DAG
 
 class Node(object):
     def __init__(self,names,reqParents=None,reqChildren=None):
@@ -37,8 +37,8 @@ class DAGTester(unittest.TestCase):
         node4 = Node('node4',[node1])
         dag.Add(node4)
         self.assertEqual(dag.Parents(node4),[node1])
-        
-        
+
+
 
 if __name__=='__main__':
     unittest.main()
