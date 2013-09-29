@@ -3,7 +3,7 @@
 *.tar.gz
 *.zip
 *.log
-build
-dist
+build/build
+build/dist
 include
 #*#

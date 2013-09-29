@@ -1,6 +1,6 @@
 # -*- mode: python -*-
-a = Analysis(['pyCharGen.py'],
-             pathex=['/home/eric/pyCharGen'],
+a = Analysis(['../pyCharGen.py'],
+             pathex=['..'],
              hiddenimports=[],
              hookspath=None)
 pyz = PYZ(a.pure)
