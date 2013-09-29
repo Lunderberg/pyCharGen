@@ -108,7 +108,7 @@ class MainWindow(object):
 
         #Set up a default character.
         self.registered = []
-        self.LoadFile(resource('tables','BaseChar_newFormat.txt'))
+        self.LoadFile(resource('tables','BaseChar.txt'))
         self.filename = None
 
 

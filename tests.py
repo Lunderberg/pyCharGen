@@ -12,7 +12,7 @@ from MainWindow import MainWindow
 
 from DAG_tests import *
 
-charfile = path.join(path.dirname(sys.argv[0]),'TestChar_newFormat.txt')
+charfile = path.join(path.dirname(sys.argv[0]),'TestChar.txt')
 
 class TestDiceParse(unittest.TestCase):
     def test_dice_parse(self):
