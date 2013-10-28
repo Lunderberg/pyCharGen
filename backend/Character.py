@@ -14,26 +14,6 @@ import Parser
 _statBonuses = DiceParse.Table(resource('tables','StatBonus.txt'))
 _skillBonuses = DiceParse.Table(resource('tables','SkillBonus.txt'))
 
-unescape = {'\\(':'(',
-            '\\)':')',
-            '\\[':'[',
-            '\\]':']',
-            '\\{':'{',
-            '\\}':'}',
-            '\\<':'<',
-            '\\>':'>',
-            '\\,':',',
-            '\\:':':',
-            '\\"':'"',
-            '\\\\':'\\',
-            '\\n':'\n',
-            '\\#':'#',}
-def _escape(unescaped):
-    escaped = unescaped
-    for k,v in unescape.items():
-        escaped = escaped.replace(v,k)
-    return escaped
-
 class Character(object):
     def __init__(self):
         self.graph = DAG.DAG()
@@ -188,7 +168,7 @@ class Character(object):
     @staticmethod
     def Open(filename):
         """Given a filename, constructs and returns the character as read from the file"""
-        return Parser.character.parseFile(filename,parseAll=True)[0]
+        return Parser.characterFile(filename)
 
 
 class Value(object):

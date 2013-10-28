@@ -1,0 +1,12 @@
+CulturePrototype: Cosmopolitan
+{Linguistics+10, Lore/Region\, Own+3r, Lore/*+2r, Lore/*+2r, Mathematics+1r,
+ Body Development+1r, Running+1r, Survival/Region\, Own+1r, Social Awareness+1r,
+ (Crafting|Composition|Performance Art)/*+1r, (Crafting|Composition|Performance Art)/*+1r,
+ Mechanical/*+1r, Vocation/*+1r, Vocation/*+1r}
+
+CulturePrototype: Rural
+{Linguistics+10r, (Lore|Crafting)+2r, $PREV/*+1r, $PREV2/*+1r, Mathematics+1r,
+ Body Development+1r, Running+1r, Unarmed Combat+1r, Animal Handling/*+1r, Riding/*+1r,
+ Perception+1r,
+ (Crafting|Composition|Performance Art)/*+2r, (Crafting|Composition|Performance Art)/*+1r,
+ Vocation/*+2r}

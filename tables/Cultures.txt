@@ -1,55 +1,59 @@
 CulturePrototype: Cosmopolitan
-{Linguistics+10, Lore:Region\, Own+3, Lore:*+2, Lore:*+2, Mathematics+1,
- Body Development+1, Running+1, Survival: Region\, Own+1, Social Awareness+1,
- (Crafting|Composition|Performance Art):*+1, (Crafting|Composition|Performance Art):*+1,
- Mechanical:*+1, Vocation:*+1, Vocation:*+1}
- 
+{Linguistics+10, Lore/Region\, Own+3r, Lore/*+2r, Lore/*+2r, Mathematics+1r,
+ Body Development+1r, Running+1r, Survival/Region\, Own+1r, Social Awareness+1r,
+ (Crafting|Composition|Performance Art)/*+1r, (Crafting|Composition|Performance Art)/*+1r,
+ Mechanical/*+1r, Vocation/*+1r, Vocation/*+1r}
+
 CulturePrototype: Harsh
-{Linguistics+10, Lore:Region\, Own+3, Lore:*+1, Mathematics+1, Body Development+2, Running+2,
- Unarmed Combat+1, Survival: Region\, Own+2, Perception+1, Tracking+1, Medical:First Aid+1,
- Vocation:*+1}
+{Linguistics+10r, Lore/Region\, Own+3r, Lore/*+1r, Mathematics+1r, Body Development+2r,
+ Running+2r, Unarmed Combat+1r, Survival/Region\, Own+2r, Perception+1r, Tracking+1r,
+ Medical/First Aid+1r, Vocation/*+1r}
 
 CulturePrototype: Highland
-{Linguistics+10, Lore:Region\, Own+3, Lore:*+1, Mathematics+1, Body Development+2,
- Running+2, Unarmed Combat+1, Animal Handling:*+1, Survival: Region\, Own+1,
- Perception+1, (Crafting|Composition|Performance Art):*+1,
- (Crafting|Composition|Performance Art):*+1, Vocation:*+1}
+{Linguistics+10r, Lore/Region\, Own+3r, Lore/*+1r, Mathematics+1r, Body Development+2r,
+ Running+2r, Unarmed Combat+1r, Animal Handling/*+1r, Survival/Region\, Own+1r,
+ Perception+1r, (Crafting|Composition|Performance Art)/*+1r,
+ (Crafting|Composition|Performance Art)/*+1r, Vocation/*+1r}
 
 CulturePrototype: Mariner
-{Linguistics+10, Lore:Region\, Own+3, Lore:*+1, Mathematics+1, Body Development+1, Running+1,
- Unarmed Combat+1, Survival: Region\, Own+1, Navigation:Terrestrial+1, Perception+1,
- (Crafting|Composition|Performance Art):*+2, (Crafting|Composition|Performance Art):*+1,
- Mechanical:*+1, Vocation:*+2}
+{Linguistics+10r, Lore/Region\, Own+3r, Lore/*+1r, Mathematics+1r, Body Development+1r,
+ Running+1r, Unarmed Combat+1r, Survival/Region\, Own+1r, Navigation/Terrestrial+1r,
+ Perception+1r,
+ (Crafting|Composition|Performance Art)/*+2r, (Crafting|Composition|Performance Art)/*+1r,
+ Mechanical/*+1r, Vocation/*+2r}
 
 CulturePrototype: Nomads
-{Linguistics+10, Lore:Region\, Own+3, Lore:*+1, Mathematics+1, Body Development+1, Running+2,
- Unarmed Combat+1, Animal Handling:*+1, Riding:*+2, Survival: Region\, Own+1, Perception+1,
- (Crafting|Composition|Performance Art):*+1, Vocation:*+1, Vocation:*+1}
+{Linguistics+10r, Lore/Region\, Own+3r, Lore/*+1r, Mathematics+1r, Body Development+1r,
+ Running+2r, Unarmed Combat+1r, Animal Handling/*+1r, Riding/*+2r, Survival/Region\, Own+1r,
+ Perception+1r, (Crafting|Composition|Performance Art)/*+1r, Vocation/*+1r, Vocation/*+1r}
 
 CulturePrototype: Reaver
-{Linguistics+10, Lore:Region\, Own+3, Lore:*+1, Mathematics+1, Body Development+2, Running+1,
- Unarmed Combat+1, Survival: Region\, Own+1, Perception+1, Tracking+1, Stalk/Hide+1,
- (Crafting|Composition|Performance Art):*+1, Medical:First Aid+1, Vocation:*+1, Vocation:*+1}
+{Linguistics+10r, Lore/Region\, Own+3r, Lore/*+1r, Mathematics+1r, Body Development+2r,
+ Running+1r, Unarmed Combat+1r, Survival/Region\, Own+1r, Perception+1r, Tracking+1r,
+ Stalk/Hide+1r, (Crafting|Composition|Performance Art)/*+1r, Medical/First Aid+1r,
+ Vocation/*+1r, Vocation/*+1r}
 
 CulturePrototype: Rural
-{Linguistics+10, Lore:Region\, Own+3, Lore:*+1, Lore:*+1, Mathematics+1, Body Development+1,
- Running+1, Unarmed Combat+1, Animal Handling:*+1, Riding:*+1, Perception+1,
- (Crafting|Composition|Performance Art):*+2, (Crafting|Composition|Performance Art):*+1,
- Vocation:*+2}
+{Linguistics+10r, Lore/Region\, Own+3r, Lore/*+1r, Lore/*+1r, Mathematics+1r,
+ Body Development+1r, Running+1r, Unarmed Combat+1r, Animal Handling/*+1r, Riding/*+1r,
+ Perception+1r,
+ (Crafting|Composition|Performance Art)/*+2r, (Crafting|Composition|Performance Art)/*+1r,
+ Vocation/*+2r}
 
 CulturePrototype: Sylvan
-{Linguistics+10, Lore:Region\, Own+3, Lore:*+2, Mathematics+1, Body Development+1, Running+1,
- Unarmed Combat+1, Animal Handling:*+1, Survival: Region\, Own+1, Perception+1, Tracking+1,
- Stalk/Hide+1, (Crafting|Composition|Performance Art):*+2, Vocation:*+1}
+{Linguistics+10r, Lore/Region\, Own+3r, Lore/*+2r, Mathematics+1r, Body Development+1r,
+ Running+1r, Unarmed Combat+1r, Animal Handling/*+1r, Survival/Region\, Own+1r, Perception+1r,
+ Tracking+1r, Stalk/Hide+1r, (Crafting|Composition|Performance Art)/*+2r, Vocation/*+1r}
 
 CulturePrototype: Underground
-{Linguistics+10, Lore:Region\, Own+3, Lore:*+1, Lore:*+1, Mathematics+1,
- Body Development+1, Running+1, Unarmed Combat+1, Survival: Region\, Own+1,
- Perception+1, Stalk/Hide+1, (Crafting|Composition|Performance Art):*+2,
- (Crafting|Composition|Performance Art):*+1, Vocation:*+2}
+{Linguistics+10r, Lore/Region\, Own+3r, Lore/*+1r, Lore/*+1r, Mathematics+1r,
+ Body Development+1r, Running+1r, Unarmed Combat+1r, Survival/Region\, Own+1r,
+ Perception+1r, Stalk/Hide+1r, (Crafting|Composition|Performance Art)/*+2r,
+ (Crafting|Composition|Performance Art)/*+1r, Vocation/*+2r}
 
 CulturePrototype: Urban
-{Linguistics+10, Lore:Region\, Own+3, Lore:*+1, Lore:*+1, Mathematics+1, Body Development+1,
- Running+1, Unarmed Combat+1, Riding:*+1, Survival: Region\, Own+1, Social Awareness+1,
- (Crafting|Composition|Performance Art):*+1, (Crafting|Composition|Performance Art):*+1,
- Mechanical:*+1, Vocation:*+2}
+{Linguistics+10r, Lore/Region\, Own+3r, Lore/*+1r, Lore/*+1r, Mathematics+1r,
+ Body Development+1r, Running+1r, Unarmed Combat+1r, Riding/*+1r, Survival/Region\, Own+1r,
+ Social Awareness+1r,
+ (Crafting|Composition|Performance Art)/*+1r, (Crafting|Composition|Performance Art)/*+1r,
+ Mechanical/*+1r, Vocation/*+2r}

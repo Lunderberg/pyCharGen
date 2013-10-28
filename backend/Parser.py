@@ -6,7 +6,7 @@ import re
 from collections import OrderedDict
 
 import Character
-#from Character import Character, Stat, Skill, Resistance, Item, Race, Culture
+import CulturePrototype
 
 
 ###################################
@@ -188,7 +188,6 @@ race = (litSup('Race') + litSup(':')
 
 def makeCulture(m):
     output = Character.Culture(Names=[m['name']],
-                    Options=m['options']['[]'],
                      Description=m['desc'][0])
     output.SetChildValues(m['options']['{}'])
     return ('Culture',output)
@@ -197,8 +196,31 @@ culture = (litSup('Culture') + litSup(':')
            + Optional(description,'')('desc')
            ).setParseAction(makeCulture)
 
+def sanify(m):
+    return list(m) if isinstance(m,ParseResults) else m
+cultureOption_ListOption = (
+    (litSup('$PREV') + Optional(number)('num')).setParseAction(
+        lambda m:m['num'] if 'num' in m else 1)|
+    ID |
+    Literal('*').setParseAction(lambda m:0) |
+    (litSup('(') + Group(delimitedList(ID,'|'))+litSup(')')) )
+cultureOption = (Group(delimitedList(cultureOption_ListOption,'/'))
+                 + number + Optional(Literal('r'))('ranks')
+                 ).setParseAction(lambda t:(map(sanify,t[0]),t[1],'ranks' in t))
+def makeCulturePrototype(m):
+    return CulturePrototype.CulturePrototype(
+        m['options']['{}'],Name=m['name'],Description=m['desc'][0])
+culturePrototype = (litSup('CulturePrototype') + litSup(':')
+                    + ID('name') + itemOptions(cultureOption,'{}')('options')
+                    + Optional(description,'')('desc')
+                    ).setParseAction(makeCulturePrototype)
+def cultureFile(filename):
+    pattern = Group(OneOrMore(culturePrototype)).ignore(pythonStyleComment)
+    return pattern.parseFile(filename,parseAll=True)[0]
 
-value = keyword | keywordInt | weaponcosts | weaponorder | stat | skill | resistance | item | race | culture
+
+value = (keyword | keywordInt | weaponcosts | weaponorder | stat
+         | skill | resistance | item | race | culture)
 
 def makeCharacter(m):
     output = Character.Character()
@@ -213,6 +235,9 @@ def makeCharacter(m):
             output.WeaponOrder = item
     return output
 character = OneOrMore(value).ignore(pythonStyleComment).setParseAction(makeCharacter)
+def characterFile(filename):
+    return character.parseFile(filename,parseAll=True)[0]
+
 
 if __name__=='__main__':
     import sys
