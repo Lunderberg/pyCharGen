@@ -813,9 +813,8 @@
                             <property name="visible">True</property>
                             <property name="left_padding">12</property>
                             <child>
-                              <object class="GtkLabel" id="label64">
+                              <object class="GtkComboBox" id="cultureBox">
                                 <property name="visible">True</property>
-                                <property name="label" translatable="yes">Not implemented</property>
                               </object>
                             </child>
                           </object>

@@ -52,6 +52,18 @@ class Character(object):
     @property
     def Items(self):
         return (val for val in self.graph if isinstance(val,Item))
+    @property
+    def Culture(self):
+        try:
+            return self._culture
+        except AttributeError:
+            return None
+    @Culture.setter
+    def Culture(self,val):
+        if self.Culture is not None:
+            self.RemoveVal(self.Culture)
+        self._culture = val
+        self.AddVal(val)
     def AddVal(self,newVal):
         """
         Adds the value to the list of values.
@@ -453,7 +465,7 @@ class MultiValue(Value):
         if asker is None:
             return 0
         for name,bonus,ranks in self.ChildValues:
-            if name in asker.Names and ranks:
+            if (name in asker.Names) or (name is asker) and ranks:
                 return bonus
         else:
             return 0
@@ -461,7 +473,7 @@ class MultiValue(Value):
         if asker is None:
             return 0
         for name,bonus,ranks in self.ChildValues:
-            if name in asker.Names and not ranks:
+            if (name in asker.Names) or (name is asker) and not ranks:
                 return bonus
         else:
             return 0

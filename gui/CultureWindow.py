@@ -3,10 +3,10 @@
 import gtk
 
 class CultureWindow(object):
-    def __init__(self,cultureprototype):
+    def __init__(self,cultureprototype,callback=None):
         self.cultureprototype = cultureprototype
         self.window = gtk.Window()
-        self.window.connect('delete-event',gtk.main_quit)
+        self.window.connect('delete-event',callback if callback is not None else gtk.main_quit,self)
         self.table = gtk.Table()
         self.window.add(self.table)
         self.boxes = []

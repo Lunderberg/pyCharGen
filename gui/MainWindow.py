@@ -5,11 +5,12 @@ import os.path
 import sys
 
 from backend import Character
-from backend.Parser import LoadProfessions
+from backend import Parser
 from backend.utils import resource
 
 from gui import TreeModelHelpers as TMH
 from gui import LatexOutput
+from gui import CultureWindow
 
 #Load the gtk theme for windows.
 #Should this at some point no longer be the main script,
@@ -24,6 +25,13 @@ def better_set_text(buff,text):
     buffText = buff.get_text(buff.get_start_iter(),buff.get_end_iter())
     if buffText!=text:
         buff.set_text(text)
+
+def combobox_boilerplate(combobox):
+    store = gtk.ListStore(str)
+    combobox.set_model(store)
+    cell = gtk.CellRendererText()
+    combobox.pack_start(cell,True)
+    combobox.add_attribute(cell,'text',0)
 
 class MainWindow(object):
     """
@@ -105,6 +113,10 @@ class MainWindow(object):
         #Profession setup
         self.MakeProfessionList()
         self.Connect(self.b.get_object('profBox'),'changed',self.FromProfessionChange)
+
+        #Culture setup
+        self.MakeCultureList()
+        self.Connect(self.b.get_object('cultureBox'),'changed',self.FromCultureChange)
 
         #Set up a default character.
         self.registered = []
@@ -246,21 +258,35 @@ class MainWindow(object):
                 filename += '.pdf'
             LatexOutput.CompileLatex(self.char,filename)
     def MakeProfessionList(self):
-        self._profdict = LoadProfessions(resource('tables','Professions.txt'))
+        self._profdict = Parser.LoadProfessions(resource('tables','Professions.txt'))
         profBox = self.b.get_object('profBox')
-        model = gtk.ListStore(str)
+        combobox_boilerplate(profBox)
         for key in self._profdict:
-            model.set(model.append(),0,key)
-        profBox.set_model(model)
-        cell = gtk.CellRendererText()
-        profBox.pack_start(cell,True)
-        profBox.add_attribute(cell,'text',0)
-    def MakeRaceList(self):
-        self._racedict = LoadRaces(resource('tables','Races.txt'))
+            profBox.append_text(key)
     def FromProfessionChange(self,wid):
         profname = wid.get_active_text()
         self.char.LoadProfession(profname,self._profdict[profname])
         self.Update()
+    def MakeCultureList(self):
+        self._cultureList = Parser.cultureFile(resource('tables','Cultures.txt'))
+        cultureBox = self.b.get_object('cultureBox')
+        combobox_boilerplate(cultureBox)
+        for proto in self._cultureList:
+            cultureBox.append_text(proto.Name)
+    def FromCultureChange(self,*args):
+        selection = self.b.get_object('cultureBox').get_active()
+        prototype = self._cultureList[selection]
+        prototype.char = self.char
+        subwindow = CultureWindow.CultureWindow(prototype,self.PostCultureCustomization)
+        subwindow.Show()
+        self.Hide()
+    def PostCultureCustomization(self,gtkWindow,gtkEvent,subwindow):
+        self.char.Culture = subwindow.Culture
+        self.Show()
+        subwindow.window.destroy()
+        self.Update()
+    def MakeRaceList(self):
+        self._racedict = Parser.LoadRaces(resource('tables','Races.txt'))
     def UpdateAll(self,*args):
         """
         Refreshes all character information from self.char.
