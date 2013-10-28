@@ -116,7 +116,8 @@ class Character(object):
         try:
             return self._WeaponList
         except AttributeError:
-            return []
+            self._WeaponList = []
+            return self._WeaponList
     @WeaponList.setter
     def WeaponList(self,val):
         skChanged = self.WeaponList[:]
@@ -456,7 +457,8 @@ class MultiValue(Value):
         self.requestedChildren = [name for name,bonus,ranks in childvalues]
     def RelativeSaveString(self):
         if self.ChildValues:
-            return ', '.join('{0}{1:+d}'.format(Parser.escape_ID(name),val)
+            return ', '.join(Parser.escape_ID(name if isinstance(name,str) else name.Name)
+                             +'{0:+d}'.format(val)
                              +('r' if ranks else '')
                              for name,val,ranks in self.ChildValues)
         else:

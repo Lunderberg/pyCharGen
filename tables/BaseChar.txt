@@ -201,7 +201,6 @@ Skill:   Astral {Navigation} : 0
 Skill:   Terrestrial {Navigation} : 0
 Skill:   Marine {Navigation} : 0
 Skill:   Planar {Navigation} : 0
-Skill:   Terrestrial {Navigation} : 0
 Skill:   Underground {Navigation} : 0
 
 Skill: Perception {Reasoning, Self Discipline, Intuition} : 0

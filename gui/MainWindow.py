@@ -226,6 +226,8 @@ class MainWindow(object):
         if self.filename is not None:
             with open(filename,'w') as f:
                 f.write(self.char.SaveString())
+        else:
+            self.SaveAs()
     def SaveAs(self,*args):
         """
         Saves to a selected file.
