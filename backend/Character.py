@@ -64,6 +64,18 @@ class Character(object):
             self.RemoveVal(self.Culture)
         self._culture = val
         self.AddVal(val)
+    @property
+    def Race(self):
+        try:
+            return self._race
+        except AttributeError:
+            return None
+    @Culture.setter
+    def Race(self,val):
+        if self.Race is not None:
+            self.RemoveVal(self.Race)
+        self._race = val
+        self.AddVal(val)
     def AddVal(self,newVal):
         """
         Adds the value to the list of values.
@@ -367,6 +379,8 @@ class Skill(Value):
         return '{0}(Value={4}, Name="{1}", Options={2}, Parents={3}, Costs={5},Description="{6}")'.format(
             self.Type,self.Name,self.Options,self.requestedParents,self.Value,self.Costs,self.Description)
     def ValueBonus(self,asker=None,levelled=False):
+        print self
+        print [(par.Name,par.ExtraValue(self)) for par in self.Parents]
         return 0 if self.NoBonus else _skillBonuses(self._valueAndExtra + (self.Delta if levelled else 0))
     @property
     def CommonlyUsed(self):
@@ -467,7 +481,7 @@ class MultiValue(Value):
         if asker is None:
             return 0
         for name,bonus,ranks in self.ChildValues:
-            if (name in asker.Names) or (name is asker) and ranks:
+            if ((name in asker.Names) or (name is asker)) and ranks:
                 return bonus
         else:
             return 0
@@ -475,7 +489,7 @@ class MultiValue(Value):
         if asker is None:
             return 0
         for name,bonus,ranks in self.ChildValues:
-            if (name in asker.Names) or (name is asker) and not ranks:
+            if ((name in asker.Names) or (name is asker)) and not ranks:
                 return bonus
         else:
             return 0

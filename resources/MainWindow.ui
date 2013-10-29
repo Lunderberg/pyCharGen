@@ -785,9 +785,8 @@
                             <property name="visible">True</property>
                             <property name="left_padding">12</property>
                             <child>
-                              <object class="GtkLabel" id="label63">
+                              <object class="GtkComboBox" id="raceBox">
                                 <property name="visible">True</property>
-                                <property name="label" translatable="yes">Not implemented</property>
                               </object>
                             </child>
                           </object>

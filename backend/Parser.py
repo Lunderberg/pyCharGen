@@ -37,12 +37,6 @@ def LoadProfessions(filename):
         profs[profname] = skills
     return profs
 
-def LoadRaces(filename):
-    with open(filename) as f:
-        text = f.read()
-    races = race.searchString(text)
-    return races
-
 
 
 ##################################
@@ -185,6 +179,11 @@ race = (litSup('Race') + litSup(':')
         + ID('name') + itemOptions(IDbonus,'{}')('options')
         + Optional(description,'')('desc')
         ).setParseAction(makeRace)
+
+def raceFile(filename):
+    pattern = Group(OneOrMore(race)).ignore(pythonStyleComment)
+    output = pattern.parseFile(filename,parseAll=True)[0]
+    return [r for tag,r in output]
 
 def makeCulture(m):
     output = Character.Culture(Names=[m['name']],

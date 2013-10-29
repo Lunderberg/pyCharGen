@@ -118,6 +118,10 @@ class MainWindow(object):
         self.MakeCultureList()
         self.Connect(self.b.get_object('cultureBox'),'changed',self.FromCultureChange)
 
+        #Race setup
+        self.MakeRaceList()
+        self.Connect(self.b.get_object('raceBox'),'changed',self.FromRaceChange)
+
         #Set up a default character.
         self.registered = []
         self.LoadFile(resource('tables','BaseChar.txt'))
@@ -288,7 +292,15 @@ class MainWindow(object):
         subwindow.window.destroy()
         self.Update()
     def MakeRaceList(self):
-        self._racedict = Parser.LoadRaces(resource('tables','Races.txt'))
+        self._racelist = Parser.raceFile(resource('tables','Races.txt'))
+        raceBox = self.b.get_object('raceBox')
+        combobox_boilerplate(raceBox)
+        for race in self._racelist:
+            raceBox.append_text(race.Name)
+    def FromRaceChange(self,*args):
+        selection = self.b.get_object('raceBox').get_active()
+        self.char.Race = self._racelist[selection]
+        self.Update()
     def UpdateAll(self,*args):
         """
         Refreshes all character information from self.char.
