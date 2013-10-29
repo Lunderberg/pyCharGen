@@ -379,8 +379,6 @@ class Skill(Value):
         return '{0}(Value={4}, Name="{1}", Options={2}, Parents={3}, Costs={5},Description="{6}")'.format(
             self.Type,self.Name,self.Options,self.requestedParents,self.Value,self.Costs,self.Description)
     def ValueBonus(self,asker=None,levelled=False):
-        print self
-        print [(par.Name,par.ExtraValue(self)) for par in self.Parents]
         return 0 if self.NoBonus else _skillBonuses(self._valueAndExtra + (self.Delta if levelled else 0))
     @property
     def CommonlyUsed(self):

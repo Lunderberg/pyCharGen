@@ -4,6 +4,7 @@
 
 - Added pdf output of character sheets.
 - Changed format of saved files slightly to accomodate formal parsing.
+- Implemented Races, Cultures.
 
 
 ####################

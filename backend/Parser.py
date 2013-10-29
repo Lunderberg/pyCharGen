@@ -226,10 +226,12 @@ def makeCharacter(m):
     for tag,item in m:
         if tag in ['Name','PlayerName','Profession','Level','Experience']:
             output.SetMisc(tag,item)
-        elif tag in ['Stat','Skill','Resistance','Item','Race']:
+        elif tag in ['Stat','Skill','Resistance','Item']:
             output.AddVal(item)
         elif tag=='Culture':
             output.Culture = item
+        elif tag=='Race':
+            output.Race = item
         elif tag=='WeaponCosts':
             output.WeaponCostList = item
         elif tag=='WeaponOrder':

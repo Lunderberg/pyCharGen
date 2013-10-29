@@ -30,7 +30,7 @@ CulturePrototype: Nomads
 CulturePrototype: Reaver
 {Linguistics+10r, Lore/Region\, Own+3r, Lore/*+1r, Mathematics+1r, Body Development+2r,
  Running+1r, Unarmed Combat+1r, Survival/Region\, Own+1r, Perception+1r, Tracking+1r,
- Stalk/Hide+1r, (Crafting|Composition|Performance Art)/*+1r, Medical/First Aid+1r,
+ Stalk\/Hide+1r, (Crafting|Composition|Performance Art)/*+1r, Medical/First Aid+1r,
  Vocation/*+1r, Vocation/*+1r}
 
 CulturePrototype: Rural

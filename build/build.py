@@ -85,17 +85,12 @@ def make_windows_exe():
     dir_util.remove_tree(builddir)
 
 def name_exes(name='unstable'):
-    outputdir = join('downloads','unstable' if name=='unstable' else 'release')
-    try:
-        os.makedirs(outputdir)
-    except OSError:
-        pass
-    os.rename('pyCharGen.zip',join(outputdir,'pyCharGen-win-{0}.zip'.format(name)))
-    os.rename('pyCharGen.tar.gz',join(outputdir,'pyCharGen-linux-{0}.tar.gz'.format(name)))
+    os.rename('pyCharGen.zip','pyCharGen-win-{0}.zip'.format(name)))
+    os.rename('pyCharGen.tar.gz','pyCharGen-linux-{0}.tar.gz'1.format(name)))
 
 
 
 if __name__=='__main__':
-    #make_linux_exe()
+    make_linux_exe()
     make_windows_exe()
-    #name_exes(sys.argv[1] if len(sys.argv)>=2 else 'unstable')
+    name_exes(sys.argv[1] if len(sys.argv)>=2 else 'unstable')

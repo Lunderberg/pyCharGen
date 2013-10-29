@@ -112,15 +112,15 @@ class MainWindow(object):
 
         #Profession setup
         self.MakeProfessionList()
-        self.Connect(self.b.get_object('profBox'),'changed',self.FromProfessionChange)
+        self.Connect(self.b.get_object('profBox'),'changed',self.FromProfessionSelect)
 
         #Culture setup
         self.MakeCultureList()
-        self.Connect(self.b.get_object('cultureBox'),'changed',self.FromCultureChange)
+        self.Connect(self.b.get_object('cultureBox'),'changed',self.FromCultureSelect)
 
         #Race setup
         self.MakeRaceList()
-        self.Connect(self.b.get_object('raceBox'),'changed',self.FromRaceChange)
+        self.Connect(self.b.get_object('raceBox'),'changed',self.FromRaceSelect)
 
         #Set up a default character.
         self.registered = []
@@ -216,10 +216,11 @@ class MainWindow(object):
             ('Skill Removed',self.weaponSkillStore.OnValueRemove),
             ('Resistance Changed',self.OnResistanceChange),
             ('Item Added',self.itemStore.OnValueAdd),
-            #('Item Changed',self.OnItemChange),
             ('Item Changed',self.itemStore.OnValueChange),
             ('Item Removed',self.itemStore.OnValueRemove),
             ('Item Removed',self.OnItemRemove),
+            ('Culture Added',self.OnCultureChange),
+            ('Race Added',self.OnRaceChange),
             ]
         for key,func in self.registered:
             self.char.Events.Register(key,func)
@@ -269,7 +270,7 @@ class MainWindow(object):
         combobox_boilerplate(profBox)
         for key in self._profdict:
             profBox.append_text(key)
-    def FromProfessionChange(self,wid):
+    def FromProfessionSelect(self,wid):
         profname = wid.get_active_text()
         self.char.LoadProfession(profname,self._profdict[profname])
         self.Update()
@@ -279,7 +280,7 @@ class MainWindow(object):
         combobox_boilerplate(cultureBox)
         for proto in self._cultureList:
             cultureBox.append_text(proto.Name)
-    def FromCultureChange(self,*args):
+    def FromCultureSelect(self,*args):
         selection = self.b.get_object('cultureBox').get_active()
         prototype = self._cultureList[selection]
         prototype.char = self.char
@@ -297,7 +298,7 @@ class MainWindow(object):
         combobox_boilerplate(raceBox)
         for race in self._racelist:
             raceBox.append_text(race.Name)
-    def FromRaceChange(self,*args):
+    def FromRaceSelect(self,*args):
         selection = self.b.get_object('raceBox').get_active()
         self.char.Race = self._racelist[selection]
         self.Update()
@@ -335,8 +336,8 @@ class MainWindow(object):
         self.b.get_object('playerName').set_text(self.char.GetMisc('PlayerName'))
         self.b.get_object('characterName').set_text(self.char.GetMisc('Name'))
         self.b.get_object('profName').set_text(self.char.GetMisc('Profession'))
-        #self.b.get_object('raceName').set_text(self.char.GetMisc('Race'))
-        #self.b.get_object('cultureName').set_text(self.char.GetMisc('Culture'))
+        self.b.get_object('raceName').set_text(self.char.Race.Name if self.char.Race is not None else '')
+        self.b.get_object('cultureName').set_text(self.char.Culture.Name if self.char.Culture is not None else '')
         self.b.get_object('charLevel').set_text(str(self.char.GetMisc('Level')))
         self.b.get_object('experience').set_text(str(self.char.GetMisc('Experience')))
     def SetUpStatView(self):
@@ -613,6 +614,10 @@ class MainWindow(object):
         for widName in ['statNameBox','statCurrentBox','statPotentialBox','statDescriptionBox']:
             wid = self.b.get_object(widName)
             wid.set_sensitive(self.activeStat is not None)
+    def OnRaceChange(self,race):
+        self.b.get_object('raceName').set_text(race.Name)
+    def OnCultureChange(self,culture):
+        self.b.get_object('cultureName').set_text(culture.Name)
     def OnStatChange(self,stat):
         self.UpdateStatOverview(stat)
         if stat is self.activeStat and stat is not None:
