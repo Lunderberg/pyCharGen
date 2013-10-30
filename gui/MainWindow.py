@@ -73,7 +73,13 @@ class MainWindow(object):
         #Item modifying commands
         self.Connect(self['itemView'],'button-press-event',self.FromItemRightClick)
         self.Connect(self['rcAddItem'],'button-press-event',self.FromAddItem)
+        self.Connect(self['newItemButton'],'clicked',self.FromAddItem)
         self.Connect(self['rcDeleteItem'],'button-press-event',self.FromRemoveItem)
+        self.Connect(self['deleteItemButton'],'clicked',self.FromRemoveItem)
+        #Character progression
+        self.Connect(self['startingCharacterNextButton'],'clicked',self.GoToStats)
+        self.Connect(self['statNextButton'],'clicked',self.GoToSkills)
+        self.Connect(self['skillLevelUpButton'],'clicked',self.FromLevelUp)
 
         #Stat modifications.
         self.activeStat = None
@@ -188,6 +194,10 @@ class MainWindow(object):
         t.destroy()
         if response==gtk.RESPONSE_OK:
             self.LoadFile(filename)
+    def GoToStats(self,*args):
+        self['mainTabs'].set_current_page(2)
+    def GoToSkills(self,*args):
+        self['mainTabs'].set_current_page(3)
     def LoadFile(self,filename):
         char = Character.Character.Open(filename)
         self.filename = filename
@@ -317,7 +327,7 @@ class MainWindow(object):
         subwindow = CultureWindow.CultureWindow(prototype,self.PostCultureCustomization)
         subwindow.Show()
         self.Hide()
-    def PostCultureCustomization(self,gtkWindow,gtkEvent,subwindow):
+    def PostCultureCustomization(self,subwindow):
         self.char.Culture = subwindow.Culture
         self.Show()
         subwindow.window.destroy()
@@ -719,12 +729,6 @@ class MainWindow(object):
         self.ItemSensitivity()
     def FromItemRightClick(self,widget,event):
         if event.button==3:
-            path = widget.get_path_at_pos(int(event.x),int(event.y))
-            if path is None:
-                self.clicked_item = None
-            else:
-                path = path[0]
-                self.clicked_item = self.itemStore[path][0]
             self['rcItemMenu'].popup(
                 None,None,None,event.button,event.time)
     def FromAddItem(self,*args):
@@ -732,18 +736,18 @@ class MainWindow(object):
         self.char.AddVal(newItem)
         self.Update()
     def FromRemoveItem(self,*args):
-        if self.clicked_item is None:
+        if self.activeItem is None:
             return
         dialog = gtk.Dialog('Are you sure?', self.window,
                             gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
                             (gtk.STOCK_NO,gtk.RESPONSE_CANCEL,
                              gtk.STOCK_YES,gtk.RESPONSE_OK))
-        dialog.vbox.pack_start(gtk.Label("Are you sure you want to delete '{0}'".format(self.clicked_item.Name)))
+        dialog.vbox.pack_start(gtk.Label("Are you sure you want to delete '{0}'".format(self.activeItem.Name)))
         dialog.show_all()
         result = dialog.run()
         dialog.destroy()
         if result==gtk.RESPONSE_OK:
-            self.char.RemoveVal(self.clicked_item)
+            self.char.RemoveVal(self.activeItem)
         self.Update()
     def FromActiveStatNameChange(self,widget):
         if self.activeStat is not None:

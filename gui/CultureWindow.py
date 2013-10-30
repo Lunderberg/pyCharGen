@@ -3,10 +3,11 @@
 import gtk
 
 class CultureWindow(object):
-    def __init__(self,cultureprototype,callback=None):
+    def __init__(self,cultureprototype,callback):
+        self.callback = callback
         self.cultureprototype = cultureprototype
         self.window = gtk.Window()
-        self.window.connect('delete-event',callback if callback is not None else gtk.main_quit,self)
+        self.window.connect('delete-event',self.Done)
         self.table = gtk.Table()
         self.window.add(self.table)
         self.boxes = []
@@ -18,8 +19,14 @@ class CultureWindow(object):
             self.FillBox(i)
             bonus,ranks = self.cultureprototype.Bonus(i)
             self.table.attach(gtk.Label('{0:+d}'.format(bonus) + (' ranks' if ranks else '')), 1,2,i,i+1)
+        doneButton = gtk.Button('Done')
+        doneButton.connect('clicked',self.Done)
+        self.table.attach(doneButton,1,2,len(self.cultureprototype),len(self.cultureprototype)+1)
     def Show(self):
         self.window.show_all()
+    def Done(self,*args):
+        self.window.destroy()
+        self.callback(self)
     def OnBoxSelect(self,box,i):
         to_update = self.cultureprototype.Select(i,box.get_active())
         for updating in to_update:
