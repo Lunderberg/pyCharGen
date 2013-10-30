@@ -1933,15 +1933,33 @@
                                     <property name="visible">True</property>
                                     <property name="left_padding">12</property>
                                     <child>
-                                      <object class="GtkEntry" id="itemBonusBox">
+                                      <object class="GtkHBox" id="hbox1">
                                         <property name="visible">True</property>
-                                        <property name="can_focus">True</property>
-                                        <property name="has_tooltip">True</property>
-                                        <property name="tooltip_text" translatable="yes">The bonus of the item.  Should look like "SkillName+Bonus" or "StatName+Bonus".  For example, "Strength+2, Swimming-10" would give +2 to Strength and -10 to Swimming.</property>
-                                        <property name="invisible_char">&#x25CF;</property>
-                                        <property name="text" translatable="yes">Ex: Dagger+5, Swimming-10</property>
-                                        <property name="primary_icon_sensitive">True</property>
-                                        <property name="secondary_icon_sensitive">True</property>
+                                        <child>
+                                          <object class="GtkEntry" id="itemBonusBox">
+                                            <property name="visible">True</property>
+                                            <property name="can_focus">True</property>
+                                            <property name="invisible_char">&#x25CF;</property>
+                                            <property name="text" translatable="yes">Ex: Dagger+5, Swimming-10</property>
+                                            <property name="primary_icon_sensitive">True</property>
+                                            <property name="secondary_icon_sensitive">True</property>
+                                          </object>
+                                          <packing>
+                                            <property name="position">0</property>
+                                          </packing>
+                                        </child>
+                                        <child>
+                                          <object class="GtkCheckButton" id="itemEnabledButton">
+                                            <property name="label" translatable="yes">Enabled</property>
+                                            <property name="visible">True</property>
+                                            <property name="can_focus">True</property>
+                                            <property name="receives_default">False</property>
+                                            <property name="draw_indicator">True</property>
+                                          </object>
+                                          <packing>
+                                            <property name="position">1</property>
+                                          </packing>
+                                        </child>
                                       </object>
                                     </child>
                                   </object>

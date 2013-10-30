@@ -109,6 +109,7 @@ class MainWindow(object):
         self.Connect(self['itemView'],'cursor-changed',self.FromItemSelected)
         self.Connect(self['itemNameBox'],'changed',self.FromActiveItemNameChange)
         self.Connect(self['itemBonusBox'],'changed',self.FromActiveItemBonusChange)
+        self.Connect(self['itemEnabledButton'],'toggled',self.FromActiveItemEnabledChange)
         self.Connect(self['itemDescriptionBox'].get_buffer(),'changed',self.FromActiveItemDescriptionChange)
 
         #Profession setup
@@ -704,13 +705,14 @@ class MainWindow(object):
             self.Unblock()
         self.ItemSensitivity()
     def ItemSensitivity(self):
-        for widName in ['itemNameBox','itemBonusBox','itemDescriptionBox']:
+        for widName in ['itemNameBox','itemBonusBox','itemDescriptionBox','itemEnabledButton']:
             wid = self[widName]
             wid.set_sensitive(self.activeItem is not None)
     def OnItemChange(self,item):
         if item is self.activeItem and item is not None:
             self['itemNameBox'].set_text(item.Name)
             self['itemBonusBox'].set_text(item.RelativeSaveString())
+            self['itemEnabledButton'].set_active(not item.NoBonus)
             better_set_text(self['itemDescriptionBox'].get_buffer(),item.Description)
     def OnItemRemove(self,item):
         self.activeItem = None
@@ -793,6 +795,10 @@ class MainWindow(object):
     def FromActiveItemBonusChange(self,widget):
         if self.activeItem is not None:
             self.activeItem.ChangeBonuses(widget.get_text())
+        self.Update()
+    def FromActiveItemEnabledChange(self,widget):
+        if self.activeItem is not None:
+            self.activeItem.NoBonus = not widget.get_active()
         self.Update()
     def FromActiveItemDescriptionChange(self,widget):
         if self.activeItem is not None:

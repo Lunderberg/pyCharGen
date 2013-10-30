@@ -271,6 +271,13 @@ class Value(object):
     @property
     def NoBonus(self):
         return 'NoBonus' in self.Options
+    @NoBonus.setter
+    def NoBonus(self,val):
+        if val and not self.NoBonus:
+            self.Options.append('NoBonus')
+        elif not val and self.NoBonus:
+            self.Options.remove('CommonlyUsed')
+        self.Changed()
     def Changed(self,propagate=True):
         self.Events('Value Changed',self)
         self.Events(self.Type+' Changed',self)
@@ -476,7 +483,7 @@ class MultiValue(Value):
         else:
             return ''
     def ExtraValue(self,asker=None,levelled=False):
-        if asker is None:
+        if asker is None or self.NoBonus:
             return 0
         for name,bonus,ranks in self.ChildValues:
             if ((name in asker.Names) or (name is asker)) and ranks:
@@ -484,7 +491,7 @@ class MultiValue(Value):
         else:
             return 0
     def ValueBonus(self,asker=None,levelled=False):
-        if asker is None:
+        if asker is None or self.NoBonus:
             return 0
         for name,bonus,ranks in self.ChildValues:
             if ((name in asker.Names) or (name is asker)) and not ranks:
