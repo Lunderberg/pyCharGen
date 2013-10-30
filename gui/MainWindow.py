@@ -42,11 +42,12 @@ class MainWindow(object):
     def __init__(self):
         builderfile = resource('resources','MainWindow.ui')
         self.char = None
+        self.changed_since_save = False
 
         self.b = gtk.Builder()
         self.b.add_from_file(builderfile)
         self.window = self['mainWindow']
-        self.window.connect('delete_event',gtk.main_quit)
+        self.window.connect('delete_event',self.Exit)
 
         #Menu commands
         self.Connect(self['fileNew'],'activate',self.New)
@@ -54,7 +55,7 @@ class MainWindow(object):
         self.Connect(self['fileSave'],'activate',self.Save)
         self.Connect(self['fileSaveAs'],'activate',self.SaveAs)
         self.Connect(self['fileExport'],'activate',self.Export)
-        self.Connect(self['fileQuit'],'activate',gtk.main_quit)
+        self.Connect(self['fileQuit'],'activate',self.Exit)
         self.Connect(self['actionLevelUp'],'activate',self.FromLevelUp)
         #The About window.
         self.Connect(self['helpAbout'],'activate',self.ShowAbout)
@@ -155,6 +156,7 @@ class MainWindow(object):
     def Update(self):
         if self.char is None:
             return
+        self.changed_since_save = True
         self.Block()
         self.char.Update()
         self.Unblock()
@@ -171,6 +173,7 @@ class MainWindow(object):
     def New(self,*args):
         self.LoadFile(resource('tables','BaseChar.txt'))
         self['mainTabs'].set_current_page(1)
+        self.changed_since_save = False
     def Open(self,*args):
         """
         Displays a dialog to choose a character file.
@@ -188,6 +191,7 @@ class MainWindow(object):
         char = Character.Character.Open(filename)
         self.filename = filename
         self.LoadChar(char)
+        self.changed_since_save = False
     def LoadChar(self,char):
         """
         Removes any registered functions from the old character, if any.
@@ -232,6 +236,7 @@ class MainWindow(object):
         if self.filename is not None:
             with open(filename,'w') as f:
                 f.write(self.char.SaveString())
+            self.changed_since_save = False
         else:
             self.SaveAs()
     def SaveAs(self,*args):
@@ -248,6 +253,7 @@ class MainWindow(object):
             with open(filename,'w') as f:
                 f.write(self.char.SaveString())
             self.filename = filename
+            self.changed_since_save = False
     def Export(self,*args):
         """
         Exports the character either to a pdf, or to a .tex file.
@@ -265,6 +271,28 @@ class MainWindow(object):
             if filename[-4:]!='.pdf':
                 filename += '.pdf'
             LatexOutput.CompileLatex(self.char,filename)
+    def OkayWithoutSaving(self):
+        """
+        If nothing has changed, return True.
+        Otherwise, query the user and ask whether it is okay to exit.
+        """
+        if not self.changed_since_save:
+            return True
+        t = gtk.Dialog("Are you sure?",self.window,
+                       gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
+                       (gtk.STOCK_YES,gtk.RESPONSE_OK,
+                        gtk.STOCK_NO,gtk.RESPONSE_CANCEL))
+        t.vbox.pack_start(gtk.Label("There is unsaved work.\nDo you want to quit?"))
+        t.vbox.show_all()
+        response = t.run()
+        t.destroy()
+        return response==gtk.RESPONSE_OK
+    def Exit(self,*args):
+        if self.OkayWithoutSaving():
+            gtk.main_quit()
+            return False
+        else:
+            return True
     def MakeProfessionList(self):
         self._profdict = Parser.LoadProfessions(resource('tables','Professions.txt'))
         profBox = self['profBox']
