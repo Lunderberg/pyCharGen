@@ -33,6 +33,19 @@ def combobox_boilerplate(combobox):
     combobox.pack_start(cell,True)
     combobox.add_attribute(cell,'text',0)
 
+
+def query_dialog(parent,titletext,boxtext):
+    t = gtk.Dialog(titletext,parent,
+                   gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
+                   (gtk.STOCK_YES,gtk.RESPONSE_OK,
+                    gtk.STOCK_NO,gtk.RESPONSE_CANCEL))
+    t.vbox.pack_start(gtk.Label(boxtext))
+    t.vbox.show_all()
+    response = t.run()
+    t.destroy()
+    return response==gtk.RESPONSE_OK
+
+
 class MainWindow(object):
     """
     The main window of the Rolemaster GUI.
@@ -292,15 +305,8 @@ class MainWindow(object):
         """
         if not self.changed_since_save:
             return True
-        t = gtk.Dialog("Are you sure?",self.window,
-                       gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
-                       (gtk.STOCK_YES,gtk.RESPONSE_OK,
-                        gtk.STOCK_NO,gtk.RESPONSE_CANCEL))
-        t.vbox.pack_start(gtk.Label("There is unsaved work.\nDo you want to quit?"))
-        t.vbox.show_all()
-        response = t.run()
-        t.destroy()
-        return response==gtk.RESPONSE_OK
+        return query_dialog(self.window,"Are you sure?",
+                            "There is unsaved work.\nDo you want to quit?")
     def Exit(self,*args):
         if self.OkayWithoutSaving():
             gtk.main_quit()
@@ -685,22 +691,13 @@ class MainWindow(object):
         self.UpdateStatOverview(stat)
         if stat is self.activeStat and stat is not None:
             self.UpdateActiveStat(stat)
-        try:
-            self['SPspentLabel'].set_text('Stat Points Spent: {0}/{1}'.format(
-                    self.char.StatPoints(levelled=True)-self.char.StatPoints(),
-                    self.char.StatPointsAllowed()))
-        except KeyError as e:
-            print "Unknown stat value: ",e.args[1]
-        try:
-            self['potlSPspent'].set_text("Pot'l Stat Points Spent: {0}/{1}".format(
-                    self.char.StatPoints(potl=True), self.char.StatPointsAllowed(potl=True)))
-        except KeyError as e:
-            print "Unknown stat value: ",e.args[1]
-        try:
-            self['initSPspent'].set_text("Stat Points Spent: {0}/{1}".format(
-                    self.char.StatPoints(), self.char.StatPointsAllowed()))
-        except KeyError as e:
-            print "Unknown stat value: ",e.args[1]
+        self['SPspentLabel'].set_text('Stat Points Spent: {0}/{1}'.format(
+                self.char.StatPoints(levelled=True)-self.char.StatPoints(),
+                self.char.StatPointsAllowed()))
+        self['potlSPspent'].set_text("Pot'l Stat Points Spent: {0}/{1}".format(
+                self.char.StatPoints(potl=True), self.char.StatPointsAllowed(potl=True)))
+        self['initSPspent'].set_text("Stat Points Spent: {0}/{1}".format(
+                self.char.StatPoints(), self.char.StatPointsAllowed()))
     def FromSkillSelected(self,*args):
         selection = self.skillView.get_selection()
         model,skIter = selection.get_selected()
@@ -832,10 +829,49 @@ class MainWindow(object):
             self.activeItem.Description = widget.get_text(widget.get_start_iter(),
                                                           widget.get_end_iter())
         self.Update()
+    def OkayToLevel(self):
+        unspentInitStatPoints = self.char.StatPointsAllowed()-self.char.StatPoints()
+        unspentPotlStatPoints = self.char.StatPointsAllowed(potl=True)-self.char.StatPoints(potl=True)
+        unspentStatDevelPoints = self.char.StatPointsAllowed()+self.char.StatPoints() - self.char.StatPoints(levelled=True)
+        unspentSkillPoints = self.char.DPallowed() - self.char.DPspent()
+        level = self.char.GetMisc('Level')
+
+        conditions = [
+            (unspentInitStatPoints>0 and level==0,
+             "Undistributed Stat Points",
+             "You can distribute {0} more stat points.\nAre you sure you want to continue?".format(unspentInitStatPoints)),
+            (unspentInitStatPoints<0 and level==0,
+             "Starting Stats Too High",
+             "You distributed {0} extra stat points.\nAre you sure you want to continue?".format(-unspentInitStatPoints)),
+            (unspentPotlStatPoints>0 and level==0,
+             "Undistributed Pot'l Stat Points",
+             "You can distribute {0} more potential stat points.\nAre you sure you want to continue?".format(unspentPotlStatPoints)),
+            (unspentPotlStatPoints<0 and level==0,
+             "Potential Stats Too High",
+             "You distributed {0} extra potential stat points.\nAre you sure you want to continue?".format(-unspentPotlStatPoints)),
+            (unspentStatDevelPoints>0 and level>0,
+             "Stat Points Unspent",
+             "You have {0} unspent stat points.\nAre you sure you want to continue?".format(unspentStatDevelPoints)),
+            (unspentStatDevelPoints<0 and level>0,
+             "Too Many Stat Points",
+             "You spent {0} extra stat points.\nAre you sure you want to continue?".format(-unspentStatDevelPoints)),
+            (unspentSkillPoints>0,
+             "Skill Points Unspent",
+             "You have {0} unspent skill points.\nAre you sure you want to continue?".format(unspentSkillPoints)),
+            (unspentSkillPoints<0,
+             "Too Many Skill Points",
+             "You spent {0} extra skill points.\nAre you sure you want to continue?".format(-unspentSkillPoints))]
+        for cond,titletext,boxtext in conditions:
+            if cond:
+                res = query_dialog(self.window,titletext,boxtext)
+                if not res:
+                    return False
+        return True
     def FromLevelUp(self,*args):
-        self.char.ApplyLevelUp()
-        self.ShowHideLevelling()
-        self.Update()
+        if self.OkayToLevel():
+            self.char.ApplyLevelUp()
+            self.ShowHideLevelling()
+            self.Update()
 
 
 
