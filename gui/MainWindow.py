@@ -57,6 +57,7 @@ class MainWindow(object):
         self.Connect(self['fileExport'],'activate',self.Export)
         self.Connect(self['fileQuit'],'activate',self.Exit)
         self.Connect(self['actionLevelUp'],'activate',self.FromLevelUp)
+        self.Connect(self.window,'key-press-event',self.KeyPressEvent)
         #The About window.
         self.Connect(self['helpAbout'],'activate',self.ShowAbout)
         self.Connect(self['aboutWindow'],'delete_event',self.HideAbout)
@@ -77,8 +78,8 @@ class MainWindow(object):
         self.Connect(self['rcDeleteItem'],'button-press-event',self.FromRemoveItem)
         self.Connect(self['deleteItemButton'],'clicked',self.FromRemoveItem)
         #Character progression
-        self.Connect(self['startingCharacterNextButton'],'clicked',self.GoToStats)
-        self.Connect(self['statNextButton'],'clicked',self.GoToSkills)
+        self.Connect(self['startingCharacterNextButton'],'clicked',self.NextTab)
+        self.Connect(self['statNextButton'],'clicked',self.NextTab)
         self.Connect(self['skillLevelUpButton'],'clicked',self.FromLevelUp)
 
         #Stat modifications.
@@ -178,26 +179,28 @@ class MainWindow(object):
         self['aboutWindow'].hide()
         return True
     def New(self,*args):
-        self.LoadFile(resource('tables','BaseChar.txt'))
-        self['mainTabs'].set_current_page(1)
-        self.changed_since_save = False
+        if self.OkayWithoutSaving():
+            self.LoadFile(resource('tables','BaseChar.txt'))
+            self['mainTabs'].set_current_page(1)
+            self.changed_since_save = False
     def Open(self,*args):
         """
         Displays a dialog to choose a character file.
         If selected, will call LoadChar() with the new character.
         """
-        t = gtk.FileChooserDialog(title=None,action=gtk.FILE_CHOOSER_ACTION_OPEN,
-                                  buttons=(gtk.STOCK_CANCEL,gtk.RESPONSE_CANCEL,
-                                           gtk.STOCK_OPEN,gtk.RESPONSE_OK))
-        response = t.run()
-        filename = t.get_filename()
-        t.destroy()
-        if response==gtk.RESPONSE_OK:
-            self.LoadFile(filename)
-    def GoToStats(self,*args):
-        self['mainTabs'].set_current_page(2)
-    def GoToSkills(self,*args):
-        self['mainTabs'].set_current_page(3)
+        if self.OkayWithoutSaving():
+            t = gtk.FileChooserDialog(title=None,action=gtk.FILE_CHOOSER_ACTION_OPEN,
+                                      buttons=(gtk.STOCK_CANCEL,gtk.RESPONSE_CANCEL,
+                                               gtk.STOCK_OPEN,gtk.RESPONSE_OK))
+            response = t.run()
+            filename = t.get_filename()
+            t.destroy()
+            if response==gtk.RESPONSE_OK:
+                self.LoadFile(filename)
+    def NextTab(self,*args):
+        self['mainTabs'].next_page()
+    def PreviousTab(self,*args):
+        self['mainTabs'].prev_page()
     def LoadFile(self,filename):
         char = Character.Character.Open(filename)
         self.filename = filename
@@ -245,7 +248,7 @@ class MainWindow(object):
         Saves to the most recently selected file, either from Open() or SaveAs()
         """
         if self.filename is not None:
-            with open(filename,'w') as f:
+            with open(self.filename,'w') as f:
                 f.write(self.char.SaveString())
             self.changed_since_save = False
         else:
@@ -304,6 +307,26 @@ class MainWindow(object):
             return False
         else:
             return True
+    def KeyPressEvent(self,widget,event):
+        name = gtk.gdk.keyval_name(event.keyval)
+        ctrl = (event.state & gtk.gdk.CONTROL_MASK)
+        if ctrl and name=='s':
+            self.Save()
+        elif ctrl and name=='n':
+            self.New()
+        elif ctrl and name=='o':
+            self.Open()
+        elif ctrl and name=='Tab':
+            self.NextTab()
+        elif ctrl and name=='ISO_Left_Tab':
+            self.PreviousTab()
+        elif ctrl and name in ['1','2','3','4','5','6','7','8','9']:
+            val = int(name)-1
+            adjustment = (self.char.GetMisc('Level')!=0) and (val>=1)
+            self['mainTabs'].set_current_page(val+adjustment)
+        else:
+            return False
+        return True
     def MakeProfessionList(self):
         self._profdict = Parser.LoadProfessions(resource('tables','Professions.txt'))
         profBox = self['profBox']
