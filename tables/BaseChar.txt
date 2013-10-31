@@ -100,20 +100,20 @@ Skill:   Tightrope Walking {Movement} : 0
 
 Skill: Combat Training [NoBonus]
 Skill:   Unarmed Combat {Combat Training, Agility, Strength, Strength} [NoBonus, Weapon]
-Skill:     Martial Arts Strikes {Unarmed} : 0
-Skill:     Martial Arts Sweeps {Unarmed} : 0
-Skill:     Grappling {Unarmed} : 0
-Skill:     Bites {Unarmed} : 0
-Skill:     Claws {Unarmed} : 0
+Skill:     Martial Arts Strikes {Unarmed Combat} : 0
+Skill:     Martial Arts Sweeps {Unarmed Combat} : 0
+Skill:     Grappling {Unarmed Combat} : 0
+Skill:     Bites {Unarmed Combat} : 0
+Skill:     Claws {Unarmed Combat} : 0
 Skill:   Melee Combat {Combat Training, Agility, Strength, Strength} [NoBonus, Weapon]
-Skill:     Broad Sword {Melee} : 0
-Skill:     Spear {Melee} : 0
-Skill:     War Hammer {Melee} : 0
-Skill:     Two\-handed Sword {Melee} : 0
+Skill:     Broad Sword {Melee Combat} : 0
+Skill:     Spear {Melee Combat} : 0
+Skill:     War Hammer {Melee Combat} : 0
+Skill:     Two\-handed Sword {Melee Combat} : 0
 Skill:   Thrown Weapons {Combat Training, Agility, Agility, Strength} [NoBonus, Weapon]
-Skill:     Dagger {Thrown} : 0
-Skill:     Spear {Thrown} : 0
-Skill:     Bola {Thrown} : 0
+Skill:     Dagger {Thrown Weapons} : 0
+Skill:     Spear {Thrown Weapons} : 0
+Skill:     Bola {Thrown Weapons} : 0
 Skill:   Missile {Combat Training, Agility, Agility, Strength} [NoBonus, Weapon]
 Skill:     Long Bow {Missile} : 0
 Skill:     Sling {Missile} : 0
