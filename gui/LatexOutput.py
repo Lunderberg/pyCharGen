@@ -32,8 +32,7 @@ def FindExecutable():
         if executable is None:
             raise EnvironmentError("""Could not find resources\pdflatex.exe""")
     else:
-        executable = resource('resources','pdftex')
-        executable = 'pdftex' if executable is None else executable
+        executable = 'pdflatex'
         with open(os.devnull,'w') as devnull:
             if subprocess.call(['which',executable],stdout=devnull,stdin=devnull):
                 raise EnvironmentError("""Could not find pdflatex.  Please install using 'sudo apt-get texlive-latex-base'""")

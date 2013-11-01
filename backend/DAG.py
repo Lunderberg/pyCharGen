@@ -3,6 +3,8 @@
 from utils import listReplace
 from collections import defaultdict
 
+from Character import Skill
+
 def _equals(node,other):
     return (node is other) or (other in node.Names)
 
@@ -30,7 +32,15 @@ class DAG(object):
     def Remove(self,node):
         self._unlink(node)
     def __iter__(self):
-        return iter(self.nodes)
+        notYielded = self.nodes[:]
+        while notYielded:
+            path = [notYielded[0]]
+            while path:
+                toYield = path.pop()
+                if isinstance(toYield,Skill):
+                    path.extend(reversed(self.Children(toYield)))
+                notYielded.remove(toYield)
+                yield toYield
     def __getitem__(self,key):
         for node in self:
             if _equals(node,key):
@@ -57,7 +67,7 @@ class DAG(object):
             for par in self._parents[id(node)]:
                 if _equals(othernode,par):
                     yield (othernode,node,node,par)
-            
+
             #Children requested by the new node
             for ch in self._children[id(node)]:
                 if _equals(othernode,ch):
@@ -120,4 +130,4 @@ class DAG(object):
                     if isinstance(ch,tuple)]
         except KeyError:
             raise ValueError("Node not found.", node)
-    
+
