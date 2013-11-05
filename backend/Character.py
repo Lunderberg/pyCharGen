@@ -37,6 +37,9 @@ class Character(object):
         self.Events.Execute()
     def __getitem__(self,key):
         return self.graph[key]
+    def MoveTo(self,nodeA,nodeB,before=False):
+        self.graph.MoveTo(nodeA,nodeB,before)
+        self.Events('Values Reordered',nodeA,nodeB,before)
     @property
     def Values(self):
         return iter(self.graph)

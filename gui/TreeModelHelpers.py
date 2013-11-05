@@ -134,7 +134,7 @@ class SkillTreeStore(gtk.TreeStore,object):
         for sk in char.Skills:
             parIter = None
             for par in sk.Parents:
-                if (not isinstance(par,str) and 
+                if (not isinstance(par,str) and
                     par.Name in usedIters):
                     parIter = usedIters[par.Name]
                     break
@@ -176,12 +176,25 @@ class SkillTreeStore(gtk.TreeStore,object):
             if skill is self.get(skIter,self.col('obj'))[0]:
                 self.remove(skIter)
                 return
+    def OnValueReorder(self,nodeA,nodeB,before=False):
+        iterA = None
+        iterB = None
+        for skIter in self.IterAll:
+            skill = self.get(skIter,self.col('obj'))[0]
+            if nodeA is skill:
+                iterA = skIter
+            if nodeB is skill:
+                iterB = skIter
+        if iterA is None or iterB is None:
+            return
+        func = self.move_before if before else self.move_after
+        func(iterA,iterB)
 
 class SkillListStore(ValueListStore):
     store_format = SkillTreeStore.store_format
     names = {n:i for i,(n,t) in enumerate(store_format)}
     def getVals(self,char):
-        return char.Skills 
+        return char.Skills
     UpdateVal = SkillTreeStore.__dict__['UpdateVal']
 
 class WeaponListStore(SkillListStore):
@@ -234,4 +247,4 @@ def RightClickToggle(treeview):
         col.connect('clicked',FromHeaderClick)
         menuItem.show()
         menu.append(menuItem)
-        
+

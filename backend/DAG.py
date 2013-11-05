@@ -3,7 +3,7 @@
 from utils import listReplace
 from collections import defaultdict
 
-from Character import Skill
+import Character
 
 def _equals(node,other):
     return (node is other) or (other in node.Names)
@@ -37,7 +37,7 @@ class DAG(object):
             path = [notYielded[0]]
             while path:
                 toYield = path.pop()
-                if isinstance(toYield,Skill):
+                if isinstance(toYield,Character.Skill):
                     path.extend(reversed(self.Children(toYield)))
                 notYielded.remove(toYield)
                 yield toYield
@@ -130,4 +130,22 @@ class DAG(object):
                     if isinstance(ch,tuple)]
         except KeyError:
             raise ValueError("Node not found.", node)
-
+    def MoveTo(self,nodeA,nodeB,before=False):
+        """
+        Moves nodeA to the position just after nodeB, or just before, if before is True.
+        Has no effect if nodeA and nodeB have different skills as parents.
+        """
+        before = bool(before)
+        parA = [par for par in self.Parents(nodeA) if isinstance(par,Character.Skill)]
+        parB = [par for par in self.Parents(nodeB) if isinstance(par,Character.Skill)]
+        if len(parA)==len(parB) and all(p in parB for p in parA):
+            return
+        self.nodes.remove(nodeA)
+        self.nodes.insert(nodeA,self.nodes.index(nodeB)+1-before)
+        for par in self.Parents(nodeA):
+            childList = self._children[id(par)]
+            indexA = next(i for i,tup in enumerate(childList) if tup[0] is nodeA)
+            indexB = next(i for i,tup in enumerate(childList) if tup[0] is nodeB)
+            finalPos = indexB + 1 - before
+            finalPos = finalPos if finalPos<indexA else finalPos-1
+            childList.insert(finalPos,childList.pop(indexA))

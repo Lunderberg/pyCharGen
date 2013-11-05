@@ -118,6 +118,12 @@ class MainWindow(object):
         self.Connect(self['skillRankBox'],'changed',self.FromActiveSkillRankChange)
         self.Connect(self['skillDescriptionBox'].get_buffer(),
                      'changed',self.FromActiveSkillDescriptionChange)
+        self['skillView'].enable_model_drag_dest([('text/plain',0,0)],
+                                                 gtk.gdk.ACTION_DEFAULT | gtk.gdk.ACTION_MOVE)
+        self['skillView'].enable_model_drag_source(gtk.gdk.BUTTON1_MASK,
+                                                   [('text/plain',0,0)],
+                                                   gtk.gdk.ACTION_DEFAULT | gtk.gdk.ACTION_MOVE)
+        self.Connect(self['skillView'],'drag-data-received',self.FromSkillReordered)
 
         #Weapon reorderings
         self.SetUpWeaponSkillView()
@@ -246,6 +252,7 @@ class MainWindow(object):
             ('Skill Removed',self.skillStore.OnValueRemove),
             ('Skill Removed',self.skillListStore.OnValueRemove),
             ('Skill Removed',self.weaponSkillStore.OnValueRemove),
+            ('Values Reordered',self.skillStore.OnValueReorder),
             ('Resistance Changed',self.OnResistanceChange),
             ('Item Added',self.itemStore.OnValueAdd),
             ('Item Changed',self.itemStore.OnValueChange),
@@ -708,6 +715,14 @@ class MainWindow(object):
             self.OnSkillChange(skill)
             self.Unblock()
         self.SkillSensitivity()
+    def FromSkillReordered(self,treeview,context,x,y,selection,info,timestamp):
+        dest_path = treeview.get_dest_row_at_pos(x,y)[0]
+        model,src_iter = treeview.get_selection().get_selected()
+        dest_iter = model.get_iter(dest_path)
+        src_skill = model.get(src_iter,model.col('obj'))[0]
+        dest_skill = model.get(dest_iter,model.col('obj'))[0]
+        self.char.MoveTo(src_skill,dest_skill)
+        self.Update()
     def SkillSensitivity(self):
         for widName in ['skillNameBox','skillDescriptionBox']:
             wid = self[widName]
