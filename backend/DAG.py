@@ -6,7 +6,7 @@ from collections import defaultdict
 import Character
 
 def _equals(node,other):
-    return (node is other) or (other in node.Names)
+    return (node is other) or (other==node.Name)
 
 class DAG(object):
     """
@@ -16,7 +16,7 @@ class DAG(object):
     Expects each node to have attributes
         requestedChildren, a list of strings of children to find,
         requestedParents, a list of strings of parents to find
-     and Names, a list of names of the nodes.
+     and Name, the name of the node.
     """
     def __init__(self):
         self._parents = defaultdict(list)
@@ -124,10 +124,22 @@ class DAG(object):
                     if isinstance(par,tuple)]
         except KeyError:
             raise ValueError("Node not found.", node)
+    def OwnedParents(self,node):
+        try:
+            return [par[0] for par in self._parents[id(node)]
+                    if isinstance(par,tuple) and par[1]]
+        except KeyError:
+            raise ValueError("Node not found.", node)
     def Children(self,node):
         try:
             return [ch[0] for ch in self._children[id(node)]
                     if isinstance(ch,tuple)]
+        except KeyError:
+            raise ValueError("Node not found.", node)
+    def OwnedChildren(self,node):
+        try:
+            return [ch[0] for ch in self._children[id(node)]
+                    if isinstance(ch,tuple) and ch[1]]
         except KeyError:
             raise ValueError("Node not found.", node)
     def MoveTo(self,nodeA,nodeB,before=False):
@@ -135,8 +147,6 @@ class DAG(object):
         Moves nodeA to the position just after nodeB, or just before, if before is True.
         Has no effect if nodeA and nodeB have different skills as parents.
         """
-        print 'Moving',nodeA.Name,'to after',nodeB.Name
-
         before = bool(before)
         parA = [par for par in self.Parents(nodeA) if isinstance(par,Character.Skill)]
         parB = [par for par in self.Parents(nodeB) if isinstance(par,Character.Skill)]

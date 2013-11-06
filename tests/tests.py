@@ -82,11 +82,11 @@ class TestChar(unittest.TestCase):
     def test_linking(self):
         c = Character.Character()
 
-        par1 = Character.Stat(100,Names=['name1'])
+        par1 = Character.Stat(100,Name='name1')
         c.AddVal(par1)
-        par2 = Character.Skill(25,Names=['name2'])
+        par2 = Character.Skill(25,Name='name2')
         c.AddVal(par2)
-        child = Character.Skill(1,Names=['child'],Parents=['name1','name2'])
+        child = Character.Skill(1,Name='child',Parents=['name1','name2'])
         c.AddVal(child)
 
         pars = child.Parents
@@ -163,20 +163,20 @@ class TestStringOut(unittest.TestCase):
         self.char = Character.Character.Open(charfile)
     def test_value_strings(self):
         char = Character.Character()
-        par1 = Character.Value(0,['L O N G  N A M E','short'])
+        par1 = Character.Value(0,'L O N G  N A M E')
         char.AddVal(par1)
-        par2 = Character.Value(0,['SD','Self Discipline'])
+        par2 = Character.Value(0,'Self Discipline')
         char.AddVal(par2)
-        v = Character.Value(5,['test'])
+        v = Character.Value(5,'test')
         self.assertEqual(v.SaveString(),'Value: test : 5')
-        v.requestedParents = ['L O N G  N A M E','SD']
+        v.requestedParents = ['L O N G  N A M E','Self Discipline']
         char.AddVal(v)
-        self.assertEqual(v.SaveString(),'Value: test {short, SD} : 5')
+        self.assertEqual(v.SaveString(),'Value: test {L O N G  N A M E, Self Discipline} : 5')
         v.Options = ['NoBonus']
         v.Value = None
-        self.assertEqual(v.SaveString(),'Value: test {short, SD} [NoBonus]')
-        v.Names = ['new Test','nT','TNT']
-        self.assertEqual(v.SaveString(),'Value: new Test {short, SD} [NoBonus]')
+        self.assertEqual(v.SaveString(),'Value: test {L O N G  N A M E, Self Discipline} [NoBonus]')
+        v.Name = 'new Test'
+        self.assertEqual(v.SaveString(),'Value: new Test {L O N G  N A M E, Self Discipline} [NoBonus]')
     def test_char_string(self):
         self.char.SaveString()
 

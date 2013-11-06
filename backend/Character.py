@@ -191,10 +191,10 @@ class Value(object):
     Type = 'Value'
     _escape_chars = [('\n',r'\n'),
                      ('"','\\"'),]
-    def __init__(self,Value=None,Names=None,Parents=None,Children=None,Options=None,Description=""):
+    def __init__(self,Value=None,Name='',Parents=None,Children=None,Options=None,Description=""):
         self.Events = lambda *args:None
         self.graph = None
-        self.Names = [] if Names is None else Names
+        self.Name = Name
         self.requestedParents = [] if Parents is None else Parents
         self.requestedChildren = [] if Children is None else Children
         self.Options = [] if Options is None else Options
@@ -207,14 +207,11 @@ class Value(object):
             self.Type,self.Name,self.Options,self.requestedParents,self.Value,self.Description)
     @property
     def Name(self):
-        return self.Names[0] if self.Names else None
+        return self._Name
     @Name.setter
     def Name(self,val):
-        self.Names[0] = val
+        self._Name = val
         self.Changed(False)
-    @property
-    def ShortestName(self):
-        return min(self.Names,key=len)
     @property
     def Parents(self):
         if self.graph is not None:
@@ -289,9 +286,7 @@ class Value(object):
         return (sum(par.Bonus(self,levelled) for par in self.Parents if isinstance(par,Item))
                 +sum(par.Bonus(self,levelled) for par in self.Parents if par.NoBonus))
     def RelativeSaveString(self):
-        parnames = [Parser.escape_ID(par.ShortestName) for par in self.Parents]
-        pars = ', '.join(parnames)
-        return pars
+        return ', '.join(Parser.escape_ID(par.Name) for par in self.graph.OwnedParents(self))
     def CostSaveString(self):
         return ''
     def SaveString(self):
@@ -472,7 +467,7 @@ class MultiValue(Value):
         if asker is None or self.NoBonus:
             return 0
         for name,bonus,ranks in self.ChildValues:
-            if ((name in asker.Names) or (name is asker)) and ranks:
+            if ((name==asker.Name) or (name is asker)) and ranks:
                 return bonus
         else:
             return 0
@@ -480,7 +475,7 @@ class MultiValue(Value):
         if asker is None or self.NoBonus:
             return 0
         for name,bonus,ranks in self.ChildValues:
-            if ((name in asker.Names) or (name is asker)) and not ranks:
+            if ((name==asker.Name) or (name is asker)) and not ranks:
                 return bonus
         else:
             return 0

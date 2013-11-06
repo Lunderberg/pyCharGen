@@ -649,12 +649,12 @@ class MainWindow(object):
                 None,None,None,event.button,event.time)
     def FromAddChildSkill(self,*args):
         sk = self.skillStore[self.clicked_path][0]
-        newSkill = Character.Skill(0,Names=['New Skill'],Options=['Skill'],Parents=[sk])
+        newSkill = Character.Skill(0,Name='New Skill',Parents=[sk])
         self.char.AddVal(newSkill)
         self.Update()
     def FromAddSiblingSkill(self,*args):
         sk = self.skillStore[self.clicked_path][0]
-        newSkill = Character.Skill(0,Names=['New Skill'],Options=['Skill'],Parents = [par.Name for par in sk.Parents])
+        newSkill = Character.Skill(0,Name='New Skill',Parents = [par.Name for par in sk.Parents])
         self.char.AddVal(newSkill)
         self.Update()
     def FromRemoveSkill(self,*args):
@@ -780,7 +780,7 @@ class MainWindow(object):
             self['rcItemMenu'].popup(
                 None,None,None,event.button,event.time)
     def FromAddItem(self,*args):
-        newItem = Character.Item(None,Names=['New Item'],Options=['Item'])
+        newItem = Character.Item(None,Name='New Item')
         self.char.AddVal(newItem)
         self.Update()
     def FromRemoveItem(self,*args):

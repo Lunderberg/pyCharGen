@@ -5,8 +5,8 @@ import unittest
 from backend import DAG
 
 class Node(object):
-    def __init__(self,names,reqParents=None,reqChildren=None):
-        self.Names = [names] if isinstance(names,str) else names
+    def __init__(self,Name,reqParents=None,reqChildren=None):
+        self.Name = Name
         self.requestedParents = reqParents if reqParents is not None else []
         self.requestedChildren = reqChildren if reqChildren is not None else []
     def Changed(self,*args,**kw):

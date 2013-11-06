@@ -112,13 +112,8 @@ weaponcosts = (litSup('WeaponCosts') + litSup(':')
                            + litSup('>'))
                ).setParseAction(makeWeaponCosts)
 
-def makeWeaponOrder(m):
-    return ('WeaponOrder',m)
-weaponorder = (litSup('WeaponOrder') + litSup(':')
-               + delimitedList(ID)).setParseAction(makeWeaponOrder)
-
 def makeStat(m):
-    return ('Stat',Character.Stat(Names=[m['name']],Value=m['value'],
+    return ('Stat',Character.Stat(Name=m['name'],Value=m['value'],
                         Options=m['options']['[]'],
                         Parents=m['options']['{}'],
                         Description=m['desc'][0]))
@@ -130,7 +125,7 @@ stat = (litSup('Stat') + litSup(':')
         ).setParseAction(makeStat)
 
 def makeSkill(m):
-    output = Character.Skill(Names=[m['name']],Value=m['value'] if 'value' in m else None,
+    output = Character.Skill(Name=m['name'],Value=m['value'] if 'value' in m else None,
                              Options=m['options']['[]'],Parents=m['options']['{}'],
                              Costs=m['options']['<>'],
                              Description=m['desc'][0])
@@ -146,7 +141,7 @@ skill = (litSup('Skill') + litSup(':')
 
 def makeResistance(m):
     return ('Resistance',
-            Character.Resistance(Names=[m['name']],
+            Character.Resistance(Name=m['name'],
                        Parents=m['options']['{}'],
                        Description=m['desc'][0]))
 resistance = (litSup('Resistance') + litSup(':')
@@ -156,7 +151,7 @@ resistance = (litSup('Resistance') + litSup(':')
               ).setParseAction(makeResistance)
 
 def makeItem(m):
-    output = Character.Item(Names=[m['name']],
+    output = Character.Item(Name=m['name'],
                   Options=m['options']['[]'],
                   Description=m['desc'][0])
     output.SetChildValues(m['options']['{}'])
@@ -170,7 +165,7 @@ item = (litSup('Item') + litSup(':')
 
 
 def makeRace(m):
-    output = Character.Race(Names=[m['name']],
+    output = Character.Race(Name=m['name'],
                   Options=m['options']['[]'],
                   Description=m['desc'][0])
     output.SetChildValues(m['options']['{}'])
@@ -186,7 +181,7 @@ def raceFile(filename):
     return [r for tag,r in output]
 
 def makeCulture(m):
-    output = Character.Culture(Names=[m['name']],
+    output = Character.Culture(Name=m['name'],
                      Description=m['desc'][0])
     output.SetChildValues(m['options']['{}'])
     return ('Culture',output)
@@ -218,7 +213,7 @@ def cultureFile(filename):
     return pattern.parseFile(filename,parseAll=True)[0]
 
 
-value = (keyword | keywordInt | weaponcosts | weaponorder | stat
+value = (keyword | keywordInt | weaponcosts | stat
          | skill | resistance | item | race | culture)
 
 def makeCharacter(m):

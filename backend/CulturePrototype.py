@@ -77,7 +77,7 @@ class CulturePrototype(object):
         return self.depends[optI]
     @property
     def Culture(self):
-        output = Character.Culture(Names=[self.Name],
+        output = Character.Culture(Name=self.Name,
                                    Description=self.Description)
         childvalues = [(self.Choice(i),self.options[i][1],self.options[i][2])
                        for i in range(len(self.options)) if self.Choice(i) is not None]
