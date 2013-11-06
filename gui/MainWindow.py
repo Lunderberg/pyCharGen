@@ -118,15 +118,11 @@ class MainWindow(object):
         self.Connect(self['skillRankBox'],'changed',self.FromActiveSkillRankChange)
         self.Connect(self['skillDescriptionBox'].get_buffer(),
                      'changed',self.FromActiveSkillDescriptionChange)
-        self['skillView'].enable_model_drag_dest([('text/plain',0,0)],
-                                                 gtk.gdk.ACTION_DEFAULT | gtk.gdk.ACTION_MOVE)
-        self['skillView'].enable_model_drag_source(gtk.gdk.BUTTON1_MASK,
-                                                   [('text/plain',0,0)],
-                                                   gtk.gdk.ACTION_DEFAULT | gtk.gdk.ACTION_MOVE)
-        self.Connect(self['skillView'],'drag-data-received',self.FromSkillReordered)
+        self.Connect(self['skillView'],'drag-data-received',self.FromSkillReordered,False)
 
         #Weapon reorderings
         self.SetUpWeaponSkillView()
+        self.Connect(self['weaponOrderingView'],'drag-data-received',self.FromSkillReordered,True)
 
         #Item modifications
         self.activeItem = None
@@ -253,6 +249,7 @@ class MainWindow(object):
             ('Skill Removed',self.skillListStore.OnValueRemove),
             ('Skill Removed',self.weaponSkillStore.OnValueRemove),
             ('Values Reordered',self.skillStore.OnValueReorder),
+            ('Values Reordered',self.weaponSkillStore.OnValueReorder),
             ('Resistance Changed',self.OnResistanceChange),
             ('Item Added',self.itemStore.OnValueAdd),
             ('Item Changed',self.itemStore.OnValueChange),
@@ -449,6 +446,11 @@ class MainWindow(object):
                           editable=self.FromToggleSkillCell)
 
         TMH.RightClickToggle(self.skillView)
+        self['skillView'].enable_model_drag_dest([('text/plain',0,0)],
+                                                 gtk.gdk.ACTION_DEFAULT | gtk.gdk.ACTION_MOVE)
+        self['skillView'].enable_model_drag_source(gtk.gdk.BUTTON1_MASK,
+                                                   [('text/plain',0,0)],
+                                                   gtk.gdk.ACTION_DEFAULT | gtk.gdk.ACTION_MOVE)
     def SetUpCommonlyUsedSkillView(self):
         self.commonSkillView = self['commonSkillView']
         TMH.AddTextColumn(self.commonSkillView,'Name',TMH.SkillTreeStore.col('Name'))
@@ -457,7 +459,11 @@ class MainWindow(object):
     def SetUpWeaponSkillView(self):
         self.weaponSkillView = self['weaponOrderingView']
         TMH.AddTextColumn(self.weaponSkillView,'Name',TMH.SkillTreeStore.col('Name'))
-        self.weaponSkillView.set_reorderable(True)
+        self.weaponSkillView.enable_model_drag_dest([('text/plain',0,0)],
+                                                    gtk.gdk.ACTION_DEFAULT | gtk.gdk.ACTION_MOVE)
+        self.weaponSkillView.enable_model_drag_source(gtk.gdk.BUTTON1_MASK,
+                                                      [('text/plain',0,0)],
+                                                      gtk.gdk.ACTION_DEFAULT | gtk.gdk.ACTION_MOVE)
     def FromWeaponReorder(self,wid,*args):
         self.char.WeaponList = wid.OrderedSkills()
         self.Update()
@@ -715,14 +721,21 @@ class MainWindow(object):
             self.OnSkillChange(skill)
             self.Unblock()
         self.SkillSensitivity()
-    def FromSkillReordered(self,treeview,context,x,y,selection,info,timestamp):
+    def FromSkillReordered(self,treeview,context,x,y,selection,info,timestamp,okayToProceed):
         dest_path = treeview.get_dest_row_at_pos(x,y)[0]
         model,src_iter = treeview.get_selection().get_selected()
         dest_iter = model.get_iter(dest_path)
         src_skill = model.get(src_iter,model.col('obj'))[0]
         dest_skill = model.get(dest_iter,model.col('obj'))[0]
-        self.char.MoveTo(src_skill,dest_skill)
-        self.Update()
+
+        if not okayToProceed:
+            okayToProceed = 'Weapon' not in src_skill.Options and 'Weapon' not in dest_skill.Options
+        if not okayToProceed:
+            okayToProceed = query_dialog(self.window,"Moving Weapon Skill",
+                                         "Moving a weapon skill changes the skill costs.\nAre you sure you want to continue?")
+        if okayToProceed:
+            self.char.MoveTo(src_skill,dest_skill)
+            self.Update()
     def SkillSensitivity(self):
         for widName in ['skillNameBox','skillDescriptionBox']:
             wid = self[widName]

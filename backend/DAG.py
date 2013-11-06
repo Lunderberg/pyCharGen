@@ -135,17 +135,23 @@ class DAG(object):
         Moves nodeA to the position just after nodeB, or just before, if before is True.
         Has no effect if nodeA and nodeB have different skills as parents.
         """
+        print 'Moving',nodeA.Name,'to after',nodeB.Name
+
         before = bool(before)
         parA = [par for par in self.Parents(nodeA) if isinstance(par,Character.Skill)]
         parB = [par for par in self.Parents(nodeB) if isinstance(par,Character.Skill)]
-        if len(parA)==len(parB) and all(p in parB for p in parA):
-            return
+        if len(parA)!=len(parB) or any(p not in parB for p in parA):
+            return False
         self.nodes.remove(nodeA)
-        self.nodes.insert(nodeA,self.nodes.index(nodeB)+1-before)
+        self.nodes.insert(self.nodes.index(nodeB)+1-before,nodeA)
         for par in self.Parents(nodeA):
             childList = self._children[id(par)]
-            indexA = next(i for i,tup in enumerate(childList) if tup[0] is nodeA)
-            indexB = next(i for i,tup in enumerate(childList) if tup[0] is nodeB)
+            try:
+                indexA = next(i for i,tup in enumerate(childList) if tup[0] is nodeA)
+                indexB = next(i for i,tup in enumerate(childList) if tup[0] is nodeB)
+            except StopIteration:
+                continue
             finalPos = indexB + 1 - before
             finalPos = finalPos if finalPos<indexA else finalPos-1
             childList.insert(finalPos,childList.pop(indexA))
+        return True

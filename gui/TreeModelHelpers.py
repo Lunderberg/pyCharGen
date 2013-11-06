@@ -200,8 +200,7 @@ class SkillListStore(ValueListStore):
 class WeaponListStore(SkillListStore):
     def IsValid(self,val):
         return 'Weapon' in val.Options
-    def OrderedSkills(self):
-        return [self.get(skIter,self.col('obj'))[0] for skIter in self.IterAll]
+    OnValueReorder = SkillTreeStore.__dict__['OnValueReorder']
 
 def AddTextColumn(treeview,name,columnnumber,editable=None,xalign=0.0,visible=True,viscol=None):
     CellText = gtk.CellRendererText()

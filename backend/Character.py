@@ -38,8 +38,13 @@ class Character(object):
     def __getitem__(self,key):
         return self.graph[key]
     def MoveTo(self,nodeA,nodeB,before=False):
-        self.graph.MoveTo(nodeA,nodeB,before)
-        self.Events('Values Reordered',nodeA,nodeB,before)
+        res = self.graph.MoveTo(nodeA,nodeB,before)
+        if res:
+            self.Events('Values Reordered',nodeA,nodeB,before)
+        #Reordering the weapons changes the weapon costs.
+            for val in self.Values:
+                if 'Weapon' in val.Options:
+                    val.Changed()
     @property
     def Values(self):
         return iter(self.graph)
@@ -89,8 +94,6 @@ class Character(object):
         self.graph.Add(newVal)
         self.Events('{0} Added'.format(newVal.Type),newVal)
         newVal.Events = self.Events
-        if 'Weapon' in newVal.Options:
-            self.WeaponList.append(newVal)
     def RemoveVal(self,val):
         """
         Removes the value given.
@@ -127,24 +130,6 @@ class Character(object):
                     pass
         self.WeaponCostList = weaponcosts
     @property
-    def WeaponList(self):
-        try:
-            return self._WeaponList
-        except AttributeError:
-            self._WeaponList = []
-            return self._WeaponList
-    @WeaponList.setter
-    def WeaponList(self,val):
-        skChanged = self.WeaponList[:]
-        self._WeaponList = val
-        skChanged.extend(val)
-        for sk in skChanged:
-            #Need a try-catch here, because sk can be either a skill or the name of a skill.
-            try:
-                sk.Changed()
-            except AttributeError:
-                pass
-    @property
     def WeaponCostList(self):
         try:
             return self._WeaponCostList
@@ -160,14 +145,14 @@ class Character(object):
           and each inner list corresponding to the skill cost list.
         """
         self._WeaponCostList = val
-        for sk in self.WeaponList:
-            sk.Changed()
+        for val in self.Values:
+            if 'Weapon' in val.Options:
+                val.Changed()
     def WeaponCost(self,sk):
-        for i,(weap,cost) in enumerate(zip(self.WeaponList,self.WeaponCostList)):
-            if weap is sk:
-                return cost
-            elif any(weap==name for name in sk.Names):
-                self.WeaponList[i] = sk
+        i = -1
+        weaponGen = (val for val in self.Values if 'Weapon' in val.Options)
+        for weapon,cost in zip(weaponGen,self.WeaponCostList):
+            if weapon is sk:
                 return cost
         else:
             return []
@@ -187,8 +172,6 @@ class Character(object):
         lines = ['{0}: {1}'.format(Parser.escape_ID(k),v) for k,v in self.MiscVals.items()]
         lines += ['WeaponCosts: ' + ' '.join('<' + ','.join(str(i) for i in ilist) + '>'
                                              for ilist in self.WeaponCostList)]
-        lines += ['WeaponOrder: ' + ', '.join(Parser.escape_ID(we if isinstance(we,str) else we.Name)
-                                              for we in self.WeaponList)]
         #Escape all the character-based lines.
         #The Value-based lines are escaped in Value.SaveString()
         lines += [val.SaveString() for val in self.graph]
