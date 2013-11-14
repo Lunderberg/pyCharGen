@@ -85,8 +85,8 @@ def make_windows_exe():
     dir_util.remove_tree(builddir)
 
 def name_exes(name='unstable'):
-    os.rename('pyCharGen.zip','pyCharGen-win-{0}.zip'.format(name)))
-    os.rename('pyCharGen.tar.gz','pyCharGen-linux-{0}.tar.gz'1.format(name)))
+    os.rename('pyCharGen.zip','pyCharGen-win-{0}.zip'.format(name))
+    os.rename('pyCharGen.tar.gz','pyCharGen-linux-{0}.tar.gz'.format(name))
 
 
 
