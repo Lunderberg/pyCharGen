@@ -338,14 +338,14 @@ class MainWindow(object):
             return False
         return True
     def MakeProfessionList(self):
-        self._profdict = Parser.LoadProfessions(resource('tables','Professions.txt'))
+        self._professions = Parser.professionFile(resource('tables','Professions.txt'))
         profBox = self['profBox']
         combobox_boilerplate(profBox)
-        for key in self._profdict:
-            profBox.append_text(key)
+        for prof in self._professions:
+            profBox.append_text(prof.Name)
     def FromProfessionSelect(self,wid):
-        profname = wid.get_active_text()
-        self.char.LoadProfession(profname,self._profdict[profname])
+        selection = wid.get_active()
+        self.char.LoadProfession(self._professions[selection])
         self.Update()
     def MakeCultureList(self):
         self._cultureList = Parser.cultureFile(resource('tables','Cultures.txt'))

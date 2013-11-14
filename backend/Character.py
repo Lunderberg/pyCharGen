@@ -112,15 +112,15 @@ class Character(object):
         for val in self.graph:
             val.ApplyLevelUp()
         self.SetMisc('Level',self.GetMisc('Level')+1)
-    def LoadProfession(self,profname,profdict):
+    def LoadProfession(self,prof):
         """
         Expects a dictionary from skill names to a list of skill costs.
         """
         for val in self.Values:
             val.Costs = None
-        self.SetMisc("Profession",profname)
+        self.SetMisc("Profession",prof.Name)
         weaponcosts = []
-        for skill,costs in profdict.items():
+        for skill,costs in prof.Costs:
             if skill.startswith("Combat Training"):
                 weaponcosts.append(costs)
             else:

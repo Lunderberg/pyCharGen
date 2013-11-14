@@ -7,6 +7,7 @@ from collections import OrderedDict
 
 import Character
 import CulturePrototype
+import Profession
 
 
 ###################################
@@ -14,28 +15,6 @@ import CulturePrototype
 ###################################
 def stripComments(text):
     return re.sub(r'(^|[^\\])#.*',r'\1',text)
-
-def LoadProfessions(filename):
-    """
-    Loads a file, then parses the professions from it.
-    Returns a dict of profession names to skill dictionary.
-    The skill dictionaries are from skill name to cost list.
-    """
-    with open(filename) as f:
-        text = f.read()
-    profs = OrderedDict()
-    text = stripComments(text)
-    for profMatch in re.finditer(r'(\S[^{}]*?)\s*'
-                                 r'((\s*\{.*?\})+)',text):
-        profname = profMatch.group(1)
-        skills = {}
-        for skillMatch in re.finditer(r'\{(.*?)\}'
-                                      ,profMatch.group(2)):
-            items = [s.strip() for s in skillMatch.group(1).split(',')]
-            costList = [int(s) for s in items[1:]]
-            skills[items[0]] = costList
-        profs[profname] = skills
-    return profs
 
 
 
@@ -235,6 +214,20 @@ def makeCharacter(m):
 character = OneOrMore(value).ignore(pythonStyleComment).setParseAction(makeCharacter)
 def characterFile(filename):
     return character.parseFile(filename,parseAll=True)[0]
+
+professionItem = (litSup('{') + ID + litSup(',')
+                  + delimitedList(number)
+                  + litSup('}')).setParseAction(lambda m: [(m[0],m[1:])])
+def makeProfession(m):
+    output = Profession.Profession(m.name)
+    for skillname,cost in m.costs:
+        output.AddCost(skillname,cost)
+    return output
+profession = (litSup('Profession') + litSup(':')
+              + ID('name') + OneOrMore(professionItem)('costs')
+              ).setParseAction(makeProfession)
+def professionFile(filename):
+    return OneOrMore(profession).parseFile(filename,parseAll=True)[:]
 
 
 if __name__=='__main__':
