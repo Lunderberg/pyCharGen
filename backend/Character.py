@@ -78,7 +78,7 @@ class Character(object):
             return self._race
         except AttributeError:
             return None
-    @Culture.setter
+    @Race.setter
     def Race(self,val):
         if self.Race is not None:
             self.RemoveVal(self.Race)

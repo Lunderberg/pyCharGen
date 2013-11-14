@@ -348,14 +348,14 @@ class MainWindow(object):
         self.char.LoadProfession(self._professions[selection])
         self.Update()
     def MakeCultureList(self):
-        self._cultureList = Parser.cultureFile(resource('tables','Cultures.txt'))
+        self._cultures = Parser.cultureFile(resource('tables','Cultures.txt'))
         cultureBox = self['cultureBox']
         combobox_boilerplate(cultureBox)
-        for proto in self._cultureList:
+        for proto in self._cultures:
             cultureBox.append_text(proto.Name)
     def FromCultureSelect(self,*args):
         selection = self['cultureBox'].get_active()
-        prototype = self._cultureList[selection]
+        prototype = self._cultures[selection]
         prototype.char = self.char
         subwindow = CultureWindow.CultureWindow(prototype,self.PostCultureCustomization)
         subwindow.Show()
@@ -366,14 +366,14 @@ class MainWindow(object):
         subwindow.window.destroy()
         self.Update()
     def MakeRaceList(self):
-        self._racelist = Parser.raceFile(resource('tables','Races.txt'))
+        self._races = Parser.raceFile(resource('tables','Races.txt'))
         raceBox = self['raceBox']
         combobox_boilerplate(raceBox)
-        for race in self._racelist:
+        for race in self._races:
             raceBox.append_text(race.Name)
     def FromRaceSelect(self,*args):
         selection = self['raceBox'].get_active()
-        self.char.Race = self._racelist[selection]
+        self.char.Race = self._races[selection]
         self.Update()
     def UpdateAll(self,*args):
         """
@@ -395,9 +395,6 @@ class MainWindow(object):
             self.Disconnect(self.weaponSkillStore)
         self.weaponSkillStore = TMH.WeaponListStore(self.char)
         self.weaponSkillView.set_model(self.weaponSkillStore)
-        #rows-reordered does nothing, and row-inserted still keeps the old row on.
-        #row-deleted is called last whenever a row is moved.
-        self.Connect(self.weaponSkillStore,'row-deleted',self.FromWeaponReorder)
         self.itemStore = TMH.ItemListStore(self.char)
         self.itemView.set_model(self.itemStore)
         self.BuildStatTable(self.char)
@@ -408,11 +405,36 @@ class MainWindow(object):
     def UpdateMisc(self,*args):
         self['playerName'].set_text(self.char.GetMisc('PlayerName'))
         self['characterName'].set_text(self.char.GetMisc('Name'))
-        self['profName'].set_text(self.char.GetMisc('Profession'))
-        self['raceName'].set_text(self.char.Race.Name if self.char.Race is not None else '')
-        self['cultureName'].set_text(self.char.Culture.Name if self.char.Culture is not None else '')
+        profName = self.char.GetMisc('Profession')
+        self['profName'].set_text(profName)
+        raceName = self.char.Race.Name if self.char.Race is not None else ''
+        self['raceName'].set_text(raceName)
+        cultureName = self.char.Culture.Name if self.char.Culture is not None else ''
+        self['cultureName'].set_text(cultureName)
         self['charLevel'].set_text(str(self.char.GetMisc('Level')))
         self['experience'].set_text(str(self.char.GetMisc('Experience')))
+
+        #Make the profession dropbox have the right selection.
+        for i,prof in enumerate(self._professions):
+            if prof.Name==profName:
+                self['profBox'].set_active(i)
+                break
+        else:
+            self['profBox'].set_active(-1)
+        #Same for races
+        for i,race in enumerate(self._races):
+            if race.Name==raceName:
+                self['raceBox'].set_active(i)
+                break
+        else:
+            self['raceBox'].set_active(-1)
+        #Same for cultures
+        for i,culture in enumerate(self._cultures):
+            if culture.Name==cultureName:
+                self['cultureBox'].set_active(i)
+                break
+        else:
+            self['cultureBox'].set_active(-1)
     def SetUpStatView(self):
         """
         Builds the TreeView for the stats.
