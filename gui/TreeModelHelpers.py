@@ -98,6 +98,25 @@ class ItemListStore(ValueListStore):
                  self.col('Bonuses'),bonus,
                  self.col('Description'),descrip)
 
+class TalentListStore(ValueListStore):
+    store_format = [
+        ('obj',gobject.TYPE_PYOBJECT),
+        ('Name',str),('Bonuses',str),('Description',str)
+        ]
+    names = {n:i for i,(n,t) in enumerate(store_format)}
+    def getVals(self,char):
+        return char.Talents
+    def UpdateVal(self,itIter):
+        it = self.get(itIter,self.col('obj'))[0]
+        name = it.Name if len(it.Name)<25 else it.Name[:25]+'...'
+        bonus = it.RelativeSaveString()
+        bonus = bonus if len(bonus)<25 else bonus[:25]+'...'
+        descrip = it.Description if len(it.Description)<25 else it.Description[:25]+'...'
+        self.set(itIter,
+                 self.col('Name'),name,
+                 self.col('Bonuses'),bonus,
+                 self.col('Description'),descrip)
+
 class SkillTreeStore(gtk.TreeStore,object):
     store_format = [
         ('obj',gobject.TYPE_PYOBJECT),

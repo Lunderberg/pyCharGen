@@ -61,6 +61,9 @@ class Character(object):
     def Items(self):
         return (val for val in self.graph if isinstance(val,Item))
     @property
+    def Talents(self):
+        return (val for val in self.graph if isinstance(val,Talent))
+    @property
     def Culture(self):
         try:
             return self._culture
@@ -165,7 +168,7 @@ class Character(object):
             level = self.GetMisc('Level') if level is None else level
             return 55 if level==0 else 12
     def DPspent(self):
-        return sum(sk.DPspent() for sk in self.Skills)
+        return sum(sk.DP for sk in self.Skills) + sum(sk.DP for sk in self.Talents)
     def DPallowed(self):
         return 50
     def SaveString(self):
@@ -286,7 +289,10 @@ class Value(object):
         return (sum(par.Bonus(self,levelled) for par in self.Parents if isinstance(par,Item))
                 +sum(par.Bonus(self,levelled) for par in self.Parents if par.NoBonus))
     def RelativeSaveString(self):
-        return ', '.join(Parser.escape_ID(par.Name) for par in self.graph.OwnedParents(self))
+        if self.graph is not None:
+            return ', '.join(Parser.escape_ID(par.Name) for par in self.graph.OwnedParents(self))
+        else:
+            return ''
     def CostSaveString(self):
         return ''
     def SaveString(self):
@@ -294,7 +300,7 @@ class Value(object):
         relatives = '{' + relatives + '}' if relatives else ''
         costs = self.CostSaveString()
         costs = '<' + costs + '>' if costs else ''
-        opts = ('[' + ', '.join(self.Options) + ']'
+        opts = ('[' + ', '.join(Parser.escape_ID(opt) for opt in self.Options) + ']'
                 if self.Options else '')
         val = (': ' + str(self.Value)
                if self.Value!=0 else '')
@@ -304,7 +310,10 @@ class Value(object):
         return '{0}: {1}'.format(self.Type,out)
     @staticmethod
     def FromLine(line):
-        return Parser.value.parseString(line)[0][1]
+        return Parser.value.parseString(line,parseAll=True)[0][1]
+    def Clone(self):
+        return Value.FromLine(self.SaveString())
+
 
 class Stat(Value):
     Type = 'Stat'
@@ -409,7 +418,8 @@ class Skill(Value):
             return parSkills[0].Depth+1
         else:
             return 0
-    def DPspent(self):
+    @property
+    def DP(self):
         return sum(self.Costs[:self.Delta])
 
 class MultiValue(Value):
@@ -482,6 +492,27 @@ class MultiValue(Value):
 
 class Item(MultiValue):
     Type = 'Item'
+
+class Talent(MultiValue):
+    Type = 'Talent'
+    @property
+    def DP(self):
+        for opt in self.Options:
+            if opt[:2]=='DP':
+                try:
+                    return int(opt[2:])
+                except:
+                    pass
+        else:
+            return 0
+    @DP.setter
+    def DP(self,val):
+        self.Options = [opt for opt in self.Options if opt[:3]!='DP']
+        if val!=0:
+            self.Options.append('DP' + '{0:+d}'.format(val))
+        self.Changed(False)
+    def ApplyLevelUp(self):
+        self.DP = 0
 
 class Race(MultiValue):
     Type = 'Race'

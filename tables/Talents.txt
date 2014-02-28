@@ -1,0 +1,13 @@
+Talent: Acute Hearing I {Perception+5} [DP\+4] "Applies only to hearing rolls"
+Talent: Acute Hearing II {Perception+10} [DP\+8] "Applies only to hearing rolls"
+Talent: Acute Hearing III {Perception+15} [DP\+12] "Applies only to hearing rolls"
+Talent: Acute Hearing IV {Perception+20} [DP\+16] "Applies only to hearing rolls"
+Talent: Acute Hearing V {Perception+25} [DP\+20] "Applies only to hearing rolls"
+Talent: Intense Eyes I {Influence+10, Leadership+10} [DP\+10] "Must make eye contact to use"
+Flaw: Look of Weasels I {Leadership-10} [DP\-10]
+Flaw: Look of Weasels II {Leadership-20} [DP\-20]
+Talent: Perfect Pitch I {Singing+10, Instrument+10} [DP\+5]
+Talent: Perfect Pitch II {Singing+20, Instrument+20} [DP\+10]
+Talent: Perfect Pitch III {Singing+30, Instrument+30} [DP\+15]
+Talent: Perfect Pitch IV {Singing+40, Instrument+40} [DP\+20]
+Talent: Perfect Pitch V {Singing+50, Instrument+50} [DP\+25]

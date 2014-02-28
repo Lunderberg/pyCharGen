@@ -88,8 +88,13 @@ class MainWindow(object):
         self.Connect(self['itemView'],'button-press-event',self.FromItemRightClick)
         self.Connect(self['rcAddItem'],'button-press-event',self.FromAddItem)
         self.Connect(self['newItemButton'],'clicked',self.FromAddItem)
-        self.Connect(self['rcDeleteItem'],'button-press-event',self.FromRemoveItem)
-        self.Connect(self['deleteItemButton'],'clicked',self.FromRemoveItem)
+        self.Connect(self['rcDeleteItem'],'button-press-event',self.FromRemoveBonus)
+        self.Connect(self['deleteBonusButton'],'clicked',self.FromRemoveBonus)
+        #Talent/Flaw modifying commands
+        self.Connect(self['talentView'],'button-press-event',self.FromTalentRightClick)
+        self.Connect(self['rcAddTalent'],'button-press-event',self.FromAddTalent)
+        self.Connect(self['newTalentButton'],'clicked',self.FromAddTalent)
+        self.Connect(self['rcDeleteTalent'],'button-press-event',self.FromRemoveBonus)
         #Character progression
         self.Connect(self['startingCharacterNextButton'],'clicked',self.NextTab)
         self.Connect(self['statNextButton'],'clicked',self.NextTab)
@@ -124,15 +129,18 @@ class MainWindow(object):
         self.SetUpWeaponSkillView()
         self.Connect(self['weaponOrderingView'],'drag-data-received',self.FromSkillReordered,True)
 
-        #Item modifications
-        self.activeItem = None
+        #Item, Talent/Flaw modifications
+        self.activeBonus = None
+        self.MakeTalentList()
         self.SetUpItemView()
+        self.SetUpTalentView()
         self.FromItemSelected()
         self.Connect(self['itemView'],'cursor-changed',self.FromItemSelected)
-        self.Connect(self['itemNameBox'],'changed',self.FromActiveItemNameChange)
-        self.Connect(self['itemBonusBox'],'changed',self.FromActiveItemBonusChange)
-        self.Connect(self['itemEnabledButton'],'toggled',self.FromActiveItemEnabledChange)
-        self.Connect(self['itemDescriptionBox'].get_buffer(),'changed',self.FromActiveItemDescriptionChange)
+        self.Connect(self['talentView'],'cursor-changed',self.FromTalentSelected)
+        self.Connect(self['bonusNameBox'],'changed',self.FromActiveBonusNameChange)
+        self.Connect(self['bonusBonusBox'],'changed',self.FromActiveBonusBonusChange)
+        self.Connect(self['bonusEnabledButton'],'toggled',self.FromActiveBonusEnabledChange)
+        self.Connect(self['bonusDescriptionBox'].get_buffer(),'changed',self.FromActiveBonusDescriptionChange)
 
         #Profession setup
         self.MakeProfessionList()
@@ -236,8 +244,10 @@ class MainWindow(object):
         #Register the updating functions
         self.registered = [
             ('Misc Changed',self.UpdateMisc),
+
             ('Stat Changed',self.OnStatChange),
             ('Stat Changed',self.statStore.OnValueChange),
+
             ('Skill Added',self.skillStore.OnValueAdd),
             ('Skill Added',self.skillListStore.OnValueAdd),
             ('Skill Added',self.weaponSkillStore.OnValueAdd),
@@ -250,11 +260,21 @@ class MainWindow(object):
             ('Skill Removed',self.weaponSkillStore.OnValueRemove),
             ('Values Reordered',self.skillStore.OnValueReorder),
             ('Values Reordered',self.weaponSkillStore.OnValueReorder),
+
             ('Resistance Changed',self.OnResistanceChange),
+
             ('Item Added',self.itemStore.OnValueAdd),
             ('Item Changed',self.itemStore.OnValueChange),
+            ('Item Changed',self.OnBonusChange),
             ('Item Removed',self.itemStore.OnValueRemove),
             ('Item Removed',self.OnItemRemove),
+
+            ('Talent Added',self.talentStore.OnValueAdd),
+            ('Talent Changed',self.talentStore.OnValueChange),
+            ('Talent Changed',self.OnBonusChange),
+            ('Talent Removed',self.talentStore.OnValueRemove),
+            ('Talent Removed',self.OnTalentRemove),
+
             ('Culture Added',self.OnCultureChange),
             ('Race Added',self.OnRaceChange),
             ]
@@ -375,6 +395,12 @@ class MainWindow(object):
         selection = self['raceBox'].get_active()
         self.char.Race = self._races[selection]
         self.Update()
+    def MakeTalentList(self):
+        self._talents = Parser.talentFile(resource('tables','Talents.txt'))
+        talentBox = self['talentBox']
+        combobox_boilerplate(talentBox)
+        for talent in self._talents:
+            talentBox.append_text(talent.Name)
     def UpdateAll(self,*args):
         """
         Refreshes all character information from self.char.
@@ -397,6 +423,8 @@ class MainWindow(object):
         self.weaponSkillView.set_model(self.weaponSkillStore)
         self.itemStore = TMH.ItemListStore(self.char)
         self.itemView.set_model(self.itemStore)
+        self.talentStore = TMH.TalentListStore(self.char)
+        self.talentView.set_model(self.talentStore)
         self.BuildStatTable(self.char)
         self.BuildResistanceTable(self.char)
         self.UpdateMisc()
@@ -490,19 +518,23 @@ class MainWindow(object):
         self.char.WeaponList = wid.OrderedSkills()
         self.Update()
     def SetUpItemView(self):
-        """
-        Builds the TreeView for the items.
-        """
+        """ Builds the TreeView for the items. """
         self.itemView = self['itemView']
         TMH.AddTextColumn(self.itemView,'Name',TMH.ItemListStore.col('Name'))
         TMH.AddTextColumn(self.itemView,'Bonuses',TMH.ItemListStore.col('Bonuses'))
         TMH.AddTextColumn(self.itemView,'Description',TMH.ItemListStore.col('Description'))
 
         TMH.RightClickToggle(self.itemView)
+    def SetUpTalentView(self):
+        """ Builds the TreeView for the talents/flaws. """
+        self.talentView = self['talentView']
+        TMH.AddTextColumn(self.talentView,'Name',TMH.TalentListStore.col('Name'))
+        TMH.AddTextColumn(self.talentView,'Bonuses',TMH.TalentListStore.col('Bonuses'))
+        TMH.AddTextColumn(self.talentView,'Description',TMH.TalentListStore.col('Description'))
+
+        TMH.RightClickToggle(self.talentView)
     def BuildStatTable(self,char):
-        """
-        Clears out and constructs the Stat table on the Overview tab.
-        """
+        """ Clears out and constructs the Stat table on the Overview tab. """
         #Clear it.
         self.statWidgets = {}
         stTable = self['statTable']
@@ -779,45 +811,74 @@ class MainWindow(object):
         model,itIter = selection.get_selected()
         if itIter is not None:
             item = model.get(itIter,TMH.ItemListStore.col('obj'))[0]
-            self.activeItem = item
+            self.activeBonus = item
             self.Block()
-            self.OnItemChange(item)
+            self.OnBonusChange(item)
             self.Unblock()
-        self.ItemSensitivity()
-    def ItemSensitivity(self):
-        for widName in ['itemNameBox','itemBonusBox','itemDescriptionBox','itemEnabledButton']:
+        self.BonusSensitivity()
+    def FromTalentSelected(self,*args):
+        selection = self.talentView.get_selection()
+        model,itIter = selection.get_selected()
+        if itIter is not None:
+            talent = model.get(itIter,TMH.ItemListStore.col('obj'))[0]
+            self.activeBonus = talent
+            self.Block()
+            self.OnBonusChange(talent)
+            self.Unblock()
+        self.BonusSensitivity()
+    def BonusSensitivity(self):
+        for widName in ['bonusNameBox','bonusBonusBox','bonusDescriptionBox','bonusEnabledButton']:
             wid = self[widName]
-            wid.set_sensitive(self.activeItem is not None)
-    def OnItemChange(self,item):
-        if item is self.activeItem and item is not None:
-            self['itemNameBox'].set_text(item.Name)
-            self['itemBonusBox'].set_text(item.RelativeSaveString())
-            self['itemEnabledButton'].set_active(not item.NoBonus)
-            better_set_text(self['itemDescriptionBox'].get_buffer(),item.Description)
+            wid.set_sensitive(self.activeBonus is not None)
+    def OnBonusChange(self,val):
+        if val is self.activeBonus and val is not None:
+            self['bonusNameBox'].set_text(val.Name)
+            self['bonusBonusBox'].set_text(val.RelativeSaveString())
+            self['bonusEnabledButton'].set_active(not val.NoBonus)
+            better_set_text(self['bonusDescriptionBox'].get_buffer(),val.Description)
+            self['talentDPlabel'].set_text('DP Cost: {}'.format(val.DP) if val.Type=='Talent' else '')
     def OnItemRemove(self,item):
-        self.activeItem = None
-        self.ItemSensitivity()
+        if self.activeBonus.Type=='Item':
+            self.activeBonus = None
+            self.BonusSensitivity()
+    def OnTalentRemove(self,item):
+        if self.activeBonus.Type=='Talent':
+            self.activeBonus = None
+            self.BonusSensitivity()
     def FromItemRightClick(self,widget,event):
         if event.button==3:
             self['rcItemMenu'].popup(
+                None,None,None,event.button,event.time)
+    def FromTalentRightClick(self,widget,event):
+        if event.button==3:
+            self['rcTalentMenu'].popup(
                 None,None,None,event.button,event.time)
     def FromAddItem(self,*args):
         newItem = Character.Item(None,Name='New Item')
         self.char.AddVal(newItem)
         self.Update()
-    def FromRemoveItem(self,*args):
-        if self.activeItem is None:
+    def FromAddTalent(self,*args):
+        selection = self['talentBox'].get_active()
+        if selection>=0:
+            talent = self._talents[selection].Clone()
+        else:
+            talent = Character.Talent(None,Name='New Talent')
+        import IPython; IPython.embed()
+        self.char.AddVal(talent)
+        self.Update()
+    def FromRemoveBonus(self,*args):
+        if self.activeBonus is None:
             return
         dialog = gtk.Dialog('Are you sure?', self.window,
                             gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
                             (gtk.STOCK_NO,gtk.RESPONSE_CANCEL,
                              gtk.STOCK_YES,gtk.RESPONSE_OK))
-        dialog.vbox.pack_start(gtk.Label("Are you sure you want to delete '{0}'".format(self.activeItem.Name)))
+        dialog.vbox.pack_start(gtk.Label("Are you sure you want to delete '{0}'".format(self.activeBonus.Name)))
         dialog.show_all()
         result = dialog.run()
         dialog.destroy()
         if result==gtk.RESPONSE_OK:
-            self.char.RemoveVal(self.activeItem)
+            self.char.RemoveVal(self.activeBonus)
         self.Update()
     def FromActiveStatNameChange(self,widget):
         if self.activeStat is not None:
@@ -862,21 +923,21 @@ class MainWindow(object):
             text = widget.get_text(widget.get_start_iter(),widget.get_end_iter())
             self.activeSkill.Description = text
         self.Update()
-    def FromActiveItemNameChange(self,widget):
-        if self.activeItem is not None:
-            self.activeItem.Name = widget.get_text()
+    def FromActiveBonusNameChange(self,widget):
+        if self.activeBonus is not None:
+            self.activeBonus.Name = widget.get_text()
         self.Update()
-    def FromActiveItemBonusChange(self,widget):
-        if self.activeItem is not None:
-            self.activeItem.ChangeBonuses(widget.get_text())
+    def FromActiveBonusBonusChange(self,widget):
+        if self.activeBonus is not None:
+            self.activeBonus.ChangeBonuses(widget.get_text())
         self.Update()
-    def FromActiveItemEnabledChange(self,widget):
-        if self.activeItem is not None:
-            self.activeItem.NoBonus = not widget.get_active()
+    def FromActiveBonusEnabledChange(self,widget):
+        if self.activeBonus is not None:
+            self.activeBonus.NoBonus = not widget.get_active()
         self.Update()
-    def FromActiveItemDescriptionChange(self,widget):
-        if self.activeItem is not None:
-            self.activeItem.Description = widget.get_text(widget.get_start_iter(),
+    def FromActiveBonusDescriptionChange(self,widget):
+        if self.activeBonus is not None:
+            self.activeBonus.Description = widget.get_text(widget.get_start_iter(),
                                                           widget.get_end_iter())
         self.Update()
     def OkayToLevel(self):

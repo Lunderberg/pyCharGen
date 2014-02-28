@@ -9,17 +9,8 @@ import Character
 import CulturePrototype
 import Profession
 
-
-###################################
-### Here are the older parsing things that I currently have
-###################################
-def stripComments(text):
-    return re.sub(r'(^|[^\\])#.*',r'\1',text)
-
-
-
 ##################################
-### Here is the new form of parsing that I am working on
+### Common things that will be used throughout
 ##################################
 def litSup(literal):
     return Literal(literal).suppress()
@@ -66,6 +57,10 @@ def escape_ID(unescaped):
                     for s in unescaped)
 
 description = (litSup('"') + ID('desc') + litSup('"'))
+
+###################################
+### Now, actually defining some syntax
+###################################
 
 def makeKeyword(m):
     return (m['keyword'],m['value'])
@@ -142,6 +137,24 @@ item = (litSup('Item') + litSup(':')
         + Optional(description,'')('desc')
         ).setParseAction(makeItem)
 
+def makeTalent(m):
+    output = Character.Talent(Name=m['name'],
+                  Options=m['options']['[]'],
+                  Description=m['desc'][0])
+    output.SetChildValues(m['options']['{}'])
+    return ('Talent',output)
+talent = ((litSup('Talent') | litSup('Flaw')) + litSup(':')
+          + ID('name')
+          + itemOptions(IDbonus,'{}',
+                        ID,'[]')('options')
+          + Optional(description,'')('desc')
+          ).setParseAction(makeTalent)
+
+def talentFile(filename):
+    pattern = Group(OneOrMore(talent)).ignore(pythonStyleComment)
+    output = pattern.parseFile(filename,parseAll=True)[0]
+    return [t for tag,t in output]
+
 
 def makeRace(m):
     output = Character.Race(Name=m['name'],
@@ -193,14 +206,14 @@ def cultureFile(filename):
 
 
 value = (keyword | keywordInt | weaponcosts | stat
-         | skill | resistance | item | race | culture)
+         | skill | resistance | item | race | culture | talent)
 
 def makeCharacter(m):
     output = Character.Character()
     for tag,item in m:
         if tag in ['Name','PlayerName','Profession','Level','Experience']:
             output.SetMisc(tag,item)
-        elif tag in ['Stat','Skill','Resistance','Item']:
+        elif tag in ['Stat','Skill','Resistance','Item','Talent']:
             output.AddVal(item)
         elif tag=='Culture':
             output.Culture = item
