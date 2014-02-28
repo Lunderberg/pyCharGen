@@ -2,4 +2,6 @@
 
 from gui import MainWindow
 
-MainWindow.Run()
+version = 'v1.2, prelim'
+
+MainWindow.Run(version)

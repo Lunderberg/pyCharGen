@@ -986,8 +986,9 @@ class MainWindow(object):
 
 
 
-def Run():
+def Run(version=''):
     gui = MainWindow()
+    gui['versionLabel'].set_text(version)
     gui.Show()
     if len(sys.argv)>=2:
         gui.LoadFile(sys.argv[1])
