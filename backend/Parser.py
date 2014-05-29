@@ -99,7 +99,9 @@ stat = (litSup('Stat') + litSup(':')
         ).setParseAction(makeStat)
 
 def makeSkill(m):
-    output = Character.Skill(Name=m['name'],Value=m['value'] if 'value' in m else None,
+    value = m['value'] if 'value' in m else None
+    delta = m['delta'] if 'delta' in m else None
+    output = Character.Skill(Name=m['name'],Value=value,Delta=delta,
                              Options=m['options']['[]'],Parents=m['options']['{}'],
                              Costs=m['options']['<>'],
                              Description=m['desc'][0])
@@ -109,7 +111,7 @@ skill = (litSup('Skill') + litSup(':')
          + itemOptions(ID,'{}',
                        ID,'[]',
                        number,'<>')('options')
-         + Optional(litSup(':') + number('value'))
+         + Optional(litSup(':') + number('value') + Optional(number('delta')))
          + Optional(description,'')('desc')
          ).setParseAction(makeSkill)
 

@@ -194,7 +194,7 @@ class Value(object):
     Type = 'Value'
     _escape_chars = [('\n',r'\n'),
                      ('"','\\"'),]
-    def __init__(self,Value=None,Name='',Parents=None,Children=None,Options=None,Description=""):
+    def __init__(self,Value=None,Name='',Parents=None,Children=None,Options=None,Description="",Delta=0):
         self.Events = lambda *args:None
         self.graph = None
         self.Name = Name
@@ -204,7 +204,7 @@ class Value(object):
         self._value = None
         self.Value = Value
         self.Description = Description
-        self.Delta = 0
+        self.Delta = Delta
     def __repr__(self):
         return '{0}(Value={4}, Name="{1}", Options={2}, Parents={3}, Description="{5}")'.format(
             self.Type,self.Name,self.Options,self.requestedParents,self.Value,self.Description)
@@ -303,7 +303,7 @@ class Value(object):
         opts = ('[' + ', '.join(Parser.escape_ID(opt) for opt in self.Options) + ']'
                 if self.Options else '')
         val = (': ' + str(self.Value)
-               if self.Value!=0 else '')
+               if self.Value else '')
         descript = Parser.escape_ID(self.Description) if self.Description else ''
         descript = ('"' + descript + '"') if descript else ''
         out = ' '.join(s for s in [Parser.escape_ID(self.Name),relatives,opts,costs,val,descript] if s)
