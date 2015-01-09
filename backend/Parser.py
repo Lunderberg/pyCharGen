@@ -99,8 +99,8 @@ stat = (litSup('Stat') + litSup(':')
         ).setParseAction(makeStat)
 
 def makeSkill(m):
-    value = m['value'] if 'value' in m else None
-    delta = m['delta'] if 'delta' in m else None
+    value = m['value'] if 'value' in m else 0
+    delta = m['delta'] if 'delta' in m else 0
     output = Character.Skill(Name=m['name'],Value=value,Delta=delta,
                              Options=m['options']['[]'],Parents=m['options']['{}'],
                              Costs=m['options']['<>'],
