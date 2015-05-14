@@ -87,7 +87,7 @@ weaponcosts = (litSup('WeaponCosts') + litSup(':')
                ).setParseAction(makeWeaponCosts)
 
 def makeStat(m):
-    return ('Stat',Character.Stat(Name=m['name'],Value=m['value'],
+    return ('Stat',Character.Stat(Name=m['name'],RawValue=m['value'],
                         Options=m['options']['[]'],
                         Parents=m['options']['{}'],
                         Description=m['desc'][0]))
@@ -101,7 +101,7 @@ stat = (litSup('Stat') + litSup(':')
 def makeSkill(m):
     value = m['value'] if 'value' in m else 0
     delta = m['delta'] if 'delta' in m else 0
-    output = Character.Skill(Name=m['name'],Value=value,Delta=delta,
+    output = Character.Skill(Name=m['name'],RawValue=value,Delta=delta,
                              Options=m['options']['[]'],Parents=m['options']['{}'],
                              Costs=m['options']['<>'],
                              Description=m['desc'][0])

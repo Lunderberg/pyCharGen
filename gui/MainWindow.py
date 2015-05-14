@@ -352,7 +352,7 @@ class MainWindow(object):
             self.PreviousTab()
         elif ctrl and name in ['1','2','3','4','5','6','7','8','9']:
             val = int(name)-1
-            adjustment = (self.char.GetMisc('Level')!=0) and (val>=1)
+            adjustment = (self.char.GetMisc('Level')!=1) and (val>=1)
             self['mainTabs'].set_current_page(val+adjustment)
         else:
             return False
@@ -600,7 +600,7 @@ class MainWindow(object):
         if self.char is None:
             return
         level = self.char.GetMisc('Level')
-        if level==0:
+        if level==1:
             self['statLevellingUpFrame'].hide()
             self['mainTabs'].get_nth_page(1).show()
             self['startStatFrame'].show()
@@ -631,7 +631,7 @@ class MainWindow(object):
         adj.set_lower(0)
         adj.set_upper(100-stat.Value)
         adj.set_value(stat.Delta)
-        self['postLevelStatBonus'].set_text(str(stat.ValueBonus(levelled=True)))
+        #self['postLevelStatBonus'].set_text(str(stat.ValueBonus(levelled=True)))
     def UpdateActiveSkill(self,skill):
         self['skillNameBox'].set_text(skill.Name)
         self['skillRankBox'].set_text(str(skill.Value))
@@ -642,8 +642,8 @@ class MainWindow(object):
         self['skillBonusLabel'].set_text(str(skill.Bonus()))
         better_set_text(self['skillDescriptionBox'].get_buffer(),skill.Description)
         self.BuildRanksButtons(skill)
-        self['postLevelSkillRanks'].set_text(str(skill.Value+skill.Delta))
-        self['postLevelSkillBonus'].set_text(str(skill.ValueBonus(levelled=True)))
+        # self['postLevelSkillRanks'].set_text(str(skill.Value+skill.Delta))
+        # self['postLevelSkillBonus'].set_text(str(skill.ValueBonus(levelled=True)))
     def BuildRanksButtons(self,skill):
         """
         Builds the buttons to be pressed to select the skill ranks to be bought.
@@ -759,7 +759,7 @@ class MainWindow(object):
         if stat is self.activeStat and stat is not None:
             self.UpdateActiveStat(stat)
         self['SPspentLabel'].set_text('Stat Points Spent: {0}/{1}'.format(
-                self.char.StatPoints(levelled=True)-self.char.StatPoints(),
+                self.char.StatPoints()-self.char.StatPoints(unlevelled=True),
                 self.char.StatPointsAllowed()))
         self['potlSPspent'].set_text("Pot'l Stat Points Spent: {0}/{1}".format(
                 self.char.StatPoints(potl=True), self.char.StatPointsAllowed(potl=True)))
@@ -863,7 +863,6 @@ class MainWindow(object):
             talent = self._talents[selection].Clone()
         else:
             talent = Character.Talent(None,Name='New Talent')
-        import IPython; IPython.embed()
         self.char.AddVal(talent)
         self.Update()
     def FromRemoveBonus(self,*args):
@@ -943,27 +942,27 @@ class MainWindow(object):
     def OkayToLevel(self):
         unspentInitStatPoints = self.char.StatPointsAllowed()-self.char.StatPoints()
         unspentPotlStatPoints = self.char.StatPointsAllowed(potl=True)-self.char.StatPoints(potl=True)
-        unspentStatDevelPoints = self.char.StatPointsAllowed()+self.char.StatPoints() - self.char.StatPoints(levelled=True)
+        unspentStatDevelPoints = self.char.StatPointsAllowed() + self.char.StatPoints(unlevelled=True) - self.char.StatPoints()
         unspentSkillPoints = self.char.DPallowed() - self.char.DPspent()
         level = self.char.GetMisc('Level')
 
         conditions = [
-            (unspentInitStatPoints>0 and level==0,
+            (unspentInitStatPoints>0 and level==1,
              "Undistributed Stat Points",
              "You can distribute {0} more stat points.\nAre you sure you want to continue?".format(unspentInitStatPoints)),
-            (unspentInitStatPoints<0 and level==0,
+            (unspentInitStatPoints<0 and level==1,
              "Starting Stats Too High",
              "You distributed {0} extra stat points.\nAre you sure you want to continue?".format(-unspentInitStatPoints)),
-            (unspentPotlStatPoints>0 and level==0,
+            (unspentPotlStatPoints>0 and level==1,
              "Undistributed Pot'l Stat Points",
              "You can distribute {0} more potential stat points.\nAre you sure you want to continue?".format(unspentPotlStatPoints)),
-            (unspentPotlStatPoints<0 and level==0,
+            (unspentPotlStatPoints<0 and level==1,
              "Potential Stats Too High",
              "You distributed {0} extra potential stat points.\nAre you sure you want to continue?".format(-unspentPotlStatPoints)),
-            (unspentStatDevelPoints>0 and level>0,
+            (unspentStatDevelPoints>0 and level>1,
              "Stat Points Unspent",
              "You have {0} unspent stat points.\nAre you sure you want to continue?".format(unspentStatDevelPoints)),
-            (unspentStatDevelPoints<0 and level>0,
+            (unspentStatDevelPoints<0 and level>1,
              "Too Many Stat Points",
              "You spent {0} extra stat points.\nAre you sure you want to continue?".format(-unspentStatDevelPoints)),
             (unspentSkillPoints>0,

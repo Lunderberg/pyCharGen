@@ -122,7 +122,8 @@ class SkillTreeStore(gtk.TreeStore,object):
         ('obj',gobject.TYPE_PYOBJECT),
         ('Name',str),('Ranks',int),('ValueBonus',int),('Bonus',int),
         ('Parents',str),('CommonlyUsed',bool),('HasBonus',bool),
-        ('Delta',int),('NewRanks',int),('NewValueBonus',int),('NewBonus',int),
+        ('Delta',int),
+        #('NewRanks',int),('NewValueBonus',int),('NewBonus',int),
         ]
     names = {n:i for i,(n,t) in enumerate(store_format)}
     types = [t for n,t in store_format]
@@ -171,9 +172,9 @@ class SkillTreeStore(gtk.TreeStore,object):
                  self.col('CommonlyUsed'),sk.CommonlyUsed,
                  self.col('HasBonus'),not sk.NoBonus,
                  self.col('Delta'),sk.Delta,
-                 self.col('NewRanks'),sk.Value+sk.Delta,
-                 self.col('NewValueBonus'),sk.ValueBonus(levelled=True),
-                 self.col('NewBonus'),sk.Bonus(levelled=True),
+                 # self.col('NewRanks'),sk.Value+sk.Delta,
+                 # self.col('NewValueBonus'),sk.ValueBonus(levelled=True),
+                 # self.col('NewBonus'),sk.Bonus(levelled=True),
                  )
     def OnValueAdd(self,skill):
         pars = list(skill.Parents)

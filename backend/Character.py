@@ -159,14 +159,14 @@ class Character(object):
                 return cost
         else:
             return []
-    def StatPoints(self,levelled=False,potl=False):
-        return sum(st.Points(levelled,potl) for st in self.Stats)
+    def StatPoints(self,unlevelled=False, potl=False):
+        return sum(st.Points(unlevelled,potl) for st in self.Stats)
     def StatPointsAllowed(self,level=None,potl=False):
         if potl:
             return 355
         else:
             level = self.GetMisc('Level') if level is None else level
-            return 55 if level==0 else 12
+            return 55 if level==1 else 12
     def DPspent(self):
         return sum(sk.DP for sk in self.Skills) + sum(sk.DP for sk in self.Talents)
     def DPallowed(self):
@@ -194,17 +194,16 @@ class Value(object):
     Type = 'Value'
     _escape_chars = [('\n',r'\n'),
                      ('"','\\"'),]
-    def __init__(self,Value=None,Name='',Parents=None,Children=None,Options=None,Description="",Delta=0):
+    def __init__(self,RawValue=None,Name='',Parents=None,Children=None,Options=None,Description="",Delta=0):
         self.Events = lambda *args:None
         self.graph = None
         self.Name = Name
         self.requestedParents = [] if Parents is None else Parents
         self.requestedChildren = [] if Children is None else Children
         self.Options = [] if Options is None else Options
-        self._value = None
-        self.Value = Value
-        self.Description = Description
+        self.RawValue = RawValue
         self.Delta = Delta
+        self.Description = Description
     def __repr__(self):
         return '{0}(Value={4}, Name="{1}", Options={2}, Parents={3}, Description="{5}")'.format(
             self.Type,self.Name,self.Options,self.requestedParents,self.Value,self.Description)
@@ -228,12 +227,20 @@ class Value(object):
         else:
             return []
     @property
-    def Value(self):
-        return 0 if self._value is None else self._value
-    @Value.setter
-    def Value(self,val):
+    def RawValue(self):
+        return self._value
+    @RawValue.setter
+    def RawValue(self,val):
         if self.IsValid(val):
             self._value = val
+            self.Changed()
+    @property
+    def Value(self):
+        return 0 if self._value is None else self._value + self._delta
+    @Value.setter
+    def Value(self,val):
+        if self.IsValid(val - self._delta):
+            self._value = val - self._delta
             self.Changed()
     @property
     def _valueAndExtra(self):
@@ -274,20 +281,20 @@ class Value(object):
         if self.Value is not None:
             self.Value += self.Delta
             self.Delta = 0
-    def ValueBonus(self,asker=None,levelled=False):
+    def ValueBonus(self,asker=None):
         return 0
-    def ExtraValue(self,asker=None,levelled=False):
+    def ExtraValue(self,asker=None):
         return 0
-    def Bonus(self,asker=None,levelled=False,verbose=False):
-        return self.ValueBonus(asker,levelled) + sum(par.Bonus(self,levelled) for par in self.Parents)
-    def CategoryBonus(self,asker=None,levelled=False):
-        return sum(par.Bonus(self,levelled) for par in self.Parents if isinstance(par,Skill) and not par.NoBonus)
-    def StatBonus(self,asker=None,levelled=False):
-        return (sum(par.Bonus(self,levelled) for par in self.Parents if isinstance(par,Stat))
-               + sum(par.StatBonus(self,levelled) for par in self.Parents if par.NoBonus))
-    def ItemBonus(self,asker=None,levelled=False):
-        return (sum(par.Bonus(self,levelled) for par in self.Parents if isinstance(par,Item))
-                +sum(par.Bonus(self,levelled) for par in self.Parents if par.NoBonus))
+    def Bonus(self,asker=None,verbose=False):
+        return self.ValueBonus(asker) + sum(par.Bonus(self) for par in self.Parents)
+    def CategoryBonus(self,asker=None):
+        return sum(par.Bonus(self) for par in self.Parents if isinstance(par,Skill) and not par.NoBonus)
+    def StatBonus(self,asker=None):
+        return (sum(par.Bonus(self) for par in self.Parents if isinstance(par,Stat))
+               + sum(par.StatBonus(self) for par in self.Parents if par.NoBonus))
+    def ItemBonus(self,asker=None):
+        return (sum(par.Bonus(self) for par in self.Parents if isinstance(par,Item))
+                +sum(par.Bonus(self) for par in self.Parents if par.NoBonus))
     def RelativeSaveString(self):
         if self.graph is not None:
             return ', '.join(Parser.escape_ID(par.Name) for par in self.graph.OwnedParents(self))
@@ -349,20 +356,20 @@ class Stat(Value):
         self.Changed(False)
     def IsValid(self,val):
         return 1 <= val <= 100
-    def ValueBonus(self,asker=None,levelled=False,potl=False):
+    def ValueBonus(self,asker=None,potl=False):
         if self.NoBonus:
             return 0
         elif potl:
             return _statBonuses(self.Max)
         else:
-            return _statBonuses(self._valueAndExtra + (self.Delta if levelled else 0))
-    def Points(self,levelled=False,potl=False):
+            return _statBonuses(self._valueAndExtra + self.Delta)
+    def Points(self,unlevelled=False, potl=False):
         if self.NoBonus:
             return 0
         elif potl:
             return _statBonuses(self.Max,item=1)
         else:
-            return _statBonuses(self._valueAndExtra + (self.Delta if levelled else 0),item=1)
+            return _statBonuses(self._valueAndExtra + (0 if unlevelled else self.Delta),item=1)
 
 class Resistance(Value):
     Type = 'Resistance'
@@ -375,8 +382,8 @@ class Skill(Value):
     def __repr__(self):
         return '{0}(Value={4}, Name="{1}", Options={2}, Parents={3}, Costs={5},Description="{6}")'.format(
             self.Type,self.Name,self.Options,self.requestedParents,self.Value,self.Costs,self.Description)
-    def ValueBonus(self,asker=None,levelled=False):
-        return 0 if self.NoBonus else _skillBonuses(self._valueAndExtra + (self.Delta if levelled else 0))
+    def ValueBonus(self,asker=None):
+        return 0 if self.NoBonus else _skillBonuses(self._valueAndExtra + self.Delta)
     @property
     def CommonlyUsed(self):
         return 'CommonlyUsed' in self.Options
@@ -473,7 +480,7 @@ class MultiValue(Value):
                              for name,val,ranks in self.ChildValues)
         else:
             return ''
-    def ExtraValue(self,asker=None,levelled=False):
+    def ExtraValue(self,asker=None):
         if asker is None or self.NoBonus:
             return 0
         for name,bonus,ranks in self.ChildValues:
@@ -481,7 +488,7 @@ class MultiValue(Value):
                 return bonus
         else:
             return 0
-    def ValueBonus(self,asker=None,levelled=False):
+    def ValueBonus(self,asker=None):
         if asker is None or self.NoBonus:
             return 0
         for name,bonus,ranks in self.ChildValues:
