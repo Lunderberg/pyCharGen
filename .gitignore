@@ -3,7 +3,13 @@
 *.tar.gz
 *.zip
 *.log
-build/build
-build/dist
 include
 #*#
+
+
+build/build
+build/dist
+build/pyCharGen_windows
+build/pyCharGen_linux
+build/venv
+build/wine-folder

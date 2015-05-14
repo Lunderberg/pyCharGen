@@ -18,10 +18,10 @@ exe = EXE(pyz,
           a.binaries + extra_binaries,
           a.zipfiles,
           a.datas + extra_datas,
-          name=os.path.join('dist', 'pyCharGen.exe'),
+          name='pyCharGen.exe',
           debug=False,
           strip=None,
           upx=True,
           console=False )
 app = BUNDLE(exe,
-             name=os.path.join('dist', 'pyCharGen.exe.app'))
+             name='pyCharGen.exe.app')
