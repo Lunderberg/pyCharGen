@@ -2,7 +2,7 @@ Name:
 PlayerName:
 Profession:
 Level: 1
-Experience: 1000
+Experience: 10000
 
 #Stats
 #------------------------
