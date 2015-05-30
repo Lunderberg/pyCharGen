@@ -336,9 +336,10 @@ class Stat(Value):
             return 1
     @Min.setter
     def Min(self,val):
-        self.Options = [opt for opt in self.Options if opt[:3]!='Min']
-        self.Options.append('Min' + '{0:+d}'.format(val))
-        self.Changed(False)
+        if self.IsValid(val):
+            self.Options = [opt for opt in self.Options if opt[:3]!='Min']
+            self.Options.append('Min' + '{0:+d}'.format(val))
+            self.Changed(False)
     @property
     def Max(self):
         for opt in self.Options:
@@ -351,9 +352,10 @@ class Stat(Value):
             return 50
     @Max.setter
     def Max(self,val):
-        self.Options = [opt for opt in self.Options if opt[:3]!='Max']
-        self.Options.append('Max' + '{0:+d}'.format(val))
-        self.Changed(False)
+        if self.IsValid(val):
+            self.Options = [opt for opt in self.Options if opt[:3]!='Max']
+            self.Options.append('Max' + '{0:+d}'.format(val))
+            self.Changed(False)
     def IsValid(self,val):
         return 1 <= val <= 100
     def ValueBonus(self,asker=None,potl=False):
