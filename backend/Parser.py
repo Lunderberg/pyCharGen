@@ -87,14 +87,18 @@ weaponcosts = (litSup('WeaponCosts') + litSup(':')
                ).setParseAction(makeWeaponCosts)
 
 def makeStat(m):
-    return ('Stat',Character.Stat(Name=m['name'],RawValue=m['value'],
-                        Options=m['options']['[]'],
-                        Parents=m['options']['{}'],
-                        Description=m['desc'][0]))
+    delta = m['delta'] if 'delta' in m else 0
+    return ('Stat',Character.Stat(Name=m['name'],
+                                  RawValue=m['rawvalue'], Delta=delta,
+                                  Options=m['options']['[]'],
+                                  Parents=m['options']['{}'],
+                                  Description=m['desc'][0]))
+
 stat = (litSup('Stat') + litSup(':')
         + ID('name')
         + itemOptions(ID,'[]')('options')
-        + litSup(':') + number('value')
+        + litSup(':') + number('rawvalue')
+        + Optional(number('delta'))
         + Optional(description,'')('desc')
         ).setParseAction(makeStat)
 

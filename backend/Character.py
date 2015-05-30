@@ -309,8 +309,12 @@ class Value(object):
         costs = '<' + costs + '>' if costs else ''
         opts = ('[' + ', '.join(Parser.escape_ID(opt) for opt in self.Options) + ']'
                 if self.Options else '')
-        val = (': ' + str(self.Value)
-               if self.Value else '')
+        if self.Delta:
+            val = ': {}{:+d}'.format(self.RawValue, self.Delta)
+        elif self.RawValue:
+            val = ': {}'.format(self.RawValue)
+        else:
+            val = ''
         descript = Parser.escape_ID(self.Description) if self.Description else ''
         descript = ('"' + descript + '"') if descript else ''
         out = ' '.join(s for s in [Parser.escape_ID(self.Name),relatives,opts,costs,val,descript] if s)
