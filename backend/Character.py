@@ -172,7 +172,8 @@ class Character(object):
     def DPallowed(self):
         return 50
     def SaveString(self):
-        lines = ['{0}: {1}'.format(Parser.escape_ID(k),v) for k,v in self.MiscVals.items()]
+        lines = ['{0}: {1}'.format(Parser.escape_ID(k),Parser.escape_ID(str(v)))
+                 for k,v in self.MiscVals.items()]
         lines += ['WeaponCosts: ' + ' '.join('<' + ','.join(str(i) for i in ilist) + '>'
                                              for ilist in self.WeaponCostList)]
         #Escape all the character-based lines.
