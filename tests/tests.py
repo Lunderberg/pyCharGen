@@ -53,11 +53,6 @@ class TestStatSkill(unittest.TestCase):
         self.assertEqual(testSkill.ValueBonus(),90)
         testSkill.Value = 35
         self.assertEqual(testSkill.ValueBonus(),105)
-    def test_skill_delta(self):
-        testSkill = Character.Skill(0)
-        testSkill.Delta = 5
-        self.assertEqual(testSkill.ValueBonus(),-25)
-        self.assertEqual(testSkill.ValueBonus(levelled=True),25)
     def test_stat_minmax(self):
         testStat = Character.Stat(50)
         testStat.Min = 5
